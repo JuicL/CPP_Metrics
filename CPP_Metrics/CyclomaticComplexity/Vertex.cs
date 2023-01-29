@@ -17,7 +17,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         Do,
         Switch,
         Jump,
-        Case // надо ли
+        Case
     }
     public class CyclomaticVertex : IVertex
     {
