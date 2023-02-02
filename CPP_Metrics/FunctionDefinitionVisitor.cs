@@ -1,6 +1,8 @@
 ﻿
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using CPP_Metrics.Tool;
+using CPP_Metrics.Types;
 
 namespace CPP_Metrics
 {
@@ -11,9 +13,7 @@ namespace CPP_Metrics
         public string? FunctionName { get; private set; }
         public string? NestedName { get; private set; }
         public List<Parameter> Parameters { get; private set; } = new List<Parameter>();
-        /*
-         !!! Деструктор
-         */
+       
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
             return true;
@@ -23,7 +23,6 @@ namespace CPP_Metrics
             var typeVisitor = new TypeVisitor();
             Analyzer.Analyze(context, typeVisitor);
             ReturnType = typeVisitor.Type;
-
             return false;
         }
         
@@ -52,6 +51,14 @@ namespace CPP_Metrics
                 + context.children.Last().GetTerminalNodes().First().GetText(); // theOperator 
             
         }
+        /*
+         Identifier+
+	    |   operatorFunctionId+
+	    | conversionFunctionId
+	    | literalOperatorId(?)
+	    | Tilde (className+ | decltypeSpecifier)
+	    | templateId;
+         */
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
             var type = context.children.Last();
@@ -67,7 +74,6 @@ namespace CPP_Metrics
                     ParseDestructor(context);
                     break;
                 case CPP14Parser.DecltypeSpecifierContext:
-
                     break;
                 case CPP14Parser.OperatorFunctionIdContext:
                     ParseOperatorFunctionId((CPP14Parser.OperatorFunctionIdContext)context.children.First());
@@ -86,16 +92,16 @@ namespace CPP_Metrics
         // Nestedname class
         public override bool VisitClassName([NotNull] CPP14Parser.ClassNameContext context)
         {
-            var name = context.GetTerminalNodes().First().GetText();
-            if(name == null) return true;
+            //var name = context.GetTerminalNodes().FirstOrDefault()?.GetText();
+            //if(name is null) return true;
             
-            NestedName = name;
+            //NestedName = name;
             return false;
         }
-
+        //VisitNested
         public override bool VisitTemplateName([NotNull] CPP14Parser.TemplateNameContext context)
         {
-            NestedName = context.GetTerminalNodes().First().GetText();
+            //NestedName = context.GetTerminalNodes().First().GetText();
             return false;
         }
 
@@ -104,10 +110,6 @@ namespace CPP_Metrics
             var noPointerDecl = context.children.FirstOrDefault(x => x is CPP14Parser.NoPointerDeclaratorContext);
             if(noPointerDecl is null) 
                 return true;
-
-            //var visitor = new NameVisitor();
-            //Analyzer.Analyze(noPointerDecl, visitor);   
-            //FunctionName = visitor?.Name;
 
             return true;
         }
@@ -122,6 +124,11 @@ namespace CPP_Metrics
 
         public override bool VisitFunctionBody([NotNull] CPP14Parser.FunctionBodyContext context)
         {
+            /*
+            constructorInitializer? compoundStatement
+	        | functionTryBlock
+	        | Assign (Default | Delete) Semi;
+             */
             return false;
         }
 

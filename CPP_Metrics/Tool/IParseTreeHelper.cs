@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Tool
 {
     public static class IParseTreeHelper
     {

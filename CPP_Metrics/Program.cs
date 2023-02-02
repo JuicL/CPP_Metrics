@@ -2,6 +2,7 @@
 using CPP_Metrics;
 using CPP_Metrics.CyclomaticComplexity;
 using CPP_Metrics.OOP;
+using CPP_Metrics.Tool;
 using Facads;
 
 string pathFile = "C:/Users/User/source/repos/TestCpp1/TestCpp1/TestCpp1.cpp";

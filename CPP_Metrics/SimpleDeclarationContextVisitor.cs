@@ -2,6 +2,8 @@
 
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using CPP_Metrics.Tool;
+using CPP_Metrics.Types;
 
 namespace CPP_Metrics
 {
@@ -13,19 +15,26 @@ namespace CPP_Metrics
      */
     public class SimpleDeclarationContextVisitor : CPP14ParserBaseVisitor<bool>
     {
-        public List<string> VariableNames = new();
+        public List<Variable> VariableNames = new();
+
         public List<string> CallFuncNames = new();
+
         public List<string> DeclFuncNames = new();
 
         private IList<Parameter>? Parameters = null;
 
         public string? DeclSpecifierSeqType = null;
+
         private bool isParameters = false;
+
         private bool isDeclSpec;
+
         private bool isParametersBraces = false;
+
         private bool isNameSpaced = false;
-        private IList<string> OutVariable = new List<string>();
-        public SimpleDeclarationContextVisitor(List<string> outVariables)
+
+        private IList<Variable> OutVariable = new List<Variable>();
+        public SimpleDeclarationContextVisitor(List<Variable> outVariables)
         {
             OutVariable = outVariables;
         }
@@ -37,9 +46,23 @@ namespace CPP_Metrics
         {
             this.isDeclSpec = isDeclSpec;
         }
+        //public override bool VisitBraceOrEqualInitializer([NotNull] CPP14Parser.BraceOrEqualInitializerContext context)
+        //{
+        //    var start = context.Start.Text;
+        //    var stop = context.Stop.Text;
+        //    return base.VisitBraceOrEqualInitializer(context);
+        //}
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
         {
             return false;  // Декларация класса находится в ветке simpleDeclaration
+        }
+        public override bool VisitInitializer([NotNull] CPP14Parser.InitializerContext context)
+        {
+            //var expressionVisitor = new ExpressionVisitor();
+            //Analyzer.Analyze(context,expressionVisitor);
+            //VariableNames.AddRange(expressionVisitor.VariableNames);
+            //CallFuncNames.AddRange(expressionVisitor.CallFuncNames);
+            return false;
         }
         public new bool VisitParametersAndQualifiers([NotNull] CPP14Parser.ParametersAndQualifiersContext context)
         {
@@ -71,20 +94,6 @@ namespace CPP_Metrics
             }
             return false;
         }
-        public override bool VisitPostfixExpression([NotNull] CPP14Parser.PostfixExpressionContext context)
-        {
-            //TODO: это не только вызов функции
-            
-            return true;
-        }
-
-        public override bool VisitClassName([NotNull] CPP14Parser.ClassNameContext context)
-        {
-            var name = context.children.First();
-            //VariableNames.Add(name.GetText());
-
-            return true;
-        }
         
         public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
@@ -104,41 +113,15 @@ namespace CPP_Metrics
             // Случай,когда перед именем стоит <::>
             isNameSpaced = context.children.First() is CPP14Parser.QualifiedIdContext;
             
-
             return true;
         }
-        /// <summary>
-        /// Проверка что идет после оператора доступа <.> метод или поле класса
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        private bool IsFucntionPostfix(IParseTree context)// Доходим до первого Postfix смотрим у него родителя postfix(если он таковым является и есть ли у него дочерние узлы с "()"
+        private List<Variable> SelectParameters(IList<Parameter> parameters, IList<Variable> variables)
         {
-            var parent = context.Parent;
-            while(parent != null)
-            {
-                if(parent is CPP14Parser.PostfixExpressionContext)
-                {
-                    if (parent?.Parent is CPP14Parser.PostfixExpressionContext parentParentContext)
-                    {
-                        var braces = parentParentContext.children.Where(x => x.GetText() == "(" || x.GetText() == ")");
-                        if(braces.Count() == 2)
-                        {
-                            return true;
-                        }
-                        break;
-                    }
-                }
-                parent = parent.Parent;
-            }
-            
-            return false;
+            return parameters is null ? new List<Variable>() : 
+                parameters.Where(p => p.Name is null && variables.Any(x=> x.Type == p.Type)).
+                Select(x => new Variable {Name = x.Type}).ToList();
         }
-        private List<string> SelectParameters(IList<Parameter> parameters, IList<string> variables)
-        {
-            return parameters is null ? new List<string>() : parameters?.Where(p => p.Name is null && variables.Contains(p.Type)).Select(x => x.Type).ToList();
-        }
-        private bool IsDeclarationFunction(IList<Parameter> parameters,IList<string> variables)
+        private bool IsDeclarationFunction(IList<Parameter> parameters,IList<Variable> variables)
         {
             //пустые скобки
             if (isParameters && parameters is null) 
@@ -151,12 +134,12 @@ namespace CPP_Metrics
                     return true;
                 }
                 // имя null проверяем type на равенство с именем переменной
-                if (parameter.Name is null && variables.Contains(parameter.Type))
+                if (parameter.Name is null && variables.Any(v=> v.Name == parameter.Type))
                 {
                     return false;
                 }
             }
-            return false;
+            return true;
         }
         
         /* 
@@ -172,11 +155,11 @@ namespace CPP_Metrics
         */
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
-            if (context.children.Count != 1) // если индификатор
+            var name = context.GetTerminalNodes().FirstOrDefault()?.GetText();
+            if (context.children.Count != 1 && name is not null) // если индификатор
             {
                 return false;
             }
-            var name = context.children.First().GetText();
 
             // проверка декларация функции по параметрам внутри parametrsBraced
             if(isDeclSpec && isParameters && IsDeclarationFunction(Parameters, OutVariable))
@@ -191,14 +174,13 @@ namespace CPP_Metrics
                 return false;
             }
 
-
-            if (IsFucntionPostfix(context))// для postfix
+            var variable = new Variable()
             {
-                CallFuncNames.Add(name);
-                return true;
-            }
-            VariableNames.Add(DeclSpecifierSeqType + " " + name);
-            VariableNames.AddRange(SelectParameters(Parameters, OutVariable));
+                Name = name,
+                Type = DeclSpecifierSeqType
+            };
+            VariableNames.Add(variable);
+            //VariableNames.AddRange(SelectParameters(Parameters, OutVariable));
 
             return true;
         }

@@ -2,6 +2,7 @@
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using ANTLR4Tools;
+using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using static CPP14Parser;
 

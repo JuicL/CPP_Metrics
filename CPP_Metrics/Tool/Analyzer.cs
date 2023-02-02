@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Tool
 {
     // TODO : Аналайз через поиск в глубину (обратный)
     public static class Analyzer
@@ -8,9 +8,9 @@ namespace CPP_Metrics
         public static IParseTree? FindUp(IParseTree startNode, IParseTree element)
         {
             IParseTree? result = startNode;
-            while(result != null)
+            while (result != null)
             {
-                if(result.GetType().Equals(element))
+                if (result.GetType().Equals(element))
                 {
                     return result;
                 }
@@ -27,7 +27,7 @@ namespace CPP_Metrics
             while (bag.Any())
             {
                 var vertex = bag.Pop();
-                if(func(vertex))
+                if (func(vertex))
                 //if (vertex.GetType().Equals(element))
                 {
                     result.Add(vertex);
@@ -40,7 +40,7 @@ namespace CPP_Metrics
             return result;
         }
 
-        public static void Analyze<T>(IParseTree tree,IParseTreeVisitor<T> visitor)
+        public static void Analyze<T>(IParseTree tree, IParseTreeVisitor<T> visitor)
         {
             Stack<IParseTree> bag = new Stack<IParseTree>();
             bag.Push(tree);
@@ -72,7 +72,7 @@ namespace CPP_Metrics
 
                 if (result == true)
                 {
-                    for (int i = vertex.ChildCount-1; i >= 0; --i)
+                    for (int i = vertex.ChildCount - 1; i >= 0; --i)
                     {
                         bag.Enqueue(vertex.GetChild(i));
                     }
@@ -88,7 +88,7 @@ namespace CPP_Metrics
         }
         public static void Analyze<T>(IList<IParseTree> tree, IParseTreeVisitor<T> visitor)
         {
-            foreach(var vertex in tree)
+            foreach (var vertex in tree)
             {
                 Analyze(vertex, visitor);
             }

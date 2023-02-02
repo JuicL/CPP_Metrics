@@ -1,4 +1,4 @@
-﻿namespace CPP_Metrics
+﻿namespace CPP_Metrics.Types
 {
     public class Type
     {

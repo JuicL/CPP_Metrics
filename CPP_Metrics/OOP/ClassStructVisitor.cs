@@ -1,6 +1,8 @@
 ﻿
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using CPP_Metrics.Tool;
+
 
 namespace CPP_Metrics.OOP
 {
@@ -11,7 +13,8 @@ namespace CPP_Metrics.OOP
         /// Class or Struct
         /// </summary>
         public string ClassKey { get; private set; }
-
+        public string ClassName { get; private set; }
+        public IList<string> BaseClasses { get; private set; } = new List<string>();
         public override bool VisitChildren(IRuleNode node)
         {
             return true;
@@ -25,48 +28,88 @@ namespace CPP_Metrics.OOP
 
         public override bool VisitMemberSpecification([NotNull] CPP14Parser.MemberSpecificationContext context)
         {
-            //
+            // Body class
             return false;
         }
         public override bool VisitClassHeadName([NotNull] CPP14Parser.ClassHeadNameContext context)
         {
-            Console.Write("Имя ");
-            var classNameContex = Analyzer.FindDown(context, x => x is CPP14Parser.ClassNameContext).FirstOrDefault();
-            Console.WriteLine(classNameContex.GetText());
-
+            var className = context.children.FirstOrDefault(x => x is CPP14Parser.ClassNameContext);
+            var name = className.GetTerminalNodes();
+            if (name.Count == 0) // Not simple Identifier, continue visits
+            {
+                return true;
+            }
+            ClassName = name.First().GetText();
+            Console.WriteLine($"Имя класса {ClassName}");
             return false;
         }
-        // Наследование от шаблонного класса
+
+        // Шаблонный класс
         public override bool VisitSimpleTemplateId([NotNull] CPP14Parser.SimpleTemplateIdContext context)
         {
-            var inheritances = context.children.First(); // templateName
-            Console.Write("Наследование ");
-            Console.WriteLine(inheritances.GetText());
+            var templateName = context.children.First(); // templateName
+            ClassName = templateName.GetText();
+            Console.WriteLine($"Имя класса {ClassName}");
             //Если понадобиться парсить имена шаблонов
             var templateArgumentList = context.children.FirstOrDefault(x => x is CPP14Parser.TemplateArgumentListContext);
 
             return false;
         }
-        // Наследование от простого класса
+       
+        // Наследование
         public override bool VisitBaseSpecifier([NotNull] CPP14Parser.BaseSpecifierContext context)
         {
-            var inheritances = Analyzer.FindDown(context, x => x is CPP14Parser.ClassNameContext);
-
-            foreach (var item in inheritances)
+            var className = Analyzer.FindDown(context, x => x is CPP14Parser.ClassNameContext).FirstOrDefault();
+            if(className is not null)
             {
-                if (item.GetChild(0) is CPP14Parser.SimpleTemplateIdContext template)
+                var classNameChild = className.GetChildren().First();
+                if(classNameChild is CPP14Parser.SimpleTemplateIdContext simpleTemplate)// SimpleTemplate
                 {
-                    VisitSimpleTemplateId(template);
-                    return false;
+                    var templateName = simpleTemplate.children.First();
+                    BaseClasses.Add(templateName.GetText());
+                    var templateArgumentList = simpleTemplate.children
+                                                    .FirstOrDefault(x => x is CPP14Parser.TemplateArgumentListContext);
+                    Console.WriteLine($"--Base Class {BaseClasses.Last()}");
+
                 }
-                else
+                else// Identifire
                 {
-                    Console.Write("Наследование ");
-                    Console.WriteLine(item.GetText());
+                    BaseClasses.Add(classNameChild.GetText());
+                    Console.WriteLine($"--Base Class {BaseClasses.Last()}");
                 }
+
 
             }
+            else
+            {
+                //decltypeSpecifier
+            }
+
             return false;
         }
     }
 }
+/*
+ * class Test1{};class Test11{};class Test12{};
+
+class Test13 :public Test11, private Test12
+{
+
+};
+template<typename T1>
+class Test2
+{
+};
+
+template<typename T1>
+class Test3 : Test2<int>
+{
+
+};
+
+template<typename T3>
+class Test4 :public Test2<T3>
+{
+
+};
+ */

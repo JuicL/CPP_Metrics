@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using CPP_Metrics.Tool;
 
 namespace CPP_Metrics
 {
@@ -15,10 +16,10 @@ namespace CPP_Metrics
         private bool isDecl = false;
         private void CollectionNames(IParseTree context)
         {
-            var visitor = new SimpleDeclarationContextVisitor(isDecl);
-            Analyzer.Analyze(context, visitor);
-            VariableNames.AddRange(visitor.VariableNames);
-            FuncNames.AddRange(visitor.CallFuncNames);
+            //var visitor = new SimpleDeclarationContextVisitor(isDecl);
+            //Analyzer.Analyze(context, visitor);
+            //VariableNames.AddRange(visitor.VariableNames);
+            //FuncNames.AddRange(visitor.CallFuncNames);
         }
 
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
@@ -52,9 +53,9 @@ namespace CPP_Metrics
             var iterationChildWhoutStatenemt = context.children.Where(x => x is not CPP14Parser.StatementContext);
             foreach (var item in iterationChildWhoutStatenemt)
             {
-                var visitor = new SimpleDeclarationContextVisitor();
-                Analyzer.Analyze(item, visitor);
-                controlVariables.AddRange(visitor.VariableNames);
+                //var visitor = new SimpleDeclarationContextVisitor();
+                //Analyzer.Analyze(item, visitor);
+                //controlVariables.AddRange(visitor.VariableNames);
             }
             VariableNames.AddRange(controlVariables);
 

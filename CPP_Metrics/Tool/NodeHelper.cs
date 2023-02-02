@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Tool
 {
     public static class NodeHelper
     {
@@ -9,10 +9,10 @@ namespace CPP_Metrics
             var result = new List<IParseTree>();
             for (int i = 0; i < node.ChildCount; i++)
             {
-                if(node.GetChild(i) is TerminalNodeImpl)
+                if (node.GetChild(i) is TerminalNodeImpl)
                 {
                     result.Add(node.GetChild(i));
-                }    
+                }
             }
             return result;
         }
