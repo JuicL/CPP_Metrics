@@ -33,7 +33,9 @@ namespace CPP_Metrics.OOP
         }
         public override bool VisitClassHeadName([NotNull] CPP14Parser.ClassHeadNameContext context)
         {
-            var className = context.children.FirstOrDefault(x => x is CPP14Parser.ClassNameContext);
+            var className = (CPP14Parser.ClassNameContext)context.children.FirstOrDefault(x => x is CPP14Parser.ClassNameContext);
+            var test = className.Identifier();
+            var test2 = className.simpleTemplateId();
             var name = className.GetTerminalNodes();
             if (name.Count == 0) // Not simple Identifier, continue visits
             {
@@ -59,6 +61,7 @@ namespace CPP_Metrics.OOP
         // Наследование
         public override bool VisitBaseSpecifier([NotNull] CPP14Parser.BaseSpecifierContext context)
         {
+
             var className = Analyzer.FindDown(context, x => x is CPP14Parser.ClassNameContext).FirstOrDefault();
             if(className is not null)
             {

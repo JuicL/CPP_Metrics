@@ -8,44 +8,90 @@ using CPP_Metrics.Types;
 namespace CPP_Metrics
 {
     /// <summary>
-    /// Это больше про парсинг SimpleDeclaration...
+    /// парсинг SimpleDeclaration...
     /// </summary>
     /*
      Рассмотрены случа объявления переменной и функции(с указанием namespace). Переменная типа класса. Присваивание переменной(классу) функции/переменной
      */
+    public class UnqualifiedId
+    {
+        public Identifier Identifier { get; set; }
+    }
+    public class QualifiedId : UnqualifiedId
+    {
+        public IList<Identifier> Nested { get; set; }
+    }
+ 
+
+    public class Context
+    {
+        public IList<string> UserTypes = new List<string>();
+
+        public List<Variable> outVariables = new();
+        
+        public List<string> DeclFuncNames = new();
+    }
+
+    public class FunctionDeclaration
+    {
+        public string Name { get; set; }
+        public string ReturnType { get; set; }
+        public IList<Parameter> Parameters { get; set; }    
+
+    }
     public class SimpleDeclarationContextVisitor : CPP14ParserBaseVisitor<bool>
     {
-        public List<Variable> VariableNames = new();
+        
 
         public List<string> CallFuncNames = new();
 
-        public List<string> DeclFuncNames = new();
 
-        private IList<Parameter>? Parameters = null;
+        private List<Parameter>? Parameters = null;
 
-        public string? DeclSpecifierSeqType = null;
 
-        private bool isParameters = false;
+        public string? DeclSpecifierSeqType = null; // Тип
 
-        private bool isDeclSpec;
-
-        private bool isParametersBraces = false;
-
+        
         private bool isNameSpaced = false;
 
-        private IList<Variable> OutVariable = new List<Variable>();
-        public SimpleDeclarationContextVisitor(List<Variable> outVariables)
+        private bool? NoPointerBrace;
+
+        private Context Context;
+        public SimpleDeclarationContextVisitor(Context context)
         {
-            OutVariable = outVariables;
+            Context = context;
         }
         public SimpleDeclarationContextVisitor()
         {
-            this.isDeclSpec = false;
         }
-        public SimpleDeclarationContextVisitor(bool isDeclSpec)
+        
+        private List<Variable> SelectParameters(IList<Parameter> parameters, IList<Variable> variables)
         {
-            this.isDeclSpec = isDeclSpec;
+            return parameters is null ? new List<Variable>() :
+                parameters.Where(p => p.Name is null && variables.Any(x => x.Type == p.Type)).
+                Select(x => new Variable { Name = x.Type }).ToList();
         }
+        private bool IsDeclarationFunction(IList<Parameter>? parameters, IList<Variable> variables)
+        {
+            if(parameters is null) return false; // отсутствие параметров
+            if(parameters.Count == 0) return true;//пустые скобки
+
+            foreach (var parameter in parameters)
+            {
+                // если имя и тип не нулевые значит точно декларация
+                if (parameter.Name is not null && parameter.Type is not null)
+                {
+                    return true;
+                }
+                // имя null проверяем type на равенство с именем переменной
+                if (parameter.Name is null && variables.Any(v => v.Name == parameter.Type))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         //public override bool VisitBraceOrEqualInitializer([NotNull] CPP14Parser.BraceOrEqualInitializerContext context)
         //{
         //    var start = context.Start.Text;
@@ -66,26 +112,25 @@ namespace CPP_Metrics
         }
         public new bool VisitParametersAndQualifiers([NotNull] CPP14Parser.ParametersAndQualifiersContext context)
         {
-            isParameters = true;
+            Parameters = new List<Parameter>();
+            //isParameters = true;
             var parameterDeclaration = context.children.FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationClauseContext)
                 ?.GetChildren()
                 .FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationListContext)
                 ?.GetChildren()
                 .Where(x => x is CPP14Parser.ParameterDeclarationContext).ToList();
             if (parameterDeclaration is null) return false;
-            var parameters = new List<Parameter>();
             foreach (var item in parameterDeclaration)
             {
                 var parameterVisitor = new ParameterVisitor();
                 Analyzer.Analyze(item, parameterVisitor);
-                parameters.Add(parameterVisitor.Parameter);
+                Parameters.Add(parameterVisitor.Parameter);
             }
-            Parameters = parameters;
             return false;
         }
         public override bool VisitDeclSpecifierSeq([NotNull] CPP14Parser.DeclSpecifierSeqContext context)
         {
-            this.isDeclSpec = true;
+            //this.isDeclSpec = true;
             var visitor = new TypeVisitor();
             Analyzer.Analyze(context, visitor);
             if(visitor.Type.Length > 0)
@@ -94,17 +139,25 @@ namespace CPP_Metrics
             }
             return false;
         }
-        
+        public override bool VisitDeclarator([NotNull] CPP14Parser.DeclaratorContext context)
+        {
+            var poinerDecl = context.pointerDeclarator();
+            var noPointerDecl = poinerDecl.noPointerDeclarator();
+            // Если сразу после имени идут скобки (имя будет находиться в DeclType)
+            
+            NoPointerBrace = poinerDecl?.pointerOperator(0) is not null || 
+                                noPointerDecl?.pointerDeclarator() is null ? false : true;
+            return true;   
+        }
         public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
-            if (context.Parent is CPP14Parser.NoPointerDeclaratorContext)
+            // Случай, когда после имени стоят ( )
+            var parameters = context.parametersAndQualifiers();
+            if (parameters is null)
                 return true;
-            // Случай, когда после имени стоят <(> or <)>
-            var parameters = context.children.FirstOrDefault(x => x is CPP14Parser.ParametersAndQualifiersContext);
-            if (parameters is not null)
-                VisitParametersAndQualifiers((CPP14Parser.ParametersAndQualifiersContext)parameters);
+            VisitParametersAndQualifiers(parameters);
 
-            isParametersBraces = context.children.Count > 1 ? true : false;
+            //isParametersBraces = context.children.Count > 1 ? true : false;
             
             return true;
         }
@@ -115,33 +168,7 @@ namespace CPP_Metrics
             
             return true;
         }
-        private List<Variable> SelectParameters(IList<Parameter> parameters, IList<Variable> variables)
-        {
-            return parameters is null ? new List<Variable>() : 
-                parameters.Where(p => p.Name is null && variables.Any(x=> x.Type == p.Type)).
-                Select(x => new Variable {Name = x.Type}).ToList();
-        }
-        private bool IsDeclarationFunction(IList<Parameter> parameters,IList<Variable> variables)
-        {
-            //пустые скобки
-            if (isParameters && parameters is null) 
-                return true;
-            foreach(var parameter in parameters)
-            {
-                // если имя и тип не нулевые значит точно декларация
-                if(parameter.Name is not null && parameter.Type is not null)
-                {
-                    return true;
-                }
-                // имя null проверяем type на равенство с именем переменной
-                if (parameter.Name is null && variables.Any(v=> v.Name == parameter.Type))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
+
         /* 
          * TODO : Точнее разделить случаи
          *        Шаблоны!
@@ -155,31 +182,47 @@ namespace CPP_Metrics
         */
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
-            var name = context.GetTerminalNodes().FirstOrDefault()?.GetText();
-            if (context.children.Count != 1 && name is not null) // если индификатор
+            // Если nested имеет только :: -> перекинуть тип из declType в nested, обнулиtь declType
+            // Если NoPointer имеет () значит проверить является ли declType функцией или типом, и проверить параметр в скобках
+            // !! Проверка Типов!!! Для декларации функций расширить проверку типов вход. параметров.
+
+            // Initializer(нет declType,проверить текущее имя) // Parameters // NoPointer
+
+            var identifier = context.Identifier();
+            if (identifier is null) return true;
+            var name = identifier.GetText();
+
+            // Декларация переменной в стиле конструктора или вызов функции с 1 переменной
+            if(NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
-                return false;
+                if (Context.DeclFuncNames.Contains(DeclSpecifierSeqType)) // проверка не являтеся ли типом
+                {
+                    CallFuncNames.Add(DeclSpecifierSeqType);
+                    Context.outVariables.Add(new Variable() { Name = name });
+                    return false;
+                }
             }
 
             // проверка декларация функции по параметрам внутри parametrsBraced
-            if(isDeclSpec && isParameters && IsDeclarationFunction(Parameters, OutVariable))
+            if(DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters, Context.outVariables))
             {
-                DeclFuncNames.Add(name);
+                Context.DeclFuncNames.Add(name);
                 return false;
             }
 
-            if (isNameSpaced && isParametersBraces || !isDeclSpec && isParametersBraces)// Если :: и () //() без declSpec -- функция
-            {
-                CallFuncNames.Add(name);
-                return false;
-            }
+            //if (isNameSpaced && isParametersBraces || !isDeclSpec && isParametersBraces)// Если :: и () //() без declSpec -- функция
+            //{
+            //    CallFuncNames.Add(name);
+            //    return false;
+            //}
 
             var variable = new Variable()
             {
                 Name = name,
                 Type = DeclSpecifierSeqType
             };
-            VariableNames.Add(variable);
+            Context.outVariables.Add(variable);
+
             //VariableNames.AddRange(SelectParameters(Parameters, OutVariable));
 
             return true;

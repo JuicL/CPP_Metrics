@@ -7,37 +7,48 @@ using CPP_Metrics.Types;
 
 namespace CPP_Metrics
 {
+   
     public class GeneralVisitor : CPP14ParserBaseVisitor<bool>
     {
-        private List<Variable> variable = new List<Variable>();
+        private Context OutContext = new Context() ;
         public override bool VisitChildren(IRuleNode node)
         {
             return true;    
         }
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
         {
-            var visitor = new ClassStructVisitor();
-            Analyzer.Analyze(context, visitor);
+            //var visitor = new ClassStructVisitor();
+            //Analyzer.Analyze(context, visitor);
             return true;
         }
+        //public override bool VisitNestedNameSpecifier([NotNull] CPP14Parser.NestedNameSpecifierContext context)
+        //{
+        //    var visitor = new NestedNameSpecifierVisitor();
+        //    Analyzer.Analyze(context, visitor);
+        //    Console.WriteLine("====================");
+        //    foreach(var item in visitor.NestedNames.Reverse())
+        //    {
+        //        Console.WriteLine(item.Name + " //" + item);
+        //    }
+        //    return false;
+        //}
         public override bool VisitSimpleDeclaration([NotNull] CPP14Parser.SimpleDeclarationContext context)
         {
-            //var visitor = new SimpleDeclarationContextVisitor(variable);
-            //Analyzer.Analyze(context, visitor);
+            var visitor = new SimpleDeclarationContextVisitor(OutContext);
+            Analyzer.Analyze(context, visitor);
 
-            //variable.AddRange(visitor.VariableNames);
-            //Console.WriteLine("===========");
-            //Console.WriteLine("VariableNames");
-            //foreach (var variable in visitor.VariableNames)
-            //    Console.WriteLine($"----type:{variable.Type},name:{variable.Name}");
-            //Console.WriteLine("CallFuncNames");
-            //foreach (var name in visitor.CallFuncNames)
-            //    Console.WriteLine(name);
-            //Console.WriteLine("DeclFuncNames");
-            //foreach (var name in visitor.DeclFuncNames)
-            //    Console.WriteLine(name);
+            Console.WriteLine("===========");
+            Console.WriteLine("VariableNames");
+            foreach (var variable in OutContext.outVariables)
+                Console.WriteLine($"----type:{variable.Type},name:{variable.Name}");
+            Console.WriteLine("CallFuncNames");
+            foreach (var name in visitor.CallFuncNames)
+                Console.WriteLine(name);
+            Console.WriteLine("DeclFuncNames");
+            foreach (var name in OutContext.DeclFuncNames)
+                Console.WriteLine(name);
 
-            return true;
+            return false;
         }
         //public override bool VisitFunctionBody([NotNull] CPP14Parser.FunctionBodyContext context)
         //{
