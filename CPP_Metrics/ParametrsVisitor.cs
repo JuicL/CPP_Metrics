@@ -1,7 +1,7 @@
 ﻿
 using Antlr4.Runtime.Misc;
 using CPP_Metrics.Tool;
-using CPP_Metrics.Types;
+using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics
 {
@@ -13,11 +13,8 @@ namespace CPP_Metrics
         {
             var typeVisitor = new TypeVisitor();
             Analyzer.Analyze(context, typeVisitor);
-            if(typeVisitor.Type.Length >0)
-            {
-                Parameter.Type = typeVisitor.Type;
-            }
-            else { Parameter.Type = null; }
+            Parameter.Type = typeVisitor.Type;
+            
 
             return false;
         }

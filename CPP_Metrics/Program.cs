@@ -3,7 +3,26 @@ using CPP_Metrics;
 using CPP_Metrics.CyclomaticComplexity;
 using CPP_Metrics.OOP;
 using CPP_Metrics.Tool;
+using CPP_Metrics.Types.Context;
 using Facads;
+
+void DisplayContext(BaseContextElement ContextElement)
+{
+    Console.WriteLine("===========");
+    Console.WriteLine(ContextElement.GetType());
+    Console.WriteLine("VariableNames");
+    foreach (var variable in ContextElement.VariableDeclaration)
+        Console.WriteLine($"----type:{variable.Value.Type?.TypeName},name:{variable.Value.Name}");
+    Console.WriteLine("DeclFuncNames");
+    foreach (var name in ContextElement.FunctionDeclaration)
+        foreach (var item in name.Value)
+        {
+            Console.WriteLine(item.Name);
+        }
+    Console.WriteLine("TypeName");
+    foreach (var item in ContextElement.TypeDeclaration)
+        Console.WriteLine($"----Name: {item.Value.Name}");
+}
 
 string pathFile = "C:/Users/User/source/repos/TestCpp1/TestCpp1/TestCpp1.cpp";
 
@@ -17,8 +36,21 @@ var classVisitor = new ClassStructVisitor();
 var typeVisitor = new TypeVisitor();
 
 
+//Analyzer.Analyze(three, generalVisitor);
 
 //TODO: Разобраться с аналайзером для Цикломатической(!там нужно ходить справа налево)
-Analyzer.Analyze(three, generalVisitor);
+NameSpaceInfo nameSpaceInfo = new() { Name = "::" };
+BaseContextElement ContextElement = new NamespaceContext() { NameSpaceInfo = nameSpaceInfo };
+
+var contextVisitor = new GlobalContextVisitor(ContextElement);
+Analyzer.Analyze(three, contextVisitor);
+
+DisplayContext(ContextElement);
+
+foreach (var item in ContextElement.Children)
+{
+    DisplayContext(item);
+}
+
 
 Console.WriteLine();

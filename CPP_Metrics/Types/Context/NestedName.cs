@@ -1,5 +1,4 @@
-﻿
-namespace CPP_Metrics.Types
+﻿namespace CPP_Metrics.Types.Context
 {
     public interface INestedName
     {

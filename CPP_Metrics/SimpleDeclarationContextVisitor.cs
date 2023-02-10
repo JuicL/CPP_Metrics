@@ -3,7 +3,7 @@
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
-using CPP_Metrics.Types;
+using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics
 {
@@ -13,65 +13,47 @@ namespace CPP_Metrics
     /*
      Рассмотрены случа объявления переменной и функции(с указанием namespace). Переменная типа класса. Присваивание переменной(классу) функции/переменной
      */
-    public class UnqualifiedId
-    {
-        public Identifier Identifier { get; set; }
-    }
-    public class QualifiedId : UnqualifiedId
-    {
-        public IList<Identifier> Nested { get; set; }
-    }
- 
+  
 
-    public class Context
-    {
-        public IList<string> UserTypes = new List<string>();
-
-        public List<Variable> outVariables = new();
-        
-        public List<string> DeclFuncNames = new();
-    }
-
-    public class FunctionDeclaration
-    {
-        public string Name { get; set; }
-        public string ReturnType { get; set; }
-        public IList<Parameter> Parameters { get; set; }    
-
-    }
     public class SimpleDeclarationContextVisitor : CPP14ParserBaseVisitor<bool>
     {
         
-
         public List<string> CallFuncNames = new();
+
+        public List<Variable> VariablesDeclaration = new();
+
+        public List<FunctionInfo> FunctionDeclaration = new();
 
 
         private List<Parameter>? Parameters = null;
 
-
-        public string? DeclSpecifierSeqType = null; // Тип
-
+        public CPPType? DeclSpecifierSeqType = null; // Тип
         
         private bool isNameSpaced = false;
 
         private bool? NoPointerBrace;
 
-        private Context Context;
-        public SimpleDeclarationContextVisitor(Context context)
+        public BaseContextElement ContextElement { get; }
+
+        public SimpleDeclarationContextVisitor(BaseContextElement contextElement)
         {
-            Context = context;
+            ContextElement = contextElement;
         }
+
         public SimpleDeclarationContextVisitor()
         {
+
         }
         
-        private List<Variable> SelectParameters(IList<Parameter> parameters, IList<Variable> variables)
-        {
-            return parameters is null ? new List<Variable>() :
-                parameters.Where(p => p.Name is null && variables.Any(x => x.Type == p.Type)).
-                Select(x => new Variable { Name = x.Type }).ToList();
-        }
-        private bool IsDeclarationFunction(IList<Parameter>? parameters, IList<Variable> variables)
+        
+        //private List<Variable> SelectParameters(IList<Parameter> parameters, IList<Variable> variables)
+        //{
+        //    return parameters is null ? new List<Variable>() :
+        //        parameters.Where(p => p.Name is null && variables.Any(x => x.Type == p.Type)).
+        //        Select(x => new Variable { Name = x.Type }).ToList();
+        //}
+
+        private bool IsDeclarationFunction(IList<Parameter>? parameters)
         {
             if(parameters is null) return false; // отсутствие параметров
             if(parameters.Count == 0) return true;//пустые скобки
@@ -84,7 +66,8 @@ namespace CPP_Metrics
                     return true;
                 }
                 // имя null проверяем type на равенство с именем переменной
-                if (parameter.Name is null && variables.Any(v => v.Name == parameter.Type))
+                if (parameter.Name is null 
+                    && ContextElement.GetVariableName(parameter.Type.TypeName))
                 {
                     return false;
                 }
@@ -98,10 +81,12 @@ namespace CPP_Metrics
         //    var stop = context.Stop.Text;
         //    return base.VisitBraceOrEqualInitializer(context);
         //}
+
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
         {
             return false;  // Декларация класса находится в ветке simpleDeclaration
         }
+
         public override bool VisitInitializer([NotNull] CPP14Parser.InitializerContext context)
         {
             //var expressionVisitor = new ExpressionVisitor();
@@ -110,10 +95,10 @@ namespace CPP_Metrics
             //CallFuncNames.AddRange(expressionVisitor.CallFuncNames);
             return false;
         }
+
         public new bool VisitParametersAndQualifiers([NotNull] CPP14Parser.ParametersAndQualifiersContext context)
         {
             Parameters = new List<Parameter>();
-            //isParameters = true;
             var parameterDeclaration = context.children.FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationClauseContext)
                 ?.GetChildren()
                 .FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationListContext)
@@ -130,13 +115,10 @@ namespace CPP_Metrics
         }
         public override bool VisitDeclSpecifierSeq([NotNull] CPP14Parser.DeclSpecifierSeqContext context)
         {
-            //this.isDeclSpec = true;
             var visitor = new TypeVisitor();
             Analyzer.Analyze(context, visitor);
-            if(visitor.Type.Length > 0)
-            {
-                DeclSpecifierSeqType = visitor.Type;
-            }
+            DeclSpecifierSeqType = visitor.Type;
+            
             return false;
         }
         public override bool VisitDeclarator([NotNull] CPP14Parser.DeclaratorContext context)
@@ -192,21 +174,26 @@ namespace CPP_Metrics
             if (identifier is null) return true;
             var name = identifier.GetText();
 
-            // Декларация переменной в стиле конструктора или вызов функции с 1 переменной
-            if(NoPointerBrace == true && DeclSpecifierSeqType is not null)
+            //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора или)
+            if (NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
-                if (Context.DeclFuncNames.Contains(DeclSpecifierSeqType)) // проверка не являтеся ли типом
+                if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName)) //TODO: проверка не являтеся ли типом
                 {
-                    CallFuncNames.Add(DeclSpecifierSeqType);
-                    Context.outVariables.Add(new Variable() { Name = name });
+                    CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
+                    Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
+                    //Context.outVariables.Add(new Variable() { Name = name });
                     return false;
                 }
             }
 
             // проверка декларация функции по параметрам внутри parametrsBraced
-            if(DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters, Context.outVariables))
+            if(DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters))
             {
-                Context.DeclFuncNames.Add(name);
+                var functionInfo = new FunctionInfo();
+                functionInfo.Name = name;
+                FunctionDeclaration.Add(functionInfo);
+
+
                 return false;
             }
 
@@ -221,7 +208,8 @@ namespace CPP_Metrics
                 Name = name,
                 Type = DeclSpecifierSeqType
             };
-            Context.outVariables.Add(variable);
+            VariablesDeclaration.Add(variable);
+            
 
             //VariableNames.AddRange(SelectParameters(Parameters, OutVariable));
 

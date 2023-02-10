@@ -10,7 +10,6 @@ namespace CPP_Metrics
    
     public class GeneralVisitor : CPP14ParserBaseVisitor<bool>
     {
-        private Context OutContext = new Context() ;
         public override bool VisitChildren(IRuleNode node)
         {
             return true;    
@@ -34,19 +33,20 @@ namespace CPP_Metrics
         //}
         public override bool VisitSimpleDeclaration([NotNull] CPP14Parser.SimpleDeclarationContext context)
         {
-            var visitor = new SimpleDeclarationContextVisitor(OutContext);
+            var visitor = new SimpleDeclarationContextVisitor();
             Analyzer.Analyze(context, visitor);
 
-            Console.WriteLine("===========");
-            Console.WriteLine("VariableNames");
-            foreach (var variable in OutContext.outVariables)
-                Console.WriteLine($"----type:{variable.Type},name:{variable.Name}");
-            Console.WriteLine("CallFuncNames");
-            foreach (var name in visitor.CallFuncNames)
-                Console.WriteLine(name);
-            Console.WriteLine("DeclFuncNames");
-            foreach (var name in OutContext.DeclFuncNames)
-                Console.WriteLine(name);
+            //Console.WriteLine("===========");
+            //Console.WriteLine("VariableNames");
+            //foreach (var variable in OutContext.outVariables)
+            //    Console.WriteLine($"----type:{variable.Type?.TypeName},name:{variable.Name}");
+            
+            //Console.WriteLine("CallFuncNames");
+            //foreach (var name in visitor.CallFuncNames)
+            //    Console.WriteLine(name);
+            //Console.WriteLine("DeclFuncNames");
+            //foreach (var name in OutContext.DeclFuncNames)
+            //    Console.WriteLine(name);
 
             return false;
         }

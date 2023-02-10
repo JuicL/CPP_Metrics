@@ -4,15 +4,38 @@ using Antlr4.Runtime.Tree;
 
 namespace CPP_Metrics.OOP
 {
-    enum AccesSpecifier
+    public enum AccesSpecifier
     {                
         Public,
         Private,
         Protected,
     }
-
+    public static class AccesSpecifierHelper
+    {
+        public static AccesSpecifier GetAccesSpecifier(string specifier)
+        {
+            AccesSpecifier accesSpecifier;
+            switch (specifier)
+            {
+                case "public":
+                    accesSpecifier = AccesSpecifier.Public;
+                    break;
+                case "private":
+                    accesSpecifier = AccesSpecifier.Private;
+                    break;
+                case "protected":
+                    accesSpecifier = AccesSpecifier.Protected;
+                    break;
+                default:
+                    throw new Exception("Recognized error");
+            }
+            return accesSpecifier;
+        }
+    }
     public class MembersVisitor : CPP14ParserBaseVisitor<bool>
     {
+        Queue<IParseTree> FunctionDefinition = new Queue<IParseTree>();
+
         private AccesSpecifier AccesSpecifierSelector; //default value
         
         public MembersVisitor(string type)

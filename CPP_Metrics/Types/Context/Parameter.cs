@@ -1,9 +1,9 @@
-﻿namespace CPP_Metrics.Types
+﻿namespace CPP_Metrics.Types.Context
 {
-   
+
     public class Parameter
     {
-        public string? Type { get; set; }
+        public CPPType? Type { get; set; }
         public string? Name { get; set; }
     }
 }

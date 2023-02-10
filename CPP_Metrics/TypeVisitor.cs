@@ -3,24 +3,37 @@
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
-using CPP_Metrics.Types;
+using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics
 {
     public class TypeVisitor : CPP14ParserBaseVisitor<bool>
     {
-        public string? Name { get; set;}
-        public IList<IType>? Templates { get; set; }
-        public string? ClassMarker { get; set; }
+        public CPPType? Type 
+        { 
+            get 
+            { 
+                if (_Type.TypeName is null) 
+                    return null; 
+                else return _Type; 
+            } 
+        }
+        private CPPType _Type { get; set;} = new CPPType();
 
-
+        public override bool VisitNestedNameSpecifier([NotNull] CPP14Parser.NestedNameSpecifierContext context)
+        {
+            var nestedVisitor = new NestedNameSpecifierVisitor();
+            Analyzer.Analyze(context, nestedVisitor);
+            _Type.NestedNames = nestedVisitor.NestedNames;
+            return false;
+        }
 
         public override bool VisitSimpleTemplateId([NotNull] CPP14Parser.SimpleTemplateIdContext context)
         {
             var templateName = context.templateName(); // typeName actually
-            Name = templateName.GetText();
+            _Type.TypeName = templateName.GetText();
             // TODO: visitor template argumentList mb based on Type visitor 
-            Templates = new List<IType>();
+            _Type.TemplateNames = new List<CPPType>();
             return false; 
         }
 
@@ -32,17 +45,17 @@ namespace CPP_Metrics
                 /*attributeSpecifierSeq? nestedNameSpecifier? Identifier
 		        | simpleTemplateId
 		        | nestedNameSpecifier Template? simpleTemplateId //!!!!TODO */
-                ClassMarker = classKey.children.First().GetText(); // Class or struct
+                _Type.ClassMarker = classKey.children.First().GetText(); // Class or struct
                 var identifier = context.Identifier();
                 if (identifier is not null)
-                    Name = identifier.GetText();
+                    _Type.TypeName = identifier.GetText();
 
             }
             else if (context.Enum() is not null)
             {
-                ClassMarker = context.Enum().GetText(); // Enum
+                _Type.ClassMarker = context.Enum().GetText(); // Enum
                 var identifier = context.Identifier();
-                Name = identifier.GetText();
+                _Type.TypeName = identifier.GetText();
             }
             return true;
         }
@@ -51,20 +64,14 @@ namespace CPP_Metrics
         {
             var identifier = context.Identifier();
             if (identifier is not null)
-                Name = identifier.GetText();
+                _Type.TypeName = identifier.GetText();
             return true;
         }
         public override bool VisitTheTypeName([NotNull] CPP14Parser.TheTypeNameContext context)
         {
             var thetypeName = context.GetTheTypeName();
-            if(thetypeName is TemplateIdentifier templateIdentifier)
-            {
-                Name = templateIdentifier.Name;
-                Templates = new List<IType>();
-            }
-            else if(thetypeName is Identifier identifier)
-            { Name = identifier.Name; 
-            }
+            _Type.TypeName = thetypeName.TypeName;
+            _Type.TemplateNames = thetypeName.TemplateNames;
             return false;
         }
         public override bool VisitSimpleTypeSpecifier([NotNull] CPP14Parser.SimpleTypeSpecifierContext context)
@@ -78,13 +85,13 @@ namespace CPP_Metrics
             var terminalNodes = context.GetTerminalNodes();
 
             if(simpleTypeSignednessModifier is not null)
-                Name += simpleTypeSignednessModifier.children.First().GetText();
+                _Type.TypeName += simpleTypeSignednessModifier.children.First().GetText();
             
             foreach (var simpleTypeLengthModifier in simpleTypeLengthModifiers)
-                Name += simpleTypeLengthModifier.children.First().GetText();
+                _Type.TypeName += simpleTypeLengthModifier.children.First().GetText();
 
             foreach (var terminalNode in terminalNodes)
-                Name += terminalNode.GetText();
+                _Type.TypeName += terminalNode.GetText();
             return false;
         }
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
