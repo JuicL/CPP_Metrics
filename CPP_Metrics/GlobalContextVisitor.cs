@@ -56,9 +56,28 @@ namespace CPP_Metrics
         //Field current context
         public BaseContextElement Current { get; }
 
+        // Statement // AND for 
 
         //NameSpace
+        public override bool VisitNamespaceDefinition([NotNull] CPP14Parser.NamespaceDefinitionContext context)
+        {
+            var namespaceInfo = context.GetNameSpaceInfo();
+            var declarationseq = context.declarationseq();
+            var namespaceContext = new NamespaceContext
+            {
+                NameSpaceInfo = namespaceInfo,
+                Paren = ContextElement
+            };
 
+            ContextElement.Children.Add(namespaceContext);
+
+            if(declarationseq is not null)
+            {
+                var globalContextVisitor = new GlobalContextVisitor(namespaceContext);
+                Analyzer.Analyze(declarationseq, globalContextVisitor);
+            }
+            return true;
+        }
 
         //Function or method
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
@@ -85,7 +104,6 @@ namespace CPP_Metrics
         // Variable declaration, function declaration
         public override bool VisitSimpleDeclaration([NotNull] CPP14Parser.SimpleDeclarationContext context)
         {
-            Console.WriteLine("!!!!!!!!!!!!!!!!!!");
             var visitor = new SimpleDeclarationContextVisitor(ContextElement);
             Analyzer.Analyze(context, visitor);
 
@@ -111,8 +129,6 @@ namespace CPP_Metrics
         }
 
         //Class
-       
-
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
         {
             var visitor = new ClassStructVisitor();
@@ -130,6 +146,7 @@ namespace CPP_Metrics
             {
                 throw new Exception("Переопределение класса");
             }
+
             if(visitor.ClassStructInfo.Body is not null)
             {
                 var globalContextVisitor = new GlobalContextVisitor(classContext);

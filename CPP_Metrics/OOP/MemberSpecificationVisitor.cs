@@ -1,6 +1,8 @@
 ﻿
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using CPP_Metrics.Tool;
+using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics.OOP
 {
@@ -32,14 +34,18 @@ namespace CPP_Metrics.OOP
             return accesSpecifier;
         }
     }
-    public class MembersVisitor : CPP14ParserBaseVisitor<bool>
+    public class MemberSpecificationVisitor : CPP14ParserBaseVisitor<bool>
     {
-        Queue<IParseTree> FunctionDefinition = new Queue<IParseTree>();
+        private Queue<Pair<IParseTree, AccesSpecifier>> FunctionDefinition = new();
 
         private AccesSpecifier AccesSpecifierSelector; //default value
-        
-        public MembersVisitor(string type)
+
+        public ClassStructDeclaration ContextElement { get; }
+
+
+        public MemberSpecificationVisitor(string type, BaseContextElement contextElement)
         {
+            ContextElement = (ClassStructDeclaration)contextElement;
             switch (type)
             {
                 case "class":
@@ -50,24 +56,25 @@ namespace CPP_Metrics.OOP
                     break;
                 case "union":
                     break;
+                default:
+                    throw new Exception("Error recognize type");
             }
         }
-
+        public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
+        {
+            FunctionDefinition.Enqueue(new Pair<IParseTree, AccesSpecifier>(context,AccesSpecifierSelector));
+            return false;
+        }
         public override bool VisitAccessSpecifier([NotNull] CPP14Parser.AccessSpecifierContext context)
         {
             var accessSpecifier = context.children.First().GetText();
-            switch (accessSpecifier)
-            {
-                case "public":
-                    AccesSpecifierSelector = AccesSpecifier.Private;
-                    break;
-                case "private":
-                    AccesSpecifierSelector = AccesSpecifier.Public;
-                    break;
-                case "protected":
-                    AccesSpecifierSelector = AccesSpecifier.Public;
-                    break;
-            }
+            AccesSpecifierSelector = AccesSpecifierHelper.GetAccesSpecifier(accessSpecifier);
+            return false;
+        }
+        public override bool VisitMemberdeclaration([NotNull] CPP14Parser.MemberdeclarationContext context)
+        {
+            var memberDeclarationVisitor = new MemberDeclarationVisitor(ContextElement, AccesSpecifierSelector);
+            Analyzer.Analyze(context,memberDeclarationVisitor);
             return false;
         }
         public override bool VisitChildren(IRuleNode node)

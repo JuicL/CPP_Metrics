@@ -6,6 +6,17 @@ namespace CPP_Metrics.Tool
 {
     public static class NodeHelper
     {
+        public static NameSpaceInfo GetNameSpaceInfo([NotNull] this CPP14Parser.NamespaceDefinitionContext context)
+        {
+            NameSpaceInfo namespaceInfo = new NameSpaceInfo();
+            var inline = context.Inline();
+            if (inline != null)
+                namespaceInfo.IsInline = true;
+            var indetifer = context.Identifier();
+            namespaceInfo.Name = indetifer.GetText();
+            return namespaceInfo;
+
+        }
         public static CPPType GetTheTypeName([NotNull] this CPP14Parser.TheTypeNameContext context)
         {
             CPPType identifier = new CPPType();

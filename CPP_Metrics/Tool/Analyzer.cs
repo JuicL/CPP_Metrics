@@ -47,7 +47,7 @@ namespace CPP_Metrics.Tool
             while (bag.Any())
             {
                 var vertex = bag.Pop();
-                Console.WriteLine($"{vertex.GetType().Name}:{visitor.GetType().Name}");
+                //Console.WriteLine($"{vertex.GetType().Name}:{visitor.GetType().Name}");
                 bool result = vertex.Accept((IParseTreeVisitor<bool>)visitor);
 
                 if (result == true)

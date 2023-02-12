@@ -5,7 +5,9 @@ namespace CPP_Metrics.Types.Context
 {
     public class NameSpaceInfo
     {
+        public bool IsInline { get; set; } = false;
         public string Name { get; set; }
+        
 
     }
     public class FieldsInfo : Variable
@@ -40,12 +42,16 @@ namespace CPP_Metrics.Types.Context
         /// <summary>
         /// Имена шаблона
         /// </summary>
-        public IList<string> Templates { get; set; }
+        public IList<string>? Templates { get; set; }
         public List<CPPType> NestedNames { get; set; } = new List<CPPType>();
-
+        public AccesSpecifier? AccesSpecifier { get; set; }
         public bool IsTemplate { get; set; }
         public bool IsDeclaration { get; set; }
         public bool IsMethod { get; set; }
+
+        public bool Override = false;
+
+        public bool Final = false;
 
         public IParseTree FunctionBody { get; set; }
     }
@@ -87,8 +93,10 @@ namespace CPP_Metrics.Types.Context
 
     public class NamespaceContext : BaseContextElement
     {
+        // Parent NameSpace list
         public NameSpaceInfo NameSpaceInfo { get; set; }
     }
+
     public class SimpleContext : BaseContextElement
     { }
     public class FunctionDeclaration : BaseContextElement 

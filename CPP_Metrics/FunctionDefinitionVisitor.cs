@@ -15,6 +15,19 @@ namespace CPP_Metrics
         {
             return true;
         }
+        public override bool VisitVirtualSpecifier([NotNull] CPP14Parser.VirtualSpecifierContext context)
+        {
+            var virtualSpecifier = context.children.First().GetText();
+            if (virtualSpecifier.Equals("override"))
+            {
+                FunctionInfo.Override = true;
+            }
+            else if (virtualSpecifier.Equals("final"))
+            {
+                FunctionInfo.Final = true;
+            }
+            return false;
+        }
         public override bool VisitDeclSpecifierSeq([NotNull] CPP14Parser.DeclSpecifierSeqContext context)
         {
             var typeVisitor = new TypeVisitor();
@@ -113,7 +126,7 @@ namespace CPP_Metrics
 
         public override bool VisitFunctionBody([NotNull] CPP14Parser.FunctionBodyContext context)
         {
-            /*
+            /*functionBody:
             constructorInitializer? compoundStatement
 	        | functionTryBlock
 	        | Assign (Default | Delete) Semi;

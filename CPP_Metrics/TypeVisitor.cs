@@ -19,7 +19,11 @@ namespace CPP_Metrics
             } 
         }
         private CPPType _Type { get; set;} = new CPPType();
-
+        public override bool VisitFunctionSpecifier([NotNull] CPP14Parser.FunctionSpecifierContext context)
+        {
+            _Type.FunctionSpecifier = context.children.First().GetText();
+            return false;
+        }
         public override bool VisitNestedNameSpecifier([NotNull] CPP14Parser.NestedNameSpecifierContext context)
         {
             var nestedVisitor = new NestedNameSpecifierVisitor();

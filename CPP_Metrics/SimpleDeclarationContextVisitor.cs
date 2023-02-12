@@ -24,12 +24,14 @@ namespace CPP_Metrics
 
         public List<FunctionInfo> FunctionDeclaration = new();
 
-
         private List<Parameter>? Parameters = null;
+
+        private List<CPPType>? NestedNames;
 
         public CPPType? DeclSpecifierSeqType = null; // Тип
         
         private bool isNameSpaced = false;
+
 
         private bool? NoPointerBrace;
 
@@ -129,15 +131,30 @@ namespace CPP_Metrics
             
             NoPointerBrace = poinerDecl?.pointerOperator(0) is not null || 
                                 noPointerDecl?.pointerDeclarator() is null ? false : true;
+            var parametersAndQualifiers = noPointerDecl.parametersAndQualifiers();
+            if (parametersAndQualifiers is null)
+            {
+                Parameters = null;
+            }
+            else
+                VisitParametersAndQualifiers(parametersAndQualifiers);
+
             return true;   
+        }
+        public override bool VisitNestedNameSpecifier([NotNull] CPP14Parser.NestedNameSpecifierContext context)
+        {
+            var visitor = new NestedNameSpecifierVisitor();
+            Analyzer.Analyze(context, visitor);
+            NestedNames = visitor.NestedNames;
+            return false;
         }
         public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
-            // Случай, когда после имени стоят ( )
-            var parameters = context.parametersAndQualifiers();
-            if (parameters is null)
-                return true;
-            VisitParametersAndQualifiers(parameters);
+            //// Случай, когда после имени стоят ( )
+            //var parameters = context.parametersAndQualifiers();
+            //if (parameters is null)
+            //    return true;
+            //VisitParametersAndQualifiers(parameters);
 
             //isParametersBraces = context.children.Count > 1 ? true : false;
             
@@ -154,7 +171,7 @@ namespace CPP_Metrics
         /* 
          * TODO : Точнее разделить случаи
          *        Шаблоны!
-         *        define!
+         *        
         Identifier
         | operatorFunctionId
         | conversionFunctionId
@@ -162,19 +179,44 @@ namespace CPP_Metrics
         | Tilde (className | decltypeSpecifier)
         | templateId;
         */
+        public override bool VisitOperatorFunctionId([NotNull] CPP14Parser.OperatorFunctionIdContext context)
+        {
+            var name = context.children.First().GetText() // operator
+                + context.children.Last().GetTerminalNodes().First().GetText(); // theOperator 
+            var functionInfo = new FunctionInfo
+            {
+                Name = name,
+                ReturnType = DeclSpecifierSeqType,
+                Parameters = Parameters,
+            };
+            FunctionDeclaration.Add(functionInfo);
+
+            return base.VisitOperatorFunctionId(context);
+        }
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
-            // Если nested имеет только :: -> перекинуть тип из declType в nested, обнулиtь declType
-            // Если NoPointer имеет () значит проверить является ли declType функцией или типом, и проверить параметр в скобках
-            // !! Проверка Типов!!! Для декларации функций расширить проверку типов вход. параметров.
+            
 
+            // !! Проверка Типов!!! Для декларации функций расширить проверку типов вход. параметров.
             // Initializer(нет declType,проверить текущее имя) // Parameters // NoPointer
 
             var identifier = context.Identifier();
             if (identifier is null) return true;
             var name = identifier.GetText();
 
-            //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора или)
+            // Если nested имеет только :: -> перекинуть тип из declType в nested, обнулиtь declType
+            if (NestedNames is not null && NestedNames.Count == 0)
+            {
+                if (DeclSpecifierSeqType is not null)
+                {
+                    NestedNames = DeclSpecifierSeqType.NestedNames;
+                    DeclSpecifierSeqType.NestedNames = null;
+                    NestedNames.Add(DeclSpecifierSeqType);
+                }
+            }
+            
+            // Если NoPointer имеет () значит проверить является ли declType функцией или типом, и проверить параметр в скобках
+            //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора)
             if (NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
                 if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName)) //TODO: проверка не являтеся ли типом
@@ -185,23 +227,24 @@ namespace CPP_Metrics
                     return false;
                 }
             }
-
+            if(DeclSpecifierSeqType is null && Parameters is not null)
+            {
+                Console.WriteLine($"#FunCall# {name}");
+                return false;
+            }
             // проверка декларация функции по параметрам внутри parametrsBraced
             if(DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters))
             {
-                var functionInfo = new FunctionInfo();
-                functionInfo.Name = name;
+                var functionInfo = new FunctionInfo
+                {
+                    Name = name,
+                    ReturnType = DeclSpecifierSeqType,
+                    Parameters = Parameters is null ? new List<Parameter>() : Parameters,
+
+                };
                 FunctionDeclaration.Add(functionInfo);
-
-
                 return false;
             }
-
-            //if (isNameSpaced && isParametersBraces || !isDeclSpec && isParametersBraces)// Если :: и () //() без declSpec -- функция
-            //{
-            //    CallFuncNames.Add(name);
-            //    return false;
-            //}
 
             var variable = new Variable()
             {
@@ -221,3 +264,19 @@ namespace CPP_Metrics
         }
     }
 }
+/*//Конструктор
+            if(DeclSpecifierSeqType is null && NestedNames is not null)
+            {
+                if(NestedNames.Last().TypeName.Equals(name))
+                {
+                    var functionInfo = new FunctionInfo
+                    {
+                        Name = name,
+                        ReturnType = DeclSpecifierSeqType,
+                        Parameters = Parameters is null ? new List<Parameter>() : Parameters,
+
+                    };
+                    FunctionDeclaration.Add(functionInfo);
+                }
+            }
+ */
