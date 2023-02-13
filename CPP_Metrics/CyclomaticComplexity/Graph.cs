@@ -13,8 +13,9 @@ namespace CPP_Metrics.CyclomaticComplexity
             var head = this.CreateVertex();
             head.Type = Type.Head;
             Head = head;
+
             var tail = this.CreateVertex();
-            head.Type = Type.Tail;
+            tail.Type = Type.Tail;
             Tail = tail;
         }
     }

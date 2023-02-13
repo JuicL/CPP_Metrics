@@ -71,16 +71,13 @@ namespace CPP_Metrics.CyclomaticComplexity
             //True way
             ConntectLastAddedWithCurrentVertex(whileVertex, visitor.Last); // Связка наверх
             
-            if (Graph.Edges.FirstOrDefault(x => x.From.Id == whileVertex.Id) is null) 
+            if (Graph.Edges.Where(x => x.From.Id == whileVertex.Id).Count() == 1) 
             {
                 var whileContext = Graph.CreateVertex();
                 whileContext.Type = Type.EmpyStatement;
                 Graph.CreateEdge(whileVertex, whileContext);
                 Graph.CreateEdge(whileContext, whileVertex);
             }
-             
-            
-
             Last = whileVertex;
         }
         /// <summary>
@@ -106,7 +103,8 @@ namespace CPP_Metrics.CyclomaticComplexity
             //(2) endIf = Last is null ? To : Last;
             CyclomaticComplexityVisitor visitor = new CyclomaticComplexityVisitor(Graph, ifStatement, endIf);
             //TODO : От узла стейтмента
-            Analyzer.AnalyzeR(context.children, visitor);
+            
+            Analyzer.AnalyzeR(context.statement().First(), visitor);
 
             ConntectLastAddedWithCurrentVertex(ifStatement, visitor.Last);// Привязка вверх
 
@@ -118,10 +116,10 @@ namespace CPP_Metrics.CyclomaticComplexity
             // Закомментить если внести (2)
             var afterEndIfVertex = Last is null ? To : Last;
             Graph.CreateEdge(endIf, afterEndIfVertex);
-            
+
 
             // Проверить есть ли вершина else
-            var isElse = context.children.FirstOrDefault(x => x.GetText() == "else");
+            var isElse = context.Else();
             if (isElse is not null)
             {
                 var elseVertex = Graph.CreateVertex();
@@ -129,8 +127,7 @@ namespace CPP_Metrics.CyclomaticComplexity
                 Graph.CreateEdge(ifVertex, elseVertex);
 
                 CyclomaticComplexityVisitor elseVisitor = new CyclomaticComplexityVisitor(Graph, elseVertex, endIf);
-                //TODO : От узла стейтмента
-                Analyzer.AnalyzeR(context.children, elseVisitor);
+                Analyzer.AnalyzeR(context.statement().Last(), elseVisitor);
 
                 ConntectLastAddedWithCurrentVertex(elseVertex, elseVisitor.Last);// Привязка вверх
 
@@ -268,11 +265,11 @@ namespace CPP_Metrics.CyclomaticComplexity
         }
         public override bool VisitSelectionStatement([NotNull] SelectionStatementContext context)
         {
-            if(context.GetChild(0).GetText() == "if")
+            if(context.If() is not null)
             {
                 ParseIfSection(context);
             }
-            else if(context.GetChild(0).GetText() == "switch")
+            else if(context.Switch() is not null)
             {
                 ParseSwitchStatement(context);
             }

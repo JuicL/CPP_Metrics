@@ -12,15 +12,20 @@ namespace CPP_Metrics
     {
         public static bool GetVariableName(this BaseContextElement contextElement, string? name)
         {
-            // TODO If contextElement is functionDeclaration and this method of class, first check in class field, and after in gloabal context
+            // TODO If contextElement is functionDeclaration and this method of class, first check in class field, and after in global context
             if (name == null) return false;
-            for(var context = contextElement; context is not null; context = context.Paren)
+            for (var context = contextElement; context is not null; context = context.Paren)
             {
-                if(context.VariableDeclaration.TryGetValue(name, out var variable))
+                if (context.VariableDeclaration.TryGetValue(name, out var variable))
                 {
                     return true;
                 }
             }
+
+            return false;
+        }
+        public static bool GetVariableName(this BaseContextElement contextElement, string? name,List<CPPType>? nestedNames)
+        {
 
             return false;
         }

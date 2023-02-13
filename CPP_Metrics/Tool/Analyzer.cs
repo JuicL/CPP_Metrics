@@ -62,19 +62,19 @@ namespace CPP_Metrics.Tool
 
         public static void AnalyzeR<T>(IParseTree tree, IParseTreeVisitor<T> visitor)
         {
-            Queue<IParseTree> bag = new Queue<IParseTree>();
-            bag.Enqueue(tree);
+            Stack<IParseTree> bag = new Stack<IParseTree>();
+            bag.Push(tree);
             while (bag.Any())
             {
-                var vertex = bag.Dequeue();
+                var vertex = bag.Pop();
 
                 bool result = vertex.Accept((IParseTreeVisitor<bool>)visitor);
 
                 if (result == true)
                 {
-                    for (int i = vertex.ChildCount - 1; i >= 0; --i)
+                    for (int i = 0; i < vertex.ChildCount; i++)
                     {
-                        bag.Enqueue(vertex.GetChild(i));
+                        bag.Push(vertex.GetChild(i));
                     }
                 }
             }

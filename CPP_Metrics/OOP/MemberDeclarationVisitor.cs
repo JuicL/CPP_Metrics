@@ -56,7 +56,7 @@ namespace CPP_Metrics.OOP
                 .FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationListContext)
                 ?.GetChildren()
                 .Where(x => x is CPP14Parser.ParameterDeclarationContext).ToList();
-            if (parameterDeclaration is null) return false;
+            if(parameterDeclaration is null) return false;
             foreach (var item in parameterDeclaration)
             {
                 var parameterVisitor = new ParameterVisitor();
@@ -88,7 +88,22 @@ namespace CPP_Metrics.OOP
         }
         private void ParseDescructor([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
-
+            var className = context.className();
+            if (className is not null)
+            {
+                var identifier = className.Identifier();
+                if(identifier is not null) //
+                {
+                    var functionInfo = new FunctionInfo
+                    {
+                        Name = "~" + identifier.GetText(),
+                        AccesSpecifier = AccesSpecifierSelector,
+                    };
+                    FunctionDeclaration.Add(functionInfo);
+                }
+                //SimpleTemplateId
+            }
+            //DeclType
         }
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
