@@ -7,13 +7,14 @@ using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using Facads;
 
-var files = DirectoiryFiles.GetFiles(new List<string>() { "C:/Users/User/Desktop/folder3" },new[]{".cpp", ".h"});
-foreach (var item in files)
-{
-    Console.WriteLine(item.FullName);
-}
+//"C:/Users/User/Desktop/folder3"
 
+PrepareFiles prepareFiles = new PrepareFiles(new List<string>() { @"C:\Users\User\Desktop\folder3\tt" });
+var FF = prepareFiles.Files.First().Value;
+var ppP = prepareFiles.CreatePreprocessorFile(FF);
+prepareFiles.ReadPreprocessedFile(FF, ppP);
 return;
+
 void DisplayContext(BaseContextElement ContextElement)
 {
     Console.WriteLine("===========");
