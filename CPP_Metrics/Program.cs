@@ -1,14 +1,36 @@
 ﻿
 using CPP_Metrics;
 using CPP_Metrics.CyclomaticComplexity;
+using CPP_Metrics.FilesPrepare;
 using CPP_Metrics.OOP;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using Facads;
 
+var files = DirectoiryFiles.GetFiles(new List<string>() { "C:/Users/User/Desktop/folder3" },new[]{".cpp", ".h"});
+foreach (var item in files)
+{
+    Console.WriteLine(item.FullName);
+}
+
+return;
 void DisplayContext(BaseContextElement ContextElement)
 {
     Console.WriteLine("===========");
+    if(ContextElement is ClassStructDeclaration classStructDeclaration)
+    {
+        Console.WriteLine("Fields");
+        foreach (var item in classStructDeclaration.ClassStructInfo.Fields)
+        {
+            Console.WriteLine(item.Name);
+        }
+        Console.WriteLine("Methods");
+        foreach (var item in classStructDeclaration.ClassStructInfo.Methods)
+        {
+            Console.WriteLine(item.Name);
+        }
+    }
+
     Console.WriteLine(ContextElement.GetType());
     Console.WriteLine("VariableNames");
     foreach (var variable in ContextElement.VariableDeclaration)

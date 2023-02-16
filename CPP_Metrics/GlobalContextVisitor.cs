@@ -154,8 +154,8 @@ namespace CPP_Metrics
 
             if(visitor.ClassStructInfo.Body is not null)
             {
-                var globalContextVisitor = new GlobalContextVisitor(classContext);
-                Analyzer.Analyze(visitor.ClassStructInfo.Body, globalContextVisitor);
+                var memberSpecificationVisitor = new MemberSpecificationVisitor(classContext.ClassStructInfo.ClassKey, classContext);
+                Analyzer.Analyze(visitor.ClassStructInfo.Body, memberSpecificationVisitor);
             }
 
             return false;

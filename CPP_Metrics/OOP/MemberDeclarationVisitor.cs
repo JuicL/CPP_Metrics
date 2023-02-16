@@ -10,11 +10,11 @@ namespace CPP_Metrics.OOP
         private ClassStructDeclaration ContextElement { get; }
         private AccesSpecifier AccesSpecifierSelector { get; }
 
-        private CPPType? DeclSpecifierSeqType = null; // Тип
-
-        public List<Variable> VariablesDeclaration = new();
-
+        public List<FieldsInfo> VariablesDeclaration = new();
+        
         public List<FunctionInfo> FunctionDeclaration = new();
+        
+        private CPPType? DeclSpecifierSeqType = null;
 
         private List<Parameter>? Parameters = null;
 
@@ -22,10 +22,29 @@ namespace CPP_Metrics.OOP
 
         private bool Final = false;
 
+        private CPP14Parser.BraceOrEqualInitializerContext? BraceOrEqualInitializer;
+
         public MemberDeclarationVisitor(ClassStructDeclaration contextElement, AccesSpecifier accesSpecifierSelector)
         {
             ContextElement = contextElement;
             AccesSpecifierSelector = accesSpecifierSelector;
+        }
+        public override bool VisitMemberDeclarator([NotNull] CPP14Parser.MemberDeclaratorContext context)
+        {
+            var virtualSpecifierSeq = context.virtualSpecifierSeq();
+            if(virtualSpecifierSeq != null)
+            {
+                foreach(var virtualSpecifier in virtualSpecifierSeq.virtualSpecifier())
+                {
+                    VisitVirtualSpecifier(virtualSpecifier);
+                }
+            }    
+            var braceOrEqualInitializer = context.braceOrEqualInitializer();
+            if(braceOrEqualInitializer != null)
+            {
+                BraceOrEqualInitializer = braceOrEqualInitializer;
+            }
+            return true;
         }
         public override bool VisitDeclSpecifierSeq([NotNull] CPP14Parser.DeclSpecifierSeqContext context)
         {
@@ -34,7 +53,7 @@ namespace CPP_Metrics.OOP
             DeclSpecifierSeqType = visitor.Type;
             return false;
         }
-        public override bool VisitVirtualSpecifier([NotNull] CPP14Parser.VirtualSpecifierContext context)
+        public new bool VisitVirtualSpecifier([NotNull] CPP14Parser.VirtualSpecifierContext context)
         {
             var virtualSpecifier = context.children.First().GetText();
             if(virtualSpecifier.Equals("override"))
@@ -48,9 +67,18 @@ namespace CPP_Metrics.OOP
 
             return false;
         }
-        public override bool VisitParametersAndQualifiers([NotNull] CPP14Parser.ParametersAndQualifiersContext context)
+        public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
-            var Parameters = new List<Parameter>();
+            var parameters = context.parametersAndQualifiers();
+            if (parameters is not null)
+            {
+                VisitParametersAndQualifiers(parameters);
+            }
+            return true;
+        }
+        public new bool VisitParametersAndQualifiers([NotNull] CPP14Parser.ParametersAndQualifiersContext context)
+        {
+            Parameters = new List<Parameter>();
             var parameterDeclaration = context.children.FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationClauseContext)
                 ?.GetChildren()
                 .FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationListContext)
@@ -77,11 +105,19 @@ namespace CPP_Metrics.OOP
                 {
                     return true;
                 }
-                // имя null проверяем type на равенство с именем переменной
-                if (parameter.Name is null
-                    && ContextElement.GetVariableName(parameter.Type.TypeName))
+                if (parameter.Name is null)
                 {
-                    return false;
+                    //Поле класса
+                    if (ContextElement.ClassStructInfo.Fields.Any(f => f.Name == parameter.Type.TypeName)
+                        || VariablesDeclaration.Any(f => f.Name == parameter.Type.TypeName))
+                    {
+                        return false;
+                    }
+                    // имя null проверяем type на равенство с именем переменной
+                    if (ContextElement.GetVariableName(parameter.Type.TypeName))
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -98,12 +134,27 @@ namespace CPP_Metrics.OOP
                     {
                         Name = "~" + identifier.GetText(),
                         AccesSpecifier = AccesSpecifierSelector,
+                        Override = Override,
+                        Final = Final,
+                        IsPure = IsPure(BraceOrEqualInitializer)
                     };
                     FunctionDeclaration.Add(functionInfo);
                 }
                 //SimpleTemplateId
             }
             //DeclType
+        }
+        private bool IsPure([NotNull] CPP14Parser.BraceOrEqualInitializerContext? context)
+        {
+            if (context is null) return false;
+
+            var init = context.initializerClause();
+            if(init is not null)
+            {
+                if(String.Equals(init.GetText(),"0"))
+                { return true; }
+            }
+            return false;
         }
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
@@ -126,7 +177,10 @@ namespace CPP_Metrics.OOP
                 var functionInfo = new FunctionInfo
                 {
                     Name = name,
-                    AccesSpecifier = AccesSpecifierSelector
+                    AccesSpecifier = AccesSpecifierSelector,
+                    Override = Override,
+                    Final = Final,
+                    
                 };
                 FunctionDeclaration.Add(functionInfo);
                 return false;
@@ -138,7 +192,11 @@ namespace CPP_Metrics.OOP
                 var functionInfo = new FunctionInfo
                 {
                     Name = name,
-                    AccesSpecifier = AccesSpecifierSelector
+                    AccesSpecifier = AccesSpecifierSelector,
+                    ReturnType = DeclSpecifierSeqType,
+                    Override = Override,
+                    Final = Final,
+                    IsPure = IsPure(BraceOrEqualInitializer),
                 };
                 FunctionDeclaration.Add(functionInfo);
 

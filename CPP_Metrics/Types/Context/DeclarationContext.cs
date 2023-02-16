@@ -24,9 +24,9 @@ namespace CPP_Metrics.Types.Context
         public string ClassKey { get; set; }
         public string Name { get; set; }
         public IList<string> TemplateNames { get; set; }
-        public IList<FunctionDeclaration> Methods { get; set; }
-        public IList<FieldsInfo> Fields { get; set; }
-        public IList<BasedClassInfo> BaseClasses { get; private set; } = new List<BasedClassInfo>();
+        public List<FunctionInfo> Methods { get; set; } = new();
+        public List<FieldsInfo> Fields { get; set; } = new();
+        public List<BasedClassInfo> BaseClasses { get; private set; } = new();
 
         public bool IsTemplate { get; set; }
         public bool IsDeclaration { get; set; } // class <className> 
@@ -49,10 +49,11 @@ namespace CPP_Metrics.Types.Context
         public bool IsDeclaration { get; set; }
         public bool IsMethod { get; set; }
 
-        public bool Override = false;
+        public bool Override { get; set; } = false;
 
-        public bool Final = false;
+        public bool Final { get; set; } = false;
 
+        public bool IsPure { get; set; } = false;
         public IParseTree FunctionBody { get; set; }
     }
 

@@ -75,6 +75,10 @@ namespace CPP_Metrics.OOP
         {
             var memberDeclarationVisitor = new MemberDeclarationVisitor(ContextElement, AccesSpecifierSelector);
             Analyzer.Analyze(context,memberDeclarationVisitor);
+
+            ContextElement.ClassStructInfo.Fields.AddRange(memberDeclarationVisitor.VariablesDeclaration);
+            ContextElement.ClassStructInfo.Methods.AddRange(memberDeclarationVisitor.FunctionDeclaration);
+
             return false;
         }
         public override bool VisitChildren(IRuleNode node)
