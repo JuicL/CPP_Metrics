@@ -13,7 +13,7 @@ namespace CPP_Metrics
     /*
      Рассмотрены случа объявления переменной и функции(с указанием namespace). Переменная типа класса. Присваивание переменной(классу) функции/переменной
      */
-  
+
 
     public class SimpleDeclarationContextVisitor : CPP14ParserBaseVisitor<bool>
     {

@@ -85,16 +85,16 @@ namespace CPP_Metrics.OOP
                     baseClass.TemplateNames = new List<CPPType>();
                     var templateArgumentList = simpleTemplate.children
                                                     .FirstOrDefault(x => x is CPP14Parser.TemplateArgumentListContext);
-                    Console.WriteLine($"--Base Class {ClassStructInfo.BaseClasses.Last().TypeName}");
+                    //Console.WriteLine($"--Base Class {ClassStructInfo.BaseClasses.Last().TypeName}");
 
                 }
                 else// Identifire
                 {
                     baseClass.TypeName = classNameChild.GetText();
-                    Console.WriteLine($"--Base Class {ClassStructInfo.BaseClasses.Last().TypeName}");
 
                 }
                 ClassStructInfo.BaseClasses.Add(baseClass);
+                Console.WriteLine($"--Base Class {ClassStructInfo.BaseClasses.Last().TypeName}");
             }
             else
             {

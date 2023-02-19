@@ -8,48 +8,6 @@ using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics
 {
-    public static class ContextHelper
-    {
-        public static bool GetVariableName(this BaseContextElement contextElement, string? name)
-        {
-            // TODO If contextElement is functionDeclaration and this method of class, first check in class field, and after in global context
-            if (name == null) return false;
-            for (var context = contextElement; context is not null; context = context.Paren)
-            {
-                if (context.VariableDeclaration.TryGetValue(name, out var variable))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        public static bool GetVariableName(this BaseContextElement contextElement, string? name,List<CPPType>? nestedNames)
-        {
-
-            return false;
-        }
-
-        public static bool GetFunctionName(this BaseContextElement contextElement, string name)
-        {
-            if (name == null) return false;
-            for (var context = contextElement; context is not null; context = context.Paren)
-            {
-                if (context.FunctionDeclaration.TryGetValue(name, out var functionInfo))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool GetTypeName(this BaseContextElement contextElement, string name)
-        {
-            return true;
-        }
-
-    }
-
     public class GlobalContextVisitor : CPP14ParserBaseVisitor<bool>
     {
         public GlobalContextVisitor(BaseContextElement contextElement)
@@ -63,25 +21,96 @@ namespace CPP_Metrics
 
         // Statement // AND for 
 
+        // Using = theTypeId
+        public override bool VisitAliasDeclaration([NotNull] CPP14Parser.AliasDeclarationContext context)
+        {
+            var name = context.Identifier().GetText();
+            if (context.theTypeId().abstractDeclarator() is not null)
+                return false;
+            var visitor = new TypeVisitor();
+            Analyzer.Analyze(context.theTypeId().typeSpecifierSeq(), visitor);
+            var assingType = visitor.Type;
+            ContextElement.AliasDeclaration.TryAdd(name, assingType);
+            return false;
+        }
+
+        // Using // Only Types
+        public override bool VisitUsingDeclaration([NotNull] CPP14Parser.UsingDeclarationContext context)
+        {
+            SimpleUsing simpleUsing = new SimpleUsing();
+            var unqualifiedId = context.unqualifiedId();
+
+            if(unqualifiedId.Identifier() is not null)
+            {
+                simpleUsing.Name = unqualifiedId.Identifier().GetText();
+            }
+            else if(unqualifiedId.templateId() is not null)
+            {
+                var simpleTemplateId = unqualifiedId.templateId().simpleTemplateId();
+                if(simpleTemplateId is not null)
+                {
+                    simpleUsing.Name = simpleTemplateId.templateName().Identifier().GetText();
+                }
+            }
+
+            var nestedNameSpecifier = context.nestedNameSpecifier();
+            if (nestedNameSpecifier != null)
+            {
+                var visitor = new NestedNameSpecifierVisitor();
+                Analyzer.Analyze(nestedNameSpecifier, visitor);
+                simpleUsing.Nested = visitor.NestedNames;
+            }
+            ContextElement.SimpleUsing.Add(simpleUsing);
+            return false;
+        }
+        // Using namespace
+        public override bool VisitUsingDirective([NotNull] CPP14Parser.UsingDirectiveContext context)
+        {
+            UsingNamespace usingNamespace = new();
+            var namespaceName = context.namespaceName().children.First().GetChildren().First().GetText();
+            usingNamespace.Name = namespaceName;
+            var nested = context.nestedNameSpecifier();
+            if(nested is not null)
+            {
+                var visitor = new NestedNameSpecifierVisitor();
+                Analyzer.Analyze(nested, visitor);
+                usingNamespace.Nested = visitor.NestedNames;
+            }
+
+            var test = ContextElement.GetNameSpace(usingNamespace.Name, usingNamespace.Nested);
+
+            ContextElement.UsingNamespaces.Add(usingNamespace);
+            return false;
+        }
+        // Usings
+
         //NameSpace
         public override bool VisitNamespaceDefinition([NotNull] CPP14Parser.NamespaceDefinitionContext context)
         {
+            if (ContextElement is not NamespaceContext)
+                throw new Exception("Declaration namespace error");
+
             var namespaceInfo = context.GetNameSpaceInfo();
             var declarationseq = context.declarationseq();
-            var namespaceContext = new NamespaceContext
+            NamespaceContext? namespaceContext;
+            namespaceContext = ContextElement.GetNameSpace(namespaceInfo.Name);
+            if (namespaceContext == null) // 
             {
-                NameSpaceInfo = namespaceInfo,
-                Paren = ContextElement
-            };
-
-            ContextElement.Children.Add(namespaceContext);
-
+                namespaceContext = new NamespaceContext
+                {
+                    NameSpaceInfo = namespaceInfo,
+                    ParenNameSpace = (NamespaceContext)ContextElement,
+                };
+                namespaceContext.Paren = ContextElement;
+                ContextElement.Children.Add(namespaceContext);
+            }
+            
             if(declarationseq is not null)
             {
                 var globalContextVisitor = new GlobalContextVisitor(namespaceContext);
                 Analyzer.Analyze(declarationseq, globalContextVisitor);
             }
-            return true;
+            return false;
         }
 
         //Function or method
@@ -132,14 +161,42 @@ namespace CPP_Metrics
 
             return true;
         }
-
+        private List<CPPType> GetNestedList(BaseContextElement baseContextElement)
+        {
+            List<CPPType> nestedList = new();
+            var currentContextElem = baseContextElement;
+            while (currentContextElem is not null)
+            {
+                if(currentContextElem is NamespaceContext namespaceContext)
+                {
+                    nestedList.Add(new CPPType() { TypeName = namespaceContext.NameSpaceInfo.Name });
+                }
+                else if(currentContextElem is ClassStructDeclaration classStruct)
+                {
+                    nestedList.Add(new CPPType() { TypeName = classStruct.ClassStructInfo.Name });
+                }
+                currentContextElem = currentContextElem.Paren;
+            }
+            return nestedList;
+        }
         //Class
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
         {
             var visitor = new ClassStructVisitor();
             Analyzer.Analyze(context, visitor);
+
+            List<CPPType> nestedList = GetNestedList(ContextElement);
+
+
+
             var classContext = new ClassStructDeclaration();
             classContext.ClassStructInfo = visitor.ClassStructInfo;
+            classContext.ClassStructInfo.Nested = nestedList;
+            foreach (var item in classContext.ClassStructInfo.BaseClasses)
+            {
+                var test = ContextElement.GetTypeName(item.TypeName,item.NestedNames);
+            }
+
             classContext.Paren = ContextElement;
             ContextElement.Children.Add(classContext);
 

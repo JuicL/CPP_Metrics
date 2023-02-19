@@ -9,23 +9,23 @@ using Facads;
 
 //"C:/Users/User/Desktop/folder3"
 
-PrepareFiles prepareFiles = new PrepareFiles(new List<string>() { @"C:\Users\User\Desktop\folder3\tt" });
-var FF = prepareFiles.Files.First().Value;
-var ppP = prepareFiles.CreatePreprocessorFile(FF);
-prepareFiles.ReadPreprocessedFile(FF, ppP);
-return;
+//PrepareFiles prepareFiles = new PrepareFiles(new List<string>() { @"C:\Users\User\Desktop\folder3\tt" });
+//var FF = prepareFiles.Files.First().Value;
+//var ppP = prepareFiles.CreatePreprocessorFile(FF);
+//prepareFiles.ReadPreprocessedFile(FF, ppP);
+//return;
 
 void DisplayContext(BaseContextElement ContextElement)
 {
-    Console.WriteLine("===========");
     if(ContextElement is ClassStructDeclaration classStructDeclaration)
     {
-        Console.WriteLine("Fields");
+        Console.WriteLine("-ClassInfo===========");
+        Console.WriteLine("-Fields");
         foreach (var item in classStructDeclaration.ClassStructInfo.Fields)
         {
             Console.WriteLine(item.Name);
         }
-        Console.WriteLine("Methods");
+        Console.WriteLine("-Methods");
         foreach (var item in classStructDeclaration.ClassStructInfo.Methods)
         {
             Console.WriteLine(item.Name);
@@ -33,16 +33,18 @@ void DisplayContext(BaseContextElement ContextElement)
     }
 
     Console.WriteLine(ContextElement.GetType());
-    Console.WriteLine("VariableNames");
+    if(ContextElement is NamespaceContext namespaceContext)
+        Console.WriteLine(namespaceContext.NameSpaceInfo.Name);
+    Console.WriteLine("-VariableNames");
     foreach (var variable in ContextElement.VariableDeclaration)
         Console.WriteLine($"----type:{variable.Value.Type?.TypeName},name:{variable.Value.Name}");
-    Console.WriteLine("DeclFuncNames");
+    Console.WriteLine("-DeclFuncNames");
     foreach (var name in ContextElement.FunctionDeclaration)
         foreach (var item in name.Value)
         {
             Console.WriteLine(item.Name);
         }
-    Console.WriteLine("TypeName");
+    Console.WriteLine("-TypeName");
     foreach (var item in ContextElement.TypeDeclaration)
         Console.WriteLine($"----Name: {item.Value.Name}");
 }
@@ -62,8 +64,7 @@ var typeVisitor = new TypeVisitor();
 //Analyzer.Analyze(three, generalVisitor);
 
 //TODO: Разобраться с аналайзером для Цикломатической(!там нужно ходить справа налево)
-NameSpaceInfo nameSpaceInfo = new() { Name = "::" };
-BaseContextElement ContextElement = new NamespaceContext() { NameSpaceInfo = nameSpaceInfo };
+BaseContextElement ContextElement = BaseContextElement.GetGeneralNameSpace();
 
 var contextVisitor = new GlobalContextVisitor(ContextElement);
 Analyzer.Analyze(three, contextVisitor);

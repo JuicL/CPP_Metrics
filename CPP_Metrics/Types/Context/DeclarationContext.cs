@@ -7,9 +7,9 @@ namespace CPP_Metrics.Types.Context
     {
         public bool IsInline { get; set; } = false;
         public string Name { get; set; }
-        
 
     }
+
     public class FieldsInfo : Variable
     {
         public AccesSpecifier AccesSpecifier { get; set; }
@@ -26,6 +26,7 @@ namespace CPP_Metrics.Types.Context
         public IList<string> TemplateNames { get; set; }
         public List<FunctionInfo> Methods { get; set; } = new();
         public List<FieldsInfo> Fields { get; set; } = new();
+        public List<CPPType> Nested { get; set; } = new();
         public List<BasedClassInfo> BaseClasses { get; private set; } = new();
 
         public bool IsTemplate { get; set; }
@@ -64,10 +65,12 @@ namespace CPP_Metrics.Types.Context
         Function,
 
     }
+
     public class BaseContextElement
     {
         public BaseContextElement()
         {
+            Source = CurrentSource;
         }
 
         public IDictionary<string,List<FunctionInfo>> FunctionDeclaration = new Dictionary<string,List<FunctionInfo>>();
@@ -77,8 +80,11 @@ namespace CPP_Metrics.Types.Context
         public IDictionary<string, ClassStructInfo> TypeDeclaration = new Dictionary<string, ClassStructInfo>();
 
         public Guid Guid { get; set; }
-        
         // Доступные Using's
+        public List<UsingNamespace> UsingNamespaces { get; set; } = new List<UsingNamespace>();
+        public List<SimpleUsing> SimpleUsing { get; set; } = new List<SimpleUsing>();
+        public Dictionary<string,CPPType> AliasDeclaration { get; set; } = new Dictionary<string,CPPType>();
+
 
         public ContextType ContextType { get; set; }
         public BaseContextElement? Paren { get; set; } = null;
@@ -86,15 +92,41 @@ namespace CPP_Metrics.Types.Context
 
         public static BaseContextElement GetGeneralNameSpace()
         {
-            return new NamespaceContext();
+            if(GeneralNameSpace is null)
+            {
+                var generalNamespace = new NamespaceContext();
+                NameSpaceInfo spaceInfo = new()
+                {
+                    Name = "::",
+                    IsInline = false,
+                };
+                generalNamespace.NameSpaceInfo = spaceInfo;
+                GeneralNameSpace = generalNamespace;
+            }
+            return GeneralNameSpace;
         }
-        private static BaseContextElement GeneralNameSpace;
+        private static BaseContextElement? GeneralNameSpace;
+        public  string Source { get; private set; } = "";
+        public static string CurrentSource { get; set; } = "";
+    }
+    
+    
+    //temporarily
+    public class SimpleUsing
+    {
+        public string Name { get; set; }
+        public List<CPPType> Nested { get; set; } = new List<CPPType>();
+    }
 
+    public class UsingNamespace
+    {
+        public string Name { get; set; }
+        public List<CPPType> Nested { get; set; } = new List<CPPType>();
     }
 
     public class NamespaceContext : BaseContextElement
     {
-        // Parent NameSpace list
+        public NamespaceContext ParenNameSpace { get; set; }
         public NameSpaceInfo NameSpaceInfo { get; set; }
     }
 

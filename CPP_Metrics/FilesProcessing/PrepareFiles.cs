@@ -1,5 +1,6 @@
 ﻿
 
+using Antlr4.Runtime.Misc;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -64,8 +65,14 @@ namespace CPP_Metrics.FilesPrepare
             process.WaitForExit();
             return outFile;
         }
-
-        public void ReadPreprocessedFile(FileInfo fileInfo,string preprocessedFilePath)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <param name="preprocessedFilePath"></param>
+        /// <returns>Pair include preprocesser file path and current file after preprocessed processing</returns>
+        /// <exception cref="Exception"></exception>
+        public Pair<string,string> ReadPreprocessedFile(FileInfo fileInfo,string preprocessedFilePath)
         {
             var fileName = Path.GetFileNameWithoutExtension(fileInfo.Name);
             if (!File.Exists(preprocessedFilePath))
@@ -88,17 +95,10 @@ namespace CPP_Metrics.FilesPrepare
                 if(line.StartsWith("#"))
                 {
                     var matches = regex.Matches(line);
-                    if (matches.Count > 0)
-                    {
-                        selector = true;
-                    }
-                    else
-                    {
-                        selector = false;
-                    }
+                    selector = matches.Count > 0;
                     continue;
                 }
-                if (line.Count() == 0)
+                if (line.Length == 0)
                     continue;
 
                 if (selector)
@@ -115,6 +115,7 @@ namespace CPP_Metrics.FilesPrepare
             fileWriter.Close();
             fileIncludesFS.Close();
             fileFS.Close();
+            return new Pair<string, string>(fileIncludesPath, filePath);
         }
     }
 }
