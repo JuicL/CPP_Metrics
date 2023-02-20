@@ -12,12 +12,12 @@ namespace CPP_Metrics.FilesPrepare
         public string[] Extentions { get; } = new []{ ".cpp", ".h", ".hpp" };
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; } = new();
-        public string PathToTempFiles { get; }
+        public string PathToTempFilesDirectory { get; }
         public PrepareFiles(List<string> sourceFilesPath)
         {
             SourceFilesPath = sourceFilesPath;
             GetFileProject();
-            PathToTempFiles = CreateDirectoryForTempFiles();
+            PathToTempFilesDirectory = CreateDirectoryForTempFiles();
         }
         private void GetFileProject()
         {
@@ -46,7 +46,7 @@ namespace CPP_Metrics.FilesPrepare
         /// <returns>Preprocesed file</returns>
         public string CreatePreprocessorFile(FileInfo filePath)
         {
-            var outFile = Path.Combine(PathToTempFiles, 
+            var outFile = Path.Combine(PathToTempFilesDirectory, 
                 Path.GetFileNameWithoutExtension(filePath.Name) + ".ii");
             var test = $"g++ -E {filePath.FullName} -o {outFile}";
             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -78,8 +78,8 @@ namespace CPP_Metrics.FilesPrepare
             if (!File.Exists(preprocessedFilePath))
                 throw new Exception("Preprocessed file not created");
 
-            var fileIncludesPath = Path.Combine(PathToTempFiles, fileName + "_I.m");
-            var filePath = Path.Combine(PathToTempFiles, fileName + "_P.m");
+            var fileIncludesPath = Path.Combine(PathToTempFilesDirectory, fileName + "_I.m");
+            var filePath = Path.Combine(PathToTempFilesDirectory, fileName + "_P.m");
 
             FileStream fileIncludesFS = new FileStream(fileIncludesPath, FileMode.Create);
             StreamWriter fileIncludesWriter = new StreamWriter(fileIncludesFS, Encoding.Default);

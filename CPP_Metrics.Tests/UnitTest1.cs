@@ -25,7 +25,7 @@ namespace CPP_Metrics.Tests
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
 
-            var result = metric.GetCyclomaticComplexity(func.b) == 2;
+            var result = func.CyclomaticComplexityValue == 2;
             Assert.True(result);
         }
         [Fact]
@@ -51,7 +51,7 @@ namespace CPP_Metrics.Tests
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
 
-            var result = metric.GetCyclomaticComplexity(func.b) == 2;
+            var result = func.CyclomaticComplexityValue == 2;
             Assert.True(result);
         }
         [Fact]
@@ -78,7 +78,7 @@ namespace CPP_Metrics.Tests
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
 
-            var result = metric.GetCyclomaticComplexity(func.b) == 3;
+            var result = func.CyclomaticComplexityValue == 3;
             Assert.True(result);
         }
         [Fact]
@@ -105,7 +105,7 @@ namespace CPP_Metrics.Tests
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
 
-            var result = metric.GetCyclomaticComplexity(func.b) == 3;
+            var result = func.CyclomaticComplexityValue == 3;
             Assert.True(result);
         }
         [Fact]
@@ -135,7 +135,7 @@ namespace CPP_Metrics.Tests
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
 
-            var result = metric.GetCyclomaticComplexity(func.b) == 3;
+            var result = func.CyclomaticComplexityValue == 3;
             Assert.True(result);
         }
         [Fact]
@@ -160,7 +160,7 @@ namespace CPP_Metrics.Tests
             var tree = facad.GetTree();
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
-            var cyclomaticResult = metric.GetCyclomaticComplexity(func.b);
+            var cyclomaticResult = func.CyclomaticComplexityValue;
             var result = cyclomaticResult == 3;
             Assert.True(result);
         }
@@ -188,7 +188,7 @@ namespace CPP_Metrics.Tests
             var tree = facad.GetTree();
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
-            var cyclomaticResult = metric.GetCyclomaticComplexity(func.b);
+            var cyclomaticResult = func.CyclomaticComplexityValue;
             var result = cyclomaticResult == 4;
             Assert.True(result);
         }
@@ -216,7 +216,7 @@ namespace CPP_Metrics.Tests
             var tree = facad.GetTree();
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
-            var cyclomaticResult = metric.GetCyclomaticComplexity(func.b);
+            var cyclomaticResult = func.CyclomaticComplexityValue;
             var result = cyclomaticResult == 3;
             Assert.True(result);
         }

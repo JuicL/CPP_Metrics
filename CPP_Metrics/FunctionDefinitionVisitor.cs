@@ -13,6 +13,14 @@ namespace CPP_Metrics
        
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
+            string text = "";
+            foreach (var item in context.children)
+            {
+                if (item is CPP14Parser.FunctionBodyContext)
+                    break;
+                text += item.GetText();
+            }
+            FunctionInfo.Text = text;
             return true;
         }
         public override bool VisitVirtualSpecifier([NotNull] CPP14Parser.VirtualSpecifierContext context)

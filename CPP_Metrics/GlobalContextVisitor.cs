@@ -188,7 +188,6 @@ namespace CPP_Metrics
             List<CPPType> nestedList = GetNestedList(ContextElement);
 
 
-
             var classContext = new ClassStructDeclaration();
             classContext.ClassStructInfo = visitor.ClassStructInfo;
             classContext.ClassStructInfo.Nested = nestedList;

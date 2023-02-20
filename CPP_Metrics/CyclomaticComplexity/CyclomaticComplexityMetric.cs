@@ -2,23 +2,29 @@
 
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using CPP_Metrics.Metrics;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics.CyclomaticComplexity
 {
+    public static class CyclomaticComplexityMetricHelper
+    {
+        public static int GetCyclomaticComplexity(this CyclomaticGraph graph)
+        {
+            var P = 1; // Todo: Компонет связности
+            return graph.Edges.Count - graph.Verticies.Count + 2 * P;
+        }
+    }
+
     public class CyclomaticComplexityMetric
     {
-        public List<Pair<FunctionInfo, CyclomaticGraph>> Cyclomatic = new List<Pair<FunctionInfo, CyclomaticGraph>>();
+        public List<CyclomaticComplexityInfo> Cyclomatic = new List<CyclomaticComplexityInfo>();
 
         public CyclomaticComplexityMetric()
         {
         }
-        public int GetCyclomaticComplexity(CyclomaticGraph graph)
-        {
-            var P = 1; // Todo: Компонет связности
-            return graph.Edges.Count - graph.Verticies.Count + 2*P;
-        }
+        
         public void Analyze(IParseTree three)
         {
             CyclomaticComplexityFunctionVisitor visitor = new CyclomaticComplexityFunctionVisitor();

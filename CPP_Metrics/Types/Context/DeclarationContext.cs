@@ -37,6 +37,7 @@ namespace CPP_Metrics.Types.Context
 
     public class FunctionInfo
     {
+        public string Text { get; set; }
         public CPPType? ReturnType { get; set; }
         public string Name { get; set; }
         public IList<Parameter> Parameters { get; set; } = new List<Parameter>();

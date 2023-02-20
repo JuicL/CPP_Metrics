@@ -2,6 +2,8 @@
 using CPP_Metrics;
 using CPP_Metrics.CyclomaticComplexity;
 using CPP_Metrics.FilesPrepare;
+using CPP_Metrics.FilesProcessing;
+using CPP_Metrics.Metrics;
 using CPP_Metrics.OOP;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
@@ -14,6 +16,11 @@ using Facads;
 //var ppP = prepareFiles.CreatePreprocessorFile(FF);
 //prepareFiles.ReadPreprocessedFile(FF, ppP);
 //return;
+var soursePaths = new List<string>() { @"" };
+ProcessingFile processingFile = new ProcessingFile(soursePaths);
+processingFile.Metrics.Add(new CylomaticComplexity());
+
+return;
 
 void DisplayContext(BaseContextElement ContextElement)
 {
