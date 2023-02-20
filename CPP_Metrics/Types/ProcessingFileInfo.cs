@@ -6,6 +6,8 @@ namespace CPP_Metrics.Types
 {
     public class ProcessingFileInfo
     {
+        public FileInfo FileInfo { get; set; }
+
         public string IncludeFile { get; set; }
         public string IncludeFilePath { get; set; }
         public IParseTree IncludeFileTree { get; set; }

@@ -31,11 +31,7 @@ namespace CPP_Metrics.Metrics
         {
             CyclomaticComplexityFunctionVisitor visitor = new();
             Analyzer.Analyze(processingFileInfo.ProcessingFileTree, visitor);
-            foreach (var cyclomatic in visitor.Cyclomatic)
-            {
-                var cyclomaticComplexityInfo = new CyclomaticComplexityInfo();
-                
-            }
+            
             FunctionCyclomatic.AddRange(visitor.Cyclomatic);
 
             return true;
@@ -50,7 +46,7 @@ namespace CPP_Metrics.Metrics
         {
             foreach (var item in FunctionCyclomatic)
             {
-                Console.WriteLine($"{item.FunctionInfo.Name} {item.CyclomaticComplexityValue}");
+                Console.WriteLine($"{item.FunctionInfo.Text} {item.CyclomaticComplexityValue}");
             }
             return "";
         }

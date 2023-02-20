@@ -6,8 +6,8 @@ namespace CPP_Metrics.Metrics
     public interface IMetric
     {
         public IReportBuilder ReportBuilder { get; set; }
-        public bool Handle(ProcessingFileInfo processingFileInfo);
-        public void Finalizer();
         public string GenerateReport();
+        public void Finalizer();
+        public bool Handle(ProcessingFileInfo processingFileInfo);
     }
 }

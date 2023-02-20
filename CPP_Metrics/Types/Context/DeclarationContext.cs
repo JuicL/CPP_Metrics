@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 using CPP_Metrics.OOP;
+using System.Collections.Generic;
 
 namespace CPP_Metrics.Types.Context
 {
@@ -66,7 +67,8 @@ namespace CPP_Metrics.Types.Context
         Function,
 
     }
-
+    // Фильтер
+    // Обнуление контекста 
     public class BaseContextElement
     {
         public BaseContextElement()
@@ -90,7 +92,42 @@ namespace CPP_Metrics.Types.Context
         public ContextType ContextType { get; set; }
         public BaseContextElement? Paren { get; set; } = null;
         public List<BaseContextElement> Children { get; set; } = new List<BaseContextElement>();
+        public IEnumerable<BaseContextElement> Filter(Func<BaseContextElement, bool> func)
+        {
+            IList<BaseContextElement> filteredСollection = new List<BaseContextElement>();
 
+            Stack<BaseContextElement> bag = new Stack<BaseContextElement>();
+            bag.Push(this);
+            while (bag.Any())
+            {
+                var vertex = bag.Pop();
+                var result = func.Invoke(vertex);
+                
+                if (result == true)
+                {
+                    filteredСollection.Add(vertex);
+                }
+
+                for (int i = vertex.Children.Count - 1; i >= 0; --i)
+                {
+                    bag.Push(vertex.Children[i]);
+                }
+            }
+
+            return filteredСollection;
+        }
+        public static void Clear()
+        {
+            if (GeneralNameSpace is null) return;
+            var generalNamespace = new NamespaceContext();
+            NameSpaceInfo spaceInfo = new()
+            {
+                Name = "::",
+                IsInline = false,
+            };
+            generalNamespace.NameSpaceInfo = spaceInfo;
+            GeneralNameSpace = generalNamespace;
+        }
         public static BaseContextElement GetGeneralNameSpace()
         {
             if(GeneralNameSpace is null)

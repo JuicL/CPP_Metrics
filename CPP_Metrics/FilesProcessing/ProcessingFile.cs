@@ -44,6 +44,7 @@ namespace CPP_Metrics.FilesProcessing
                 var currentFile = ProcessingFilesQueue.Dequeue();
 
                 ProcessingFileInfo processingFileInfo = new ProcessingFileInfo();
+                processingFileInfo.FileInfo = currentFile;
                 var preprocessingFile = prepareFiles.CreatePreprocessorFile(currentFile);
                 var preprocessorFiles = prepareFiles.ReadPreprocessedFile(currentFile, preprocessingFile);
 
