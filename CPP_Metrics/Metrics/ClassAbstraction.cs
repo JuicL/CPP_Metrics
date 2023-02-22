@@ -36,9 +36,9 @@ namespace CPP_Metrics.Metrics
                                         .Cast<NamespaceContext>();
             foreach (var space in namespaces)
             {
-                var classes = (List<ClassStructDeclaration>)space.Children.Where(context => context is ClassStructDeclaration);
+                var classes = space.Children.Where(context => context is ClassStructDeclaration).Cast<ClassStructDeclaration>().ToList();
                 var fullNameSpace = space.NameSpaceInfo.FullName();
-                if(NameSpaces.TryGetValue(fullNameSpace, out var value))
+                if(!NameSpaces.TryGetValue(fullNameSpace, out var value))
                 {
                     NameSpaces.Add(fullNameSpace, new List<ClassStructInfo>());
                 }
@@ -63,7 +63,12 @@ namespace CPP_Metrics.Metrics
 
         public string GenerateReport()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("---Class Abstract--");
+            foreach (var item in Result)
+            {
+                Console.WriteLine($"{item.Key} {item.Value}");
+            }
+            return "";
         }
 
     }

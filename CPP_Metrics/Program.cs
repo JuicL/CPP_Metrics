@@ -9,17 +9,14 @@ using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using Facads;
 
-//"C:/Users/User/Desktop/folder3"
 
-//PrepareFiles prepareFiles = new PrepareFiles(new List<string>() { @"C:\Users\User\Desktop\folder3\tt" });
-//var FF = prepareFiles.Files.First().Value;
-//var ppP = prepareFiles.CreatePreprocessorFile(FF);
-//prepareFiles.ReadPreprocessedFile(FF, ppP);
-//return;
 var soursePaths = new List<string>() { @"C:\Users\User\source\repos\TestCpp1\TestCpp1" };
 ProcessingFile processingFile = new ProcessingFile(soursePaths);
 //processingFile.Metrics.Add(new CylomaticComplexity());
+//processingFile.Metrics.Add(new SLoc());
 processingFile.Metrics.Add(new DIT());
+processingFile.Metrics.Add(new ClassAbstraction());
+
 processingFile.Run();
 
 return;

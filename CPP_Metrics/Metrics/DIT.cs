@@ -87,6 +87,8 @@ namespace CPP_Metrics.Metrics
 
         public string GenerateReport()
         {
+            Console.WriteLine("---DIT--");
+
             foreach (var vertex in DITGraph.Verticies)
             {
                 Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
