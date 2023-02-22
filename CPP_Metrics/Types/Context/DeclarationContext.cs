@@ -8,7 +8,20 @@ namespace CPP_Metrics.Types.Context
     {
         public bool IsInline { get; set; } = false;
         public string Name { get; set; }
-
+        public List<CPPType> Nested { get; set; } = new();
+        public string FullName()
+        {
+            string res = "";
+            foreach (var item in Nested)
+            {
+                res += item.TypeName;
+                if (item.TypeName.Equals("::"))
+                    continue;
+                res += "::";
+            }
+            res += Name;
+            return res;
+        }
     }
 
     public class FieldsInfo : Variable
@@ -29,10 +42,32 @@ namespace CPP_Metrics.Types.Context
         public List<FieldsInfo> Fields { get; set; } = new();
         public List<CPPType> Nested { get; set; } = new();
         public List<BasedClassInfo> BaseClasses { get; private set; } = new();
-
+        public bool IsAbstract 
+        { get
+            {
+                foreach (var method in Methods)
+                {
+                    if(method.IsPure)
+                        return true;
+                }
+                return false;
+            } 
+        }
         public bool IsTemplate { get; set; }
         public bool IsDeclaration { get; set; } // class <className> 
-
+        public string GetFullName()
+        {
+            string res = "";
+            foreach (var item in Nested)
+            {
+                res += item.TypeName;
+                if (item.TypeName.Equals("::"))
+                    continue;
+                res += "::";
+            }
+            res += Name;
+            return res;
+        }
         public IParseTree Body { get; set; }
     }
 
@@ -144,7 +179,7 @@ namespace CPP_Metrics.Types.Context
             return GeneralNameSpace;
         }
         private static BaseContextElement? GeneralNameSpace;
-        public  string Source { get; private set; } = "";
+        public  string Source { get; set; } = "";
         public static string CurrentSource { get; set; } = "";
     }
     

@@ -15,20 +15,26 @@ namespace CPP_Metrics.CyclomaticComplexity
         public ClassStructInfo? ClassStructInfo { get; set; }
         public CyclomaticComplexityFunctionVisitor()
         {
-
         }
-        public CyclomaticComplexityFunctionVisitor(ClassStructInfo classStructInfo)
+
+        public CyclomaticComplexityFunctionVisitor(ClassStructInfo classStructInfo, List<CyclomaticComplexityInfo> cyclomatic)
         {
             ClassStructInfo = classStructInfo;
+            Cyclomatic = cyclomatic;
         }
 
         public override bool VisitClassSpecifier([NotNull] CPP14Parser.ClassSpecifierContext context)
         {
             var visitor = new ClassStructVisitor();
             Analyzer.Analyze(context, visitor);
-            ClassStructInfo = visitor.ClassStructInfo;
+            var classStructInfo = visitor.ClassStructInfo;
+
+            var cyclomaticVisitor = new CyclomaticComplexityFunctionVisitor(classStructInfo, Cyclomatic);
+            Analyzer.Analyze(context.memberSpecification(), cyclomaticVisitor);
+
             return false;
         }
+
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
             var functionInfoVisitor = new FunctionDefinitionVisitor();

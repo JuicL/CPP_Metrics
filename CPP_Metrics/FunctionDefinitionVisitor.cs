@@ -18,7 +18,7 @@ namespace CPP_Metrics
             {
                 if (item is CPP14Parser.FunctionBodyContext)
                     break;
-                text += item.GetText();
+                text += " " + item.GetText();
             }
             FunctionInfo.Text = text;
             return true;

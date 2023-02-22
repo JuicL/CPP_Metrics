@@ -16,9 +16,11 @@ using Facads;
 //var ppP = prepareFiles.CreatePreprocessorFile(FF);
 //prepareFiles.ReadPreprocessedFile(FF, ppP);
 //return;
-var soursePaths = new List<string>() { @"" };
+var soursePaths = new List<string>() { @"C:\Users\User\source\repos\TestCpp1\TestCpp1" };
 ProcessingFile processingFile = new ProcessingFile(soursePaths);
-processingFile.Metrics.Add(new CylomaticComplexity());
+//processingFile.Metrics.Add(new CylomaticComplexity());
+processingFile.Metrics.Add(new DIT());
+processingFile.Run();
 
 return;
 

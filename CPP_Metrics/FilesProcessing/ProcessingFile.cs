@@ -24,6 +24,7 @@ namespace CPP_Metrics.FilesProcessing
                 metric.Handle(processingFileInfo);
             }
         }
+
         private void FinalizeMetrics()
         {
             foreach (var metric in Metrics)
@@ -31,6 +32,16 @@ namespace CPP_Metrics.FilesProcessing
                 metric.Finalizer();
             }
         }
+
+        // Генерация отчетов
+        public void GenerateReport()
+        {
+            foreach (var metric in Metrics)
+            {
+                metric.GenerateReport();
+            }
+        }
+
         public void Run()
         {
             PrepareFiles prepareFiles = new PrepareFiles(SourceFilesPath);
@@ -61,8 +72,8 @@ namespace CPP_Metrics.FilesProcessing
                 processingFileInfo.ProcessingFilePath = preprocessorFiles.b;
                 using (StreamReader sr = new StreamReader(processingFileInfo.ProcessingFilePath))
                 {
-                    processingFileInfo.ProcessingFilePath = sr.ReadToEnd();
-                    Facad facad = new Facad(processingFileInfo.IncludeFile);
+                    processingFileInfo.ProcessingFile = sr.ReadToEnd();
+                    Facad facad = new Facad(processingFileInfo.ProcessingFile);
                     processingFileInfo.ProcessingFileTree = facad.GetTree();
                 }
                 // Запускаем сбор метрик для файла
@@ -70,11 +81,8 @@ namespace CPP_Metrics.FilesProcessing
             }
             // Если метрика требует пост операций, то вызываем финализацию подсчетов
             FinalizeMetrics();
+            GenerateReport();
         }
-        // Генерация отчетов
-        public void GenerateReport()
-        {
-
-        }
+        
     }
 }

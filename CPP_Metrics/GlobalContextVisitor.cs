@@ -77,20 +77,39 @@ namespace CPP_Metrics
                 usingNamespace.Nested = visitor.NestedNames;
             }
 
-            var test = ContextElement.GetNameSpace(usingNamespace.Name, usingNamespace.Nested);
+            //var test = ContextElement.GetNameSpace(usingNamespace.Name, usingNamespace.Nested);
 
             ContextElement.UsingNamespaces.Add(usingNamespace);
             return false;
         }
         // Usings
 
+
+        private List<CPPType> GetFullNameNamespace(BaseContextElement baseContextElement)
+        {
+            List<CPPType> nestedList = new();
+            var currentContextElem = baseContextElement;
+            while (currentContextElem is not null)
+            {
+                if (currentContextElem is NamespaceContext namespaceContext)
+                {
+                    nestedList.Add(new CPPType() { TypeName = namespaceContext.NameSpaceInfo.Name });
+                }
+
+                currentContextElem = currentContextElem.Paren;
+            }
+            return nestedList;
+        }
         //NameSpace
         public override bool VisitNamespaceDefinition([NotNull] CPP14Parser.NamespaceDefinitionContext context)
         {
             if (ContextElement is not NamespaceContext)
                 throw new Exception("Declaration namespace error");
+           
 
             var namespaceInfo = context.GetNameSpaceInfo();
+            namespaceInfo.Nested = GetFullNameNamespace(ContextElement);
+
             var declarationseq = context.declarationseq();
             NamespaceContext? namespaceContext;
             namespaceContext = ContextElement.GetNameSpace(namespaceInfo.Name);
@@ -186,11 +205,11 @@ namespace CPP_Metrics
             Analyzer.Analyze(context, visitor);
 
             List<CPPType> nestedList = GetNestedList(ContextElement);
-
-
+            nestedList.Reverse();
             var classContext = new ClassStructDeclaration();
             classContext.ClassStructInfo = visitor.ClassStructInfo;
             classContext.ClassStructInfo.Nested = nestedList;
+
             foreach (var item in classContext.ClassStructInfo.BaseClasses)
             {
                 var test = ContextElement.GetTypeName(item.TypeName,item.NestedNames);
