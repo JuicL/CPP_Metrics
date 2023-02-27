@@ -63,9 +63,8 @@ namespace CPP_Metrics.Metrics
                     //}
                     str = sr.ReadLine();
                 }
-                slocInfo.PercentСomment = Math.Round(((slocInfo.Lines * slocInfo.Commented) / 100m), 2); 
-                slocInfo.PercentEmptyLines = Math.Round(((slocInfo.Lines * slocInfo.EmptyLines) / 100m), 2);
-
+                slocInfo.PercentСomment = Math.Round(((100m * slocInfo.Commented) / slocInfo.Lines), 2);
+                slocInfo.PercentEmptyLines = Math.Round(((100m * slocInfo.EmptyLines) / slocInfo.Lines), 2);
                 SlocMetrics.Add(processingFileInfo.FileInfo, slocInfo);
             }
             return true;
@@ -79,10 +78,12 @@ namespace CPP_Metrics.Metrics
             foreach (var item in SlocMetrics)
             {
                 slocInfo.Lines += item.Value.Lines;
-                slocInfo.EmptyLines += item.Value.Lines;
-                slocInfo.Commented += item.Value.Lines;
+                slocInfo.EmptyLines += item.Value.EmptyLines;
+                slocInfo.Commented += item.Value.Commented;
 
             }
+            slocInfo.PercentСomment = Math.Round(((100m * slocInfo.Commented) / slocInfo.Lines), 2);
+            slocInfo.PercentEmptyLines = Math.Round(((100m * slocInfo.EmptyLines) / slocInfo.Lines), 2);
             SlocMetrics.Add(fileInfo, slocInfo);
 
         }

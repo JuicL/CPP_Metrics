@@ -43,7 +43,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
                         stringBuilder.Append($"<td>{sLocInfo.Commented}</th>");
                         stringBuilder.Append($"<td>{sLocInfo.EmptyLines}</th>");
                         stringBuilder.Append($"<td>{sLocInfo.PercentСomment}</th>");
-                        stringBuilder.Append($"<td>{sLocInfo.PercentСomment}</th>");
+                        stringBuilder.Append($"<td>{sLocInfo.PercentEmptyLines}</th>");
                     stringBuilder.Append("</tr>");
             
 
@@ -76,7 +76,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
                     stringBuilder.Append($"<td>{item.Value.Commented}</th>");
                     stringBuilder.Append($"<td>{item.Value.EmptyLines}</th>");
                     stringBuilder.Append($"<td>{item.Value.PercentСomment}</th>");
-                    stringBuilder.Append($"<td>{item.Value.PercentСomment}</th>");
+                    stringBuilder.Append($"<td>{item.Value.PercentEmptyLines}</th>");
                     stringBuilder.Append("</tr>");
                 }
 
