@@ -11,13 +11,21 @@ namespace CPP_Metrics.OOP
     public class ClassStructVisitor : CPP14ParserBaseVisitor<bool>
     {
         public ClassStructInfo ClassStructInfo { get; set; } = new ClassStructInfo();
-       
-        public override bool VisitClassKey([NotNull] CPP14Parser.ClassKeyContext context)
+
+        public override bool VisitClassHead([NotNull] CPP14Parser.ClassHeadContext context)
         {
             var classKey = context.children.First();
-            ClassStructInfo.ClassKey = classKey.GetText();
-            return false;
+            if (classKey != null)
+            {
+                ClassStructInfo.ClassKey = classKey.GetText();
+            }
+            var union = context.Union();
+            if(union != null)
+                ClassStructInfo.ClassKey = union.GetText();
+
+            return true;
         }
+        
 
         public override bool VisitMemberSpecification([NotNull] CPP14Parser.MemberSpecificationContext context)
         {

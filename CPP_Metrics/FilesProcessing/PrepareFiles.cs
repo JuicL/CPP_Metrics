@@ -12,12 +12,20 @@ namespace CPP_Metrics.FilesPrepare
         public string[] Extentions { get; } = new []{ ".cpp", ".h", ".hpp" };
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; } = new();
+        public List<Regex> FilesRegex { get; } = new();
+
         public string PathToTempFilesDirectory { get; }
         public PrepareFiles(List<string> sourceFilesPath)
         {
             SourceFilesPath = sourceFilesPath;
             GetFileProject();
             PathToTempFilesDirectory = CreateDirectoryForTempFiles();
+            foreach (var source in SourceFilesPath)
+            {
+                var regexString = source.Replace("\\", ".+");
+                Regex regex = new Regex(regexString);
+                FilesRegex.Add(regex);
+            }
         }
         private void GetFileProject()
         {
@@ -25,6 +33,7 @@ namespace CPP_Metrics.FilesPrepare
             foreach (var item in files)
             {
                 Files.Add(item.FullName,item);
+                
             }
         }
         public static string CreateDirectoryForTempFiles()
@@ -87,20 +96,32 @@ namespace CPP_Metrics.FilesPrepare
             FileStream fileFS = new FileStream(filePath, FileMode.Create);
             StreamWriter fileWriter = new StreamWriter(fileFS, Encoding.Default);
             bool selector = false;
+            bool isProhectFile = false;
+
             var regexString = fileInfo.FullName.Replace("\\", ".+"); // Bruh dont this s-word
             Regex regex = new Regex(regexString);
-
+            
             foreach (string line in File.ReadLines(preprocessedFilePath))
             {
                 if(line.StartsWith("#"))
                 {
-                    var matches = regex.Matches(line);
-                    selector = matches.Count > 0;
+                    foreach (var item in FilesRegex)
+                    {
+                        var matches = item.Matches(line);
+                        
+                        isProhectFile = matches.Count > 0;
+                        if(isProhectFile)
+                        {
+                            selector = regex.IsMatch(line);
+                        }
+
+                    }
                     continue;
                 }
                 if (line.Length == 0)
                     continue;
-
+                if (isProhectFile == false)
+                    continue;
                 if (selector)
                 {
                     fileWriter.WriteLine(line);

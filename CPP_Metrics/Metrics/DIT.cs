@@ -8,7 +8,12 @@ namespace CPP_Metrics.Metrics
 {
     public class DIT : IMetric
     {
-        public IReportBuilder ReportBuilder { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IReportBuilder ReportBuilder { get ; set ; }
+
+        public DIT(IReportBuilder reportBuilder)
+        {
+            ReportBuilder = reportBuilder;
+        }
 
         // Граф
         DITGraph DITGraph { get; set; } = new DITGraph(); 
@@ -18,15 +23,15 @@ namespace CPP_Metrics.Metrics
             BaseContextElement.Clear();
             BaseContextElement contextElement = BaseContextElement.GetGeneralNameSpace();
 
-            // Запустить для инклюда
+            //// Запустить для инклюда
             BaseContextElement.CurrentSource = processingFileInfo.IncludeFilePath;
             var contextVisitor = new GlobalContextVisitor(contextElement);
             Analyzer.Analyze(processingFileInfo.IncludeFileTree, contextVisitor);
 
             // Запустить для основного
             BaseContextElement.CurrentSource = processingFileInfo.ProcessingFilePath;
-            contextVisitor = new GlobalContextVisitor(contextElement);
-            Analyzer.Analyze(processingFileInfo.ProcessingFileTree, contextVisitor);
+            var contextVisitor2 = new GlobalContextVisitor(contextElement);
+            Analyzer.Analyze(processingFileInfo.ProcessingFileTree, contextVisitor2);
 
             // Получить все что было в основном
             var classes = contextElement.Filter(x => x is ClassStructDeclaration
@@ -47,8 +52,20 @@ namespace CPP_Metrics.Metrics
                 {
                     var typeContext = classStruct.GetTypeName(basedClass.TypeName, basedClass.NestedNames);
                     if (typeContext is null)
+                    {
                         throw new Exception("Dont find type context");
-                    
+                        
+                        var secondChance = DITGraph.Verticies.SingleOrDefault(x => x.Name.EndsWith(basedClass.TypeName));
+                        if(secondChance is null)
+                        {
+                            secondChance = DITGraph.CreateVertex();
+                            secondChance.Name = basedClass.TypeName;
+                        }
+                        DITGraph.CreateEdge(secondChance, addedVertex);
+                        continue;
+                    }   
+
+
                     var baceClassFullName = ((ClassStructDeclaration)typeContext).ClassStructInfo.GetFullName();
                     var addedBacedClassVertex = DITGraph.Verticies.FirstOrDefault(x => x.Name.Equals(baceClassFullName));
                     if(addedBacedClassVertex is null)
@@ -67,6 +84,7 @@ namespace CPP_Metrics.Metrics
         }
         public void Finalizer()
         {
+
             var heads = DITGraph.Verticies.Where(x => !DITGraph.Edges.Any(e => e.To == x));
             Queue<DITVertex> queue = new();
             foreach (var head in heads)
@@ -87,6 +105,8 @@ namespace CPP_Metrics.Metrics
 
         public string GenerateReport()
         {
+            ((DITReportBuilder)ReportBuilder).DITGraph = DITGraph;
+            ReportBuilder.ReportBuild();
             Console.WriteLine("---DIT--");
 
             foreach (var vertex in DITGraph.Verticies)

@@ -38,12 +38,6 @@ public interface ICPP14ParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTranslationUnit([NotNull] CPP14Parser.TranslationUnitContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CPP14Parser.compileUnit"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitCompileUnit([NotNull] CPP14Parser.CompileUnitContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="CPP14Parser.primaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

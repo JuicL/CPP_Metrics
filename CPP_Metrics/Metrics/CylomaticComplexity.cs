@@ -21,9 +21,6 @@ namespace CPP_Metrics.Metrics
             ReportBuilder = reportBuilder;
         }
 
-        public CylomaticComplexity()
-        {
-        }
 
         public List<CyclomaticComplexityInfo> FunctionCyclomatic = new();
 
@@ -31,7 +28,10 @@ namespace CPP_Metrics.Metrics
         {
             CyclomaticComplexityFunctionVisitor visitor = new();
             Analyzer.Analyze(processingFileInfo.ProcessingFileTree, visitor);
-            
+            foreach (var item in visitor.Cyclomatic)
+            {
+                item.FileName = processingFileInfo.FileInfo.Name;
+            }
             FunctionCyclomatic.AddRange(visitor.Cyclomatic);
 
             return true;
@@ -44,6 +44,9 @@ namespace CPP_Metrics.Metrics
 
         public string GenerateReport()
         {
+            ((CyclomaticReportBuilder)ReportBuilder).CyclomaticComplexityInfos = FunctionCyclomatic;
+            ReportBuilder.ReportBuild();
+
             foreach (var item in FunctionCyclomatic)
             {
                 Console.WriteLine($"{item.FunctionInfo.Text} {item.CyclomaticComplexityValue}");

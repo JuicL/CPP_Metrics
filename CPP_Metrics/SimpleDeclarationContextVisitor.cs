@@ -126,6 +126,12 @@ namespace CPP_Metrics
         public override bool VisitDeclarator([NotNull] CPP14Parser.DeclaratorContext context)
         {
             var poinerDecl = context.pointerDeclarator();
+            if (poinerDecl is null)
+            {
+                var parametersAndQualifiersSecond = context.parametersAndQualifiers();
+                VisitParametersAndQualifiers(parametersAndQualifiersSecond);
+                return true;
+            }
             var noPointerDecl = poinerDecl.noPointerDeclarator();
             // Если сразу после имени идут скобки (имя будет находиться в DeclType)
             

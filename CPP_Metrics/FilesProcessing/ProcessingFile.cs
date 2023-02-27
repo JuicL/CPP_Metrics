@@ -1,6 +1,7 @@
 ﻿
 using CPP_Metrics.FilesPrepare;
 using CPP_Metrics.Metrics;
+using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Types;
 using Facads;
 
@@ -9,9 +10,12 @@ namespace CPP_Metrics.FilesProcessing
     public class ProcessingFile
     {
         public List<string> SourceFilesPath { get; } = new List<string>();
+        public Dictionary<string, FileInfo> Files { get; set; } = new();
         public Queue<FileInfo> ProcessingFilesQueue { get; } = new Queue<FileInfo>();
+        public ReportInfo ReportInfo { get; set; }
 
         public List<IMetric> Metrics = new List<IMetric>();
+        
         public ProcessingFile(List<string> sourceFilesPath)
         {
             SourceFilesPath = sourceFilesPath;
@@ -21,7 +25,15 @@ namespace CPP_Metrics.FilesProcessing
         {
             foreach (var metric in Metrics)
             {
-                metric.Handle(processingFileInfo);
+                try
+                {
+                    Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + processingFileInfo.FileInfo.Name);
+                    metric.Handle(processingFileInfo);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 
@@ -36,6 +48,11 @@ namespace CPP_Metrics.FilesProcessing
         // Генерация отчетов
         public void GenerateReport()
         {
+            IReportBuilder generalReportBuilder = new GeneralPageReportBuilder(ReportInfo);
+            ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
+
+            generalReportBuilder.ReportBuild();
+
             foreach (var metric in Metrics)
             {
                 metric.GenerateReport();
@@ -45,6 +62,7 @@ namespace CPP_Metrics.FilesProcessing
         public void Run()
         {
             PrepareFiles prepareFiles = new PrepareFiles(SourceFilesPath);
+            Files = prepareFiles.Files;
             foreach (var item in prepareFiles.Files)
             {
                 ProcessingFilesQueue.Enqueue(item.Value);

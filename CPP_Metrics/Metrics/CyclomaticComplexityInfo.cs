@@ -8,5 +8,6 @@ namespace CPP_Metrics.Metrics
         public FunctionInfo FunctionInfo { get; set; }
         public CyclomaticGraph CyclomaticGraph { get; set; }
         public int CyclomaticComplexityValue { get; set; }
+        public string FileName { get; set; }
     }
 }

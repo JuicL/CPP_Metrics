@@ -20,27 +20,18 @@ namespace CPP_Metrics.Metrics
     public class SLoc : IMetric
     {
         public IReportBuilder ReportBuilder { get; set; }
-        public SLoc()
+
+        public SLoc(IReportBuilder reportBuilder)
         {
+            ReportBuilder = reportBuilder;
         }
 
-        public Dictionary<string, SLocInfo> SlocMetrics { get; set; } = new();
+        
 
-        private void StrHandle(SLocInfo slocInfo, string str)
-        {
-            if (str.Length == 0)
-            {
-                slocInfo.EmptyLines = +1;
-            }
-            else if (str.Contains("//"))
-            {
-                slocInfo.Commented = +1;
-            }
+        public Dictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
 
-        }
-        /*
-            
-        */
+        
+        
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
@@ -51,42 +42,55 @@ namespace CPP_Metrics.Metrics
                 var str = sr.ReadLine();
                 while (str is not null)
                 {
+                    slocInfo.Lines++;
                     if (str.Length == 0)
                     {
-                        slocInfo.EmptyLines = +1;
+                        slocInfo.EmptyLines++;
                     }
                     else if (str.Contains("//"))
                     {
-                        slocInfo.Commented = +1;
+                        slocInfo.Commented++;
                     }
-                    else if(str.Contains("/*"))
-                    {
-                        while (!str.Contains("*/"))
-                        {
-                            slocInfo.Commented = +1;
-                            str = sr.ReadLine();
-                        }
-                        slocInfo.Commented = +1;
-
-                    }
+                    //else if(str.Contains("/*"))
+                    //{
+                    //    while (!str.Contains("*/"))
+                    //    {
+                    //        slocInfo.Commented = +1;
+                    //        str = sr.ReadLine();
+                    //    }
+                    //    slocInfo.Commented = +1;
+                        
+                    //}
                     str = sr.ReadLine();
                 }
+                slocInfo.PercentСomment = Math.Round(((slocInfo.Lines * slocInfo.Commented) / 100m), 2); 
+                slocInfo.PercentEmptyLines = Math.Round(((slocInfo.Lines * slocInfo.EmptyLines) / 100m), 2);
 
-                SlocMetrics.Add(processingFileInfo.FileInfo.FullName, slocInfo);
+                SlocMetrics.Add(processingFileInfo.FileInfo, slocInfo);
             }
             return true;
         }
         public void Finalizer()
         {
-            SLocInfo slocInfo = new();
             // Общую стату посчитать
+            FileInfo fileInfo = new FileInfo("|global|");// | недопустимый символ в названии файлов
+            SLocInfo slocInfo = new();
             
-            SlocMetrics.Add("|global|", slocInfo);// | недопустимый символ в названии файлов
+            foreach (var item in SlocMetrics)
+            {
+                slocInfo.Lines += item.Value.Lines;
+                slocInfo.EmptyLines += item.Value.Lines;
+                slocInfo.Commented += item.Value.Lines;
+
+            }
+            SlocMetrics.Add(fileInfo, slocInfo);
 
         }
 
         public string GenerateReport()
         {
+            ((SlocReportBuilder)ReportBuilder).SlocMetrics = SlocMetrics;
+            ReportBuilder.ReportBuild();
             return "";
         }
 

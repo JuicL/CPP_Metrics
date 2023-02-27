@@ -41,16 +41,6 @@ public interface ICPP14ParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTranslationUnit([NotNull] CPP14Parser.TranslationUnitContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CPP14Parser.compileUnit"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterCompileUnit([NotNull] CPP14Parser.CompileUnitContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CPP14Parser.compileUnit"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitCompileUnit([NotNull] CPP14Parser.CompileUnitContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="CPP14Parser.primaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -30,7 +30,10 @@ namespace CPP_Metrics.CyclomaticComplexity
             var classStructInfo = visitor.ClassStructInfo;
 
             var cyclomaticVisitor = new CyclomaticComplexityFunctionVisitor(classStructInfo, Cyclomatic);
-            Analyzer.Analyze(context.memberSpecification(), cyclomaticVisitor);
+            var memberSpecification = context.memberSpecification();
+            if (memberSpecification is null)
+                return false;
+            Analyzer.Analyze(memberSpecification, cyclomaticVisitor);
 
             return false;
         }

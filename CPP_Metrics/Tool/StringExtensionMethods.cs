@@ -8,5 +8,6 @@ namespace CPP_Metrics.Tool
             return str.Split(new[] { "\r\n", "\r", "\n" },
                 removeEmptyLines ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None);
         }
+
     }
 }

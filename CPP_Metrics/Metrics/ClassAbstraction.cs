@@ -12,6 +12,11 @@ namespace CPP_Metrics.Metrics
     {
         public IReportBuilder ReportBuilder { get; set; }
 
+        public ClassAbstraction(IReportBuilder reportBuilder)
+        {
+            ReportBuilder = reportBuilder;
+        }
+
         private Dictionary<string, List<ClassStructInfo>> NameSpaces = new Dictionary<string, List<ClassStructInfo>>();
         public Dictionary<string, decimal> Result = new Dictionary<string, decimal>();
         public bool Handle(ProcessingFileInfo processingFileInfo)
@@ -56,13 +61,23 @@ namespace CPP_Metrics.Metrics
             foreach (var item in NameSpaces)
             {
                 decimal abstractClasses = item.Value.Count(x => x.IsAbstract);
-                decimal abstractValue = abstractClasses / item.Value.Count;
-                Result.Add(item.Key, abstractValue);
+                if (item.Value.Count == 0)
+                {
+                    Result.Add(item.Key, 0);
+                }
+                else
+                {
+                    decimal abstractValue = abstractClasses / item.Value.Count;
+                    Result.Add(item.Key, abstractValue);
+                }
             }
         }
 
         public string GenerateReport()
         {
+            ((AbstractReportBuilder)ReportBuilder).Result = Result;
+            ReportBuilder.ReportBuild();
+
             Console.WriteLine("---Class Abstract--");
             foreach (var item in Result)
             {

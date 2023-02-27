@@ -173,7 +173,8 @@ namespace CPP_Metrics
                 Variable value;
                 if (ContextElement.VariableDeclaration.TryGetValue(item.Name, out value))
                 {
-                    throw new Exception("Переопределение имени");
+                    return true;
+                    //throw new Exception($"Переопределение имени {item.Name}");
                 }
                 ContextElement.VariableDeclaration.Add(item.Name, item);
             }
@@ -217,20 +218,24 @@ namespace CPP_Metrics
 
             classContext.Paren = ContextElement;
             ContextElement.Children.Add(classContext);
-
-            if (!ContextElement.TypeDeclaration.TryGetValue(visitor.ClassStructInfo.Name, out var classStructInfo))
+            if(classContext.ClassStructInfo.Name is null)
             {
-                ContextElement.TypeDeclaration.Add(visitor.ClassStructInfo.Name, visitor.ClassStructInfo);
+                // Declaration variable type of structure, but without name
+                classContext.ClassStructInfo.Name = "";
+            }
+            if (!ContextElement.TypeDeclaration.TryGetValue(classContext.ClassStructInfo.Name, out var classStructInfo))
+            {
+                ContextElement.TypeDeclaration.Add(classContext.ClassStructInfo.Name, classContext.ClassStructInfo);
             }
             else
             {
-                throw new Exception("Переопределение класса");
+                //throw new Exception($"Переопределение класса {classStructInfo.Name}");
             }
 
-            if(visitor.ClassStructInfo.Body is not null)
+            if(classContext.ClassStructInfo.Body is not null)
             {
                 var memberSpecificationVisitor = new MemberSpecificationVisitor(classContext.ClassStructInfo.ClassKey, classContext);
-                Analyzer.Analyze(visitor.ClassStructInfo.Body, memberSpecificationVisitor);
+                Analyzer.Analyze(classContext.ClassStructInfo.Body, memberSpecificationVisitor);
             }
 
             return false;
