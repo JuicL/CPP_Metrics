@@ -228,14 +228,14 @@ namespace CPP_Metrics
                 if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName)) //TODO: проверка не являтеся ли типом
                 {
                     CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
-                    Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
+                    //Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
                     //Context.outVariables.Add(new Variable() { Name = name });
                     return false;
                 }
             }
             if(DeclSpecifierSeqType is null && Parameters is not null)
             {
-                Console.WriteLine($"#FunCall# {name}");
+                //Console.WriteLine($"#FunCall# {name}");
                 return false;
             }
             // проверка декларация функции по параметрам внутри parametrsBraced

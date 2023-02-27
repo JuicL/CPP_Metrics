@@ -33,7 +33,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
 
             foreach (var vertex in DITGraph.Verticies.OrderByDescending(x => x.ParenCount))
             {
-                Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
+                //Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
                 stringBuilder.Append("<tr>");
                 stringBuilder.Append($"<td>{vertex.Name}</th>");
                 var colomnClass = vertex.ParenCount < 5 ? "class=\"table-success\"" : "class=\"table-danger\"";

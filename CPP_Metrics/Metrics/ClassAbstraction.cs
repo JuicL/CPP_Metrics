@@ -78,11 +78,11 @@ namespace CPP_Metrics.Metrics
             ((AbstractReportBuilder)ReportBuilder).Result = Result;
             ReportBuilder.ReportBuild();
 
-            Console.WriteLine("---Class Abstract--");
-            foreach (var item in Result)
-            {
-                Console.WriteLine($"{item.Key} {item.Value}");
-            }
+            //Console.WriteLine("---Class Abstract--");
+            //foreach (var item in Result)
+            //{
+            //    Console.WriteLine($"{item.Key} {item.Value}");
+            //}
             return "";
         }
 

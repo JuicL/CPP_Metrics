@@ -23,11 +23,11 @@ namespace CPP_Metrics.FilesProcessing
 
         private void RunMetrics(ProcessingFileInfo processingFileInfo)
         {
+            Console.WriteLine("Processing file:" + processingFileInfo.FileInfo.Name);
             foreach (var metric in Metrics)
             {
                 try
                 {
-                    Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + processingFileInfo.FileInfo.Name);
                     metric.Handle(processingFileInfo);
                 }
                 catch (Exception ex)

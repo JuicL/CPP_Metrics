@@ -47,10 +47,11 @@ namespace CPP_Metrics.Metrics
             ((CyclomaticReportBuilder)ReportBuilder).CyclomaticComplexityInfos = FunctionCyclomatic;
             ReportBuilder.ReportBuild();
 
-            foreach (var item in FunctionCyclomatic)
-            {
-                Console.WriteLine($"{item.FunctionInfo.Text} {item.CyclomaticComplexityValue}");
-            }
+            //foreach (var item in
+            //tionCyclomatic)
+            //{
+            //    Console.WriteLine($"{item.FunctionInfo.Text} {item.CyclomaticComplexityValue}");
+            //}
             return "";
         }
 

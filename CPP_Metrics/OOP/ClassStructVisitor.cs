@@ -44,7 +44,7 @@ namespace CPP_Metrics.OOP
                 return true;
             }
             ClassStructInfo.Name = identifier.GetText();
-            Console.WriteLine($"Имя класса {ClassStructInfo.Name}");
+            //Console.WriteLine($"Имя класса {ClassStructInfo.Name}");
             return false;
         }
 
@@ -53,7 +53,7 @@ namespace CPP_Metrics.OOP
         {
             var templateName = context.children.First(); // templateName
             ClassStructInfo.Name = templateName.GetText();
-            Console.WriteLine($"Имя класса {ClassStructInfo.Name}");
+            //Console.WriteLine($"Имя класса {ClassStructInfo.Name}");
             //Если понадобиться парсить имена шаблонов
             var templateArgumentList = context.children.FirstOrDefault(x => x is CPP14Parser.TemplateArgumentListContext);
 
@@ -102,7 +102,7 @@ namespace CPP_Metrics.OOP
 
                 }
                 ClassStructInfo.BaseClasses.Add(baseClass);
-                Console.WriteLine($"--Base Class {ClassStructInfo.BaseClasses.Last().TypeName}");
+                //Console.WriteLine($"--Base Class {ClassStructInfo.BaseClasses.Last().TypeName}");
             }
             else
             {
