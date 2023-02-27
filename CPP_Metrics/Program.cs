@@ -23,6 +23,7 @@ class TestClass
 {
     static public void HandleArguments(Config config, string[] args)
     {
+        // -f C:\Users\User\Documents\interpreter\Interpreter -o C:\Users\User\Documents\interpreter\Interpreter
         for (int i = 0; i < args.Length;)
         {
             switch (args[i])
@@ -53,6 +54,7 @@ class TestClass
                     if (args[i].StartsWith('-') || i >= args.Length)
                         throw new Exception("Expected path to out report files");
                     config.OutReportPath = args[i];
+                    i++;
                     break;
                 case "-cfg":
                     break;
@@ -124,8 +126,8 @@ class TestClass
             return;
         }
             //C:\Users\User\source\repos\TestCpp1\TestCpp1
-        config.ProjectFiles.Add(@"C:\Users\User\Documents\interpreter\Interpreter");
-        config.OutReportPath = @"C:\Users\User\Documents\interpreter\Interpreter";
+        //config.ProjectFiles.Add(@"C:\Users\User\Documents\interpreter\Interpreter");
+        //config.OutReportPath = @"C:\Users\User\Documents\interpreter\Interpreter";
 
         string? command = "";
         while (!command.Equals("exit"))

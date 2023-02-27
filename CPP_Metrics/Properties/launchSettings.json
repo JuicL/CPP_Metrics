@@ -1,7 +1,8 @@
 {
   "profiles": {
     "CPP_Metrics": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-f C:\\Users\\User\\Documents\\interpreter\\Interpreter -o C:\\Users\\User\\Documents\\interpreter\\Interpreter"
     }
   }
 }
