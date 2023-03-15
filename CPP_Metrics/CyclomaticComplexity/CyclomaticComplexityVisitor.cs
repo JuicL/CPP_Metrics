@@ -13,9 +13,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         в классе запуска анализа цикломатической сложности
 
      */
-    // TODO : Парсинг не развилочных узлов ( мб через посещение Declaration)
-    // TODO : Парсинг прыжков
-    // TODO: У кадого узла проверка на Last is null
+  
     public class CyclomaticComplexityVisitor : CPP14ParserBaseVisitor<bool>
     {
         public CyclomaticComplexityVisitor(CyclomaticGraph graph, CyclomaticVertex? from, CyclomaticVertex? to)
@@ -180,7 +178,6 @@ namespace CPP_Metrics.CyclomaticComplexity
             var declarationVertex = Graph.CreateVertex();
             declarationVertex.Type = Type.Statment;
             
-            
             var forVertex = Graph.CreateVertex();
             forVertex.Type = Type.For;
             Graph.CreateEdge(declarationVertex, forVertex);
@@ -214,8 +211,8 @@ namespace CPP_Metrics.CyclomaticComplexity
             
             var endSwitchVertex = Graph.CreateVertex();
             endSwitchVertex.Type = Type.EmpyStatement;
-            Graph.CreateEdge(switchVertex, endSwitchVertex);// Пустой switch дает 1 путь
-
+;
+            Graph.CreateEdge(switchVertex, endSwitchVertex);// Пустой switch дает 1 цикломатическую сложность
 
             var visitor = new CyclomaticComplexityVisitor(Graph, switchVertex, endSwitchVertex);
             Analyzer.AnalyzeR(context.children, visitor);
@@ -226,9 +223,10 @@ namespace CPP_Metrics.CyclomaticComplexity
 
         private void ParseCaseStatement(LabeledStatementContext context)
         {
-            var caseSwitch = context.children.Where(x => x.GetText() == "Case" || x.GetText() == "Default").SingleOrDefault();
-            
-            if (caseSwitch is null) return;
+            var caseSwitch = context.Case();
+            var defaultLabel = context.Default();
+            if (caseSwitch is null && defaultLabel is null) return;
+            //var caseVertexContext = caseSwitch is null ? defaultLabel : caseSwitch;
 
             var caseVertex = Graph.CreateVertex();
             caseVertex.Type = Type.Case;

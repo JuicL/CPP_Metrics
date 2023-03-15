@@ -13,8 +13,7 @@ namespace CPP_Metrics.FilesProcessing
         public Dictionary<string, FileInfo> Files { get; set; } = new();
         public Queue<FileInfo> ProcessingFilesQueue { get; } = new Queue<FileInfo>();
         public ReportInfo ReportInfo { get; set; }
-
-        public List<IMetric> Metrics = new List<IMetric>();
+        public List<IMetric> Metrics { get; set; } = new List<IMetric>();
         
         public ProcessingFile(List<string> sourceFilesPath)
         {
@@ -35,6 +34,7 @@ namespace CPP_Metrics.FilesProcessing
                     Console.WriteLine(ex.Message);
                 }
             }
+            //Console.WriteLine("-");
         }
 
         private void FinalizeMetrics()
@@ -97,6 +97,7 @@ namespace CPP_Metrics.FilesProcessing
                 // Запускаем сбор метрик для файла
                 RunMetrics(processingFileInfo);
             }
+
             // Если метрика требует пост операций, то вызываем финализацию подсчетов
             FinalizeMetrics();
             GenerateReport();

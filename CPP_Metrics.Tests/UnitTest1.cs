@@ -230,10 +230,50 @@ namespace CPP_Metrics.Tests
         {
 
         }
+        //string text = """
+        //    void TestFoo()
+        //    {
+        //        int a = 0;
+        //        switch ( c )
+        //        {
+        //           case 1:
+        //              break;
+        //           case 2:
+        //              break;
+        //           default:
+        //              break;
+        //        }
+                
+                
+        //    }
+        //    """
         [Fact]
         public void Switch()
         {
+            string text = """
+            void TestFoo()
+            {
+                int a = 0;
+                switch ( a )
+                {
+                   case 1:
+                      break;
+                   default:
+                       break;
+                }
+                
+                
+            }
+            """;
 
+            CyclomaticComplexityMetric metric = new();
+            var facad = new Facad(text);
+            var tree = facad.GetTree();
+            metric.Analyze(tree);
+            var func = metric.Cyclomatic.LastOrDefault();
+            var cyclomaticResult = func.CyclomaticComplexityValue;
+            var result = cyclomaticResult == 2;
+            Assert.True(result);
         }
         [Fact]
         public void Break_Return_Continue()
