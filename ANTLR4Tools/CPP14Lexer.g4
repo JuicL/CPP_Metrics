@@ -31,7 +31,22 @@ UserDefinedLiteral:
 MultiLineMacro:
 	'#' (~[\n]*? '\\' '\r'? '\n')+ ~ [\n]+ -> channel (HIDDEN);
 
+AsmArea: ('__asm' | '__asm__') ~[;]+ ';'+ ~ [\r\n]* -> skip;
+
 Directive: '#' ~ [\n]* -> channel (HIDDEN);
+
+DeclspecM: '__declspec' ~[)]+ ')'+ -> skip;
+
+RestrictM: '__restrict' -> skip;
+
+RestrictM2: '__restrict__' -> skip;
+
+RestrictM3: 'restrict' -> skip;
+
+AttributeM: '__attribute__' (StringLiteral? ~[)]+)+ ')'+ -> skip;
+
+TypeOfIBM: '__typeof__' ~[;]+ -> skip;
+
 /*Keywords*/
 
 Alignas: 'alignas';
@@ -174,7 +189,7 @@ Union: 'union';
 
 Unsigned: 'unsigned';
 
-Usining: 'using';
+Using: 'using';
 
 Virtual: 'virtual';
 

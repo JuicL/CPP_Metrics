@@ -28,14 +28,13 @@ options {
 translationUnit: declarationseq? EOF;
 /*Expressions*/
 
-
-
 primaryExpression:
 	literal+
 	| This
 	| LeftParen expression RightParen
 	| idExpression
-	| lambdaExpression;
+	| lambdaExpression
+	| Ellipsis;
 
 idExpression: unqualifiedId | qualifiedId;
 
@@ -155,7 +154,7 @@ noExceptExpression: Noexcept LeftParen expression RightParen;
 
 castExpression:
 	unaryExpression
-	| LeftParen theTypeId RightParen castExpression;
+	| Tilde? LeftParen theTypeId RightParen castExpression;
 
 pointerMemberExpression:
 	castExpression ((DotStar | ArrowStar) castExpression)*;
@@ -250,7 +249,7 @@ expressionStatement: expression? Semi;
 compoundStatement: LeftBrace statementSeq? RightBrace;
 
 statementSeq: statement+;
-/*Условные операторы */
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 selectionStatement:
 	If LeftParen condition RightParen statement (Else statement)?
 	| Switch LeftParen condition RightParen statement;
@@ -634,8 +633,7 @@ memberDeclaratorList:
 
 memberDeclarator:
 	declarator (
-		virtualSpecifierSeq? pureSpecifier?
-		| braceOrEqualInitializer?
+		virtualSpecifierSeq? braceOrEqualInitializer?
 	)
 	| Identifier? attributeSpecifierSeq? Colon constantExpression;
 
@@ -647,7 +645,7 @@ virtualSpecifier: Override | Final;
  */
 
 pureSpecifier:
-	Assign val = OctalLiteral {if($val.text.compareTo("0")!=0) throw new InputMismatchException(this);
+	Assign val = OctalLiteral {if($val.text.CompareTo("0")!=0) throw new InputMismatchException(this);
 		};
 /*Derived classes*/
 
