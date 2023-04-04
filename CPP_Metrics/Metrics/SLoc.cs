@@ -1,6 +1,7 @@
 ﻿using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Types;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +29,7 @@ namespace CPP_Metrics.Metrics
 
         
 
-        public Dictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
+        public ConcurrentDictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
 
         
         
@@ -65,7 +66,7 @@ namespace CPP_Metrics.Metrics
                 }
                 slocInfo.PercentСomment = Math.Round(((100m * slocInfo.Commented) / slocInfo.Lines), 2);
                 slocInfo.PercentEmptyLines = Math.Round(((100m * slocInfo.EmptyLines) / slocInfo.Lines), 2);
-                SlocMetrics.Add(processingFileInfo.FileInfo, slocInfo);
+                SlocMetrics.TryAdd(processingFileInfo.FileInfo, slocInfo);
             }
             return true;
         }
@@ -84,7 +85,7 @@ namespace CPP_Metrics.Metrics
             }
             slocInfo.PercentСomment = Math.Round(((100m * slocInfo.Commented) / slocInfo.Lines), 2);
             slocInfo.PercentEmptyLines = Math.Round(((100m * slocInfo.EmptyLines) / slocInfo.Lines), 2);
-            SlocMetrics.Add(fileInfo, slocInfo);
+            SlocMetrics.TryAdd(fileInfo, slocInfo);
 
         }
 

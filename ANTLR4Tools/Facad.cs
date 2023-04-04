@@ -34,7 +34,7 @@ namespace Facads
             CommonTokenStream tokens = new CommonTokenStream(Lexer);
             StringWriter output = new StringWriter();
             StringWriter errorOutput = new();
-            Parser = new CPP14Parser(tokens, output, errorOutput);
+            Parser = new CPP14Parser(tokens, Console.Out, Console.Out);
 
             IParseTree tree = Parser.translationUnit();
 

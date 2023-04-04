@@ -4,6 +4,7 @@ using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace CPP_Metrics.Metrics
@@ -17,8 +18,8 @@ namespace CPP_Metrics.Metrics
             ReportBuilder = reportBuilder;
         }
 
-        private Dictionary<string, List<ClassStructInfo>> NameSpaces = new Dictionary<string, List<ClassStructInfo>>();
-        public Dictionary<string, decimal> Result = new Dictionary<string, decimal>();
+        private ConcurrentDictionary<string, List<ClassStructInfo>> NameSpaces = new ConcurrentDictionary<string, List<ClassStructInfo>>();
+        public ConcurrentDictionary<string, decimal> Result = new ConcurrentDictionary<string, decimal>();
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
             // Создать контекст
@@ -45,9 +46,9 @@ namespace CPP_Metrics.Metrics
                 var fullNameSpace = space.NameSpaceInfo.FullName();
                 if(!NameSpaces.TryGetValue(fullNameSpace, out var value))
                 {
-                    NameSpaces.Add(fullNameSpace, new List<ClassStructInfo>());
+                    NameSpaces.TryAdd(fullNameSpace, new List<ClassStructInfo>());
                 }
-
+                
                 foreach (var item in classes)
                 {
                     NameSpaces[fullNameSpace].Add(item.ClassStructInfo);
@@ -63,12 +64,12 @@ namespace CPP_Metrics.Metrics
                 decimal abstractClasses = item.Value.Count(x => x.IsAbstract);
                 if (item.Value.Count == 0)
                 {
-                    Result.Add(item.Key, 0);
+                    Result.TryAdd(item.Key, 0);
                 }
                 else
                 {
                     decimal abstractValue = abstractClasses / item.Value.Count;
-                    Result.Add(item.Key, abstractValue);
+                    Result.TryAdd(item.Key, abstractValue);
                 }
             }
         }

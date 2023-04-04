@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Concurrent;
 using System.Text;
 
 namespace CPP_Metrics.Metrics.ReportBuild
@@ -6,7 +7,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
     public  class AbstractReportBuilder : IReportBuilder
     {
         public ReportInfo ReportInfo { get; set; }
-        public Dictionary<string, decimal> Result { get; set; }
+        public ConcurrentDictionary<string, decimal> Result { get; set; }
 
         public string FileTag { get; } = "Abstract";
 

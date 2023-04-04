@@ -1,5 +1,6 @@
 ﻿
 
+using System.Collections.Concurrent;
 using System.Text;
 
 namespace CPP_Metrics.Metrics.ReportBuild
@@ -7,7 +8,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
     internal class CyclomaticReportBuilder : IReportBuilder
     {
 
-        public List<CyclomaticComplexityInfo> CyclomaticComplexityInfos { get; set; }
+        public ConcurrentBag<CyclomaticComplexityInfo> CyclomaticComplexityInfos { get; set; }
         public ReportInfo ReportInfo { get; }
         public string FileTag { get; } = "Cyclomatic";
         public CyclomaticReportBuilder(ReportInfo reportInfo)
@@ -18,7 +19,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
         public string GenerateBody()
         {
             
-            CyclomaticComplexityInfos = CyclomaticComplexityInfos.OrderByDescending(x => x.CyclomaticComplexityValue).ToList();
+            var cyclomaticComplexityInfos = CyclomaticComplexityInfos.OrderByDescending(x => x.CyclomaticComplexityValue).ToList();
             StringBuilder stringBuilder = new StringBuilder();
             
             stringBuilder.Append("<h3 class=\"my-4\">Цикломатическая сложность</h3>");
@@ -37,7 +38,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
             // GroupBy className
             //var Classes = CyclomaticComplexityInfos.GroupBy(x=> x.FunctionInfo.NestedNames.Last().TypeName).ToList();
             
-            foreach (var item in CyclomaticComplexityInfos)
+            foreach (var item in cyclomaticComplexityInfos)
             {
                 stringBuilder.Append("<tr>");
                 stringBuilder.Append($"<td>{item.FunctionInfo.Text}</th>");

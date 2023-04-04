@@ -67,7 +67,7 @@ namespace CPP_Metrics.Metrics
 
 
                     var baceClassFullName = ((ClassStructDeclaration)typeContext).ClassStructInfo.GetFullName();
-                    var addedBacedClassVertex = DITGraph.Verticies.FirstOrDefault(x => x.Name.Equals(baceClassFullName));
+                    var addedBacedClassVertex = DITGraph.Verticies.FirstOrDefault(x => x.Name.Equals(baceClassFullName)); // Warrning thread error
                     if(addedBacedClassVertex is null)
                     {
                         addedBacedClassVertex = DITGraph.CreateVertex();
@@ -75,13 +75,17 @@ namespace CPP_Metrics.Metrics
                     }
 
                     // Связать
-                    DITGraph.CreateEdge(addedBacedClassVertex, addedVertex);
+                    lock ("DIT")
+                    {
+                        DITGraph.CreateEdge(addedBacedClassVertex, addedVertex);
+                    }
                 }
 
             }
             
             return true;
         }
+
         public void Finalizer()
         {
 

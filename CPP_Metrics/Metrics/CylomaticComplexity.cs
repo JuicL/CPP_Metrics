@@ -6,6 +6,7 @@ using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using Facads;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace CPP_Metrics.Metrics
         }
 
 
-        public List<CyclomaticComplexityInfo> FunctionCyclomatic = new();
+        public ConcurrentBag<CyclomaticComplexityInfo> FunctionCyclomatic = new();
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
@@ -31,8 +32,8 @@ namespace CPP_Metrics.Metrics
             foreach (var item in visitor.Cyclomatic)
             {
                 item.FileName = processingFileInfo.FileInfo.Name;
+                FunctionCyclomatic.Add(item);
             }
-            FunctionCyclomatic.AddRange(visitor.Cyclomatic);
 
             return true;
         }

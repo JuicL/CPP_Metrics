@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
     {
         public ReportInfo ReportInfo { get; set; }
         public string FileTag { get; set; } = "Sloc";
-        public Dictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
+        public ConcurrentDictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
 
         public SlocReportBuilder(ReportInfo reportInfo)
         {

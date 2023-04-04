@@ -33,7 +33,6 @@ namespace CPP_Metrics.FilesPrepare
             foreach (var item in files)
             {
                 Files.Add(item.FullName,item);
-                
             }
         }
         public static string CreateDirectoryForTempFiles()
@@ -56,7 +55,7 @@ namespace CPP_Metrics.FilesPrepare
         public string CreatePreprocessorFile(FileInfo filePath)
         {
             var outFile = Path.Combine(PathToTempFilesDirectory, 
-                Path.GetFileNameWithoutExtension(filePath.Name) + ".ii");
+                filePath.Name + ".ii");
             var test = $"g++ -E {filePath.FullName} -o {outFile}";
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -83,7 +82,7 @@ namespace CPP_Metrics.FilesPrepare
         /// <exception cref="Exception"></exception>
         public Pair<string,string> ReadPreprocessedFile(FileInfo fileInfo,string preprocessedFilePath)
         {
-            var fileName = Path.GetFileNameWithoutExtension(fileInfo.Name);
+            var fileName = fileInfo.Name;
             if (!File.Exists(preprocessedFilePath))
                 throw new Exception("Preprocessed file not created");
 
@@ -105,23 +104,25 @@ namespace CPP_Metrics.FilesPrepare
             {
                 if(line.StartsWith("#"))
                 {
-                    foreach (var item in FilesRegex)
-                    {
-                        var matches = item.Matches(line);
+                    selector = regex.IsMatch(line);
+                    //foreach (var item in FilesRegex)
+                    //{
+                    //    var matches = item.Matches(line);
                         
-                        isProhectFile = matches.Count > 0;
-                        if(isProhectFile)
-                        {
-                            selector = regex.IsMatch(line);
-                        }
+                    //    isProhectFile = matches.Count > 0;
+                    //    if(isProhectFile)
+                    //    {
+                    //    }
 
-                    }
+                    //}
                     continue;
                 }
                 if (line.Length == 0)
                     continue;
-                if (isProhectFile == false)
-                    continue;
+                
+                //if (isProhectFile == false)
+                //    continue;
+
                 if (selector)
                 {
                     fileWriter.WriteLine(line);
