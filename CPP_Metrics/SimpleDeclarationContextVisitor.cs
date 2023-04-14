@@ -132,11 +132,13 @@ namespace CPP_Metrics
                 VisitParametersAndQualifiers(parametersAndQualifiersSecond);
                 return true;
             }
+
             var noPointerDecl = poinerDecl.noPointerDeclarator();
             // Если сразу после имени идут скобки (имя будет находиться в DeclType)
             
             NoPointerBrace = poinerDecl?.pointerOperator(0) is not null || 
                                 noPointerDecl?.pointerDeclarator() is null ? false : true;
+
             var parametersAndQualifiers = noPointerDecl.parametersAndQualifiers();
             if (parametersAndQualifiers is null)
             {

@@ -33,8 +33,7 @@ primaryExpression:
 	| This
 	| LeftParen expression RightParen
 	| idExpression
-	| lambdaExpression
-	| Ellipsis;
+	| lambdaExpression;
 
 idExpression: unqualifiedId | qualifiedId;
 
@@ -559,7 +558,8 @@ noPointerAbstractPackDeclarator:
 	| Ellipsis;
 
 parameterDeclarationClause:
-	parameterDeclarationList (Comma? Ellipsis)?;
+	Ellipsis
+	| parameterDeclarationList (Comma? Ellipsis)?;
 
 parameterDeclarationList:
 	parameterDeclaration (Comma parameterDeclaration)*;

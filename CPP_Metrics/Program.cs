@@ -16,9 +16,8 @@ public class Config
     public List<string> ProjectFiles { get; set; } = new();
     public string OutReportPath { get; set; }
     public List<string> CompilerAddFiles { get; set; } = new();
-
-
 }
+
 class TestClass
 {
     static public void HandleArguments(Config config, string[] args)
