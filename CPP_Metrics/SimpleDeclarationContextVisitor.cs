@@ -25,6 +25,7 @@ namespace CPP_Metrics
         public List<FunctionInfo> FunctionDeclaration = new();
 
         private List<Parameter>? Parameters = null;
+        private List<Parameter>? Initializer = null;
 
         private List<CPPType>? NestedNames;
 
@@ -88,9 +89,25 @@ namespace CPP_Metrics
         {
             return false;  // Декларация класса находится в ветке simpleDeclaration
         }
-
+        public override bool VisitInitDeclarator([NotNull] CPP14Parser.InitDeclaratorContext context)
+        {
+            var init = context.initializer();
+            if (init is not null)
+            {
+                ParseInitializer(init);
+            }
+            return true;
+        }
         public override bool VisitInitializer([NotNull] CPP14Parser.InitializerContext context)
         {
+            return false;
+        }
+        public bool ParseInitializer([NotNull] CPP14Parser.InitializerContext context)
+        {
+            var initializerList = context.expressionList()?.initializerList();
+            if(initializerList is not null)
+                Initializer = new();
+
             //var expressionVisitor = new ExpressionVisitor();
             //Analyzer.Analyze(context,expressionVisitor);
             //VariableNames.AddRange(expressionVisitor.VariableNames);
@@ -139,7 +156,7 @@ namespace CPP_Metrics
             NoPointerBrace = poinerDecl?.pointerOperator(0) is not null || 
                                 noPointerDecl?.pointerDeclarator() is null ? false : true;
 
-            var parametersAndQualifiers = noPointerDecl.parametersAndQualifiers();
+            var parametersAndQualifiers = noPointerDecl?.parametersAndQualifiers();
             if (parametersAndQualifiers is null)
             {
                 Parameters = null;
@@ -158,6 +175,11 @@ namespace CPP_Metrics
         }
         public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
+            var parametersAndQualifiers = context.parametersAndQualifiers();
+            if(parametersAndQualifiers is not null)
+            {
+                VisitParametersAndQualifiers(parametersAndQualifiers);
+            }
             //// Случай, когда после имени стоят ( )
             //var parameters = context.parametersAndQualifiers();
             //if (parameters is null)
@@ -165,7 +187,7 @@ namespace CPP_Metrics
             //VisitParametersAndQualifiers(parameters);
 
             //isParametersBraces = context.children.Count > 1 ? true : false;
-            
+
             return true;
         }
         public override bool VisitIdExpression([NotNull] CPP14Parser.IdExpressionContext context)
@@ -175,7 +197,16 @@ namespace CPP_Metrics
             
             return true;
         }
+        public override bool VisitSimpleTemplateId([NotNull] CPP14Parser.SimpleTemplateIdContext context)
+        {
+            var templateName = context.templateName();
+            if (Parameters is not null && DeclSpecifierSeqType is null)
+            {
+                Console.WriteLine($"#FunCall# {templateName.Identifier().GetText()}");
+            }
 
+            return false;
+        }
         /* 
          * TODO : Точнее разделить случаи
          *        Шаблоны!
@@ -230,14 +261,17 @@ namespace CPP_Metrics
                 if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName)) //TODO: проверка не являтеся ли типом
                 {
                     CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
-                    //Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
+                    Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
                     //Context.outVariables.Add(new Variable() { Name = name });
+                    
+                    // Если есть параметр то это вызов функции в параметре
+
                     return false;
                 }
             }
-            if(DeclSpecifierSeqType is null && Parameters is not null)
+            if(DeclSpecifierSeqType is null && (Parameters is not null || Initializer is not null))
             {
-                //Console.WriteLine($"#FunCall# {name}");
+                Console.WriteLine($"#FunCall# {name}");
                 return false;
             }
             // проверка декларация функции по параметрам внутри parametrsBraced

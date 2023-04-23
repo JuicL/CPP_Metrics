@@ -178,6 +178,7 @@ namespace CPP_Metrics.Types.Context
             }
             return GeneralNameSpace;
         }
+        
         private static BaseContextElement? GeneralNameSpace;
         public  string Source { get; set; } = "";
         public static string CurrentSource { get; set; } = "";

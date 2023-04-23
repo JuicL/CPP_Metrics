@@ -115,8 +115,28 @@ class TestClass
 
         processingFile.Run();
     }
+    static void TestRun()
+    {
+        string pathFile = "C:/Users/User/source/repos/TestCpp1/TestCpp1/TestCpp1.cpp";
+        var facad = new Facad(new StreamReader(pathFile));
+
+        var three = facad.GetTree();
+        //BaseContextElement contextElement = BaseContextElement.GetGeneralNameSpace();
+        var visitor = new TestVisitor();
+
+        Analyzer.Analyze(three, visitor);
+
+    }
     static void Main(string[] args)
     {
+        TestRun();
+
+        //var generalVisitor = new GeneralVisitor();
+        //var variableVisitor = new VariableVisitor();
+        //var classVisitor = new ClassStructVisitor();
+        //var typeVisitor = new TypeVisitor();
+        return;
+
         Config config = new Config();
         if (args.Length != 0)
         {

@@ -54,6 +54,7 @@ namespace CPP_Metrics
                 if (identifier is not null)
                     _Type.TypeName = identifier.GetText();
 
+
             }
             else if (context.Enum() is not null)
             {
