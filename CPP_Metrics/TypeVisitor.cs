@@ -19,6 +19,15 @@ namespace CPP_Metrics
             } 
         }
         private CPPType _Type { get; set;} = new CPPType();
+        public bool Typedef { get;private set; }
+        public override bool VisitDeclSpecifier([NotNull] CPP14Parser.DeclSpecifierContext context)
+        {
+            if(context.Typedef() is not null)
+            {
+                Typedef = true;
+            }
+            return true;
+        }
         public override bool VisitFunctionSpecifier([NotNull] CPP14Parser.FunctionSpecifierContext context)
         {
             _Type.FunctionSpecifier = context.children.First().GetText();
@@ -37,10 +46,31 @@ namespace CPP_Metrics
             var templateName = context.templateName(); // typeName actually
             _Type.TypeName = templateName.GetText();
             // TODO: visitor template argumentList mb based on Type visitor 
-            _Type.TemplateNames = new List<CPPType>();
+            var templateVisitor = new TemplateArgumentVisitor();
+            Analyzer.Analyze(context.templateArgumentList(),templateVisitor);
+
+            _Type.TemplateNames = templateVisitor.Types;
+
             return false; 
         }
+        public override bool VisitTypeNameSpecifier([NotNull] CPP14Parser.TypeNameSpecifierContext context)
+        {
+            var nested = context.nestedNameSpecifier();
+            var nestedVisitor = new NestedNameSpecifierVisitor();
+            Analyzer.Analyze(nested, nestedVisitor);
+            _Type.NestedNames = nestedVisitor.NestedNames;
+            var identifier = context.Identifier();
+            if(identifier is not null)
+            {
+                _Type.TypeName = identifier.GetText();
+            }
+            else
+            {
+                return true;
+            }
 
+            return false;
+        }
         public override bool VisitElaboratedTypeSpecifier([NotNull] CPP14Parser.ElaboratedTypeSpecifierContext context)
         {
             var classKey = context.classKey();
@@ -85,6 +115,7 @@ namespace CPP_Metrics
             if (context.nestedNameSpecifier() is not null || context.theTypeName() is not null 
                 || context.decltypeSpecifier() is not null)
                 return true;
+
             var simpleTypeSignednessModifier = context.simpleTypeSignednessModifier();
             var simpleTypeLengthModifiers = context.simpleTypeLengthModifier().ToList();
             var terminalNodes = context.GetTerminalNodes();

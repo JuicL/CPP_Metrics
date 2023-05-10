@@ -42,6 +42,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         {
             var functionInfoVisitor = new FunctionDefinitionVisitor();
             Analyzer.Analyze(context, functionInfoVisitor);
+
             var functionInfo = functionInfoVisitor.FunctionInfo;
             if(ClassStructInfo is not null)
             {

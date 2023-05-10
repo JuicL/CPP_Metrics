@@ -61,19 +61,84 @@ namespace CPP_Metrics.Tool
             }
             return null;
         }
-        public static bool GetVariableName(this BaseContextElement contextElement, string? name)
+        public static FunctionDeclaration? GetFunctionDeclaration(this BaseContextElement contextElement)
         {
-            // TODO If contextElement is functionDeclaration and this method of class, first check in class field, and after in global context
-            if (name == null) return false;
             for (var context = contextElement; context is not null; context = context.Paren)
             {
-                if (context.VariableDeclaration.TryGetValue(name, out var variable))
+                if (context is FunctionDeclaration)
+                    return (FunctionDeclaration)context;
+            }
+            return null;
+        }
+        private static Variable? FindThisFields(BaseContextElement contextElement, string thisName)
+        {
+            var name = thisName.Remove(5);// this.
+            var func = contextElement.GetFunctionDeclaration();
+            if (func is not null && func.FunctionInfo.IsMethod)
+            {
+                var nestedList = func.FunctionInfo.NestedNames;
+                var className = nestedList.Last().TypeName;
+                nestedList.RemoveAt(nestedList.Count - 1);
+
+                var classContext = func.GetTypeName(className, nestedList);
+                if (classContext != null)
                 {
-                    return true;
+                    if (classContext.VariableDeclaration.TryGetValue(name, out var field))
+                    {
+                        return field;
+                    }
                 }
             }
 
-            return false;
+            return null;
+        }
+        public static Variable? GetVariableName(this BaseContextElement contextElement, string? name)
+        {
+
+            // TODO If contextElement is functionDeclaration and this method of class, first check in class field, and after in global context
+            
+            if (name == null) return null;
+            
+            if(name.StartsWith("this."))
+            {
+                var fieldName = FindThisFields(contextElement,name); 
+                if(fieldName is not null)
+                {
+                    return fieldName;
+                }
+                return null;
+            }
+            
+            for (var context = contextElement; context is not null; context = context.Paren)
+            {
+
+                if (context.VariableDeclaration.TryGetValue(name, out var variable))
+                {
+                    //variable.References.Add(context);
+                    return variable;
+                }
+                if (context is FunctionDeclaration functionDeclaration)
+                {
+                    if(functionDeclaration.FunctionInfo.IsMethod)
+                    {
+                        var nestedList = functionDeclaration.FunctionInfo.NestedNames;
+                        var className = nestedList.Last().TypeName;
+                        nestedList.RemoveAt(nestedList.Count - 1);
+
+                        var classContext = functionDeclaration.GetTypeName(className,nestedList);
+                        if(classContext != null)
+                        {
+                            if (classContext.VariableDeclaration.TryGetValue(name, out var field))
+                            {
+                                //field.References.Add(context);
+                                return field;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
         public static bool GetVariableName(this BaseContextElement contextElement, string? name, List<CPPType>? nestedNames)
         {
@@ -81,17 +146,37 @@ namespace CPP_Metrics.Tool
             return false;
         }
 
-        public static bool GetFunctionName(this BaseContextElement contextElement, string name)
+        public static List<FunctionInfo>? GetFunctionName(this BaseContextElement contextElement, string name)
         {
-            if (name == null) return false;
+            if (name == null) return null;
             for (var context = contextElement; context is not null; context = context.Paren)
             {
                 if (context.FunctionDeclaration.TryGetValue(name, out var functionInfo))
                 {
-                    return true;
+                    return functionInfo;
                 }
-            }
-            return false;
+
+                if (context is FunctionDeclaration functionDeclaration)
+                {
+                    if (functionDeclaration.FunctionInfo.IsMethod)
+                    {
+                        var nestedList = functionDeclaration.FunctionInfo.NestedNames;
+                        var className = nestedList.Last().TypeName;
+                        nestedList.RemoveAt(nestedList.Count - 1);
+
+                        var classContext = functionDeclaration.GetTypeName(className, nestedList);
+                        if (classContext != null)
+                        {
+                            if (classContext.FunctionDeclaration.TryGetValue(name, out var methodsInfo))
+                            {
+                                return methodsInfo;
+                            }
+                        }
+                    }
+                }
+
+                    }
+            return null;
         }
         private static BaseContextElement? TypeOrNamespace(BaseContextElement namespaceContext,string name, List<CPPType> nested)
         {
@@ -113,7 +198,7 @@ namespace CPP_Metrics.Tool
         public static BaseContextElement? GetTypeName(this BaseContextElement contextElement, string name, List<CPPType> nested)
         {
             List<BaseContextElement> namespaces = new List<BaseContextElement>();
-                namespaces.Add(contextElement);
+            namespaces.Add(contextElement);
             // Добавляем namespace
             foreach (var item in contextElement.UsingNamespaces)
             {

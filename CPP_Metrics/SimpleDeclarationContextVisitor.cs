@@ -25,6 +25,7 @@ namespace CPP_Metrics
         public List<FunctionInfo> FunctionDeclaration = new();
 
         private List<Parameter>? Parameters = null;
+
         private List<Parameter>? Initializer = null;
 
         private List<CPPType>? NestedNames;
@@ -68,12 +69,14 @@ namespace CPP_Metrics
                 {
                     return true;
                 }
+                
                 // имя null проверяем type на равенство с именем переменной
                 if (parameter.Name is null 
-                    && ContextElement.GetVariableName(parameter.Type.TypeName))
+                    && ContextElement.GetVariableName(parameter?.Type?.TypeName) is not null)
                 {
                     return false;
                 }
+
             }
             return true;
         }
@@ -100,6 +103,21 @@ namespace CPP_Metrics
         }
         public override bool VisitInitializer([NotNull] CPP14Parser.InitializerContext context)
         {
+            var variableUsedVisitor = new UsedVariables();
+            Analyzer.Analyze(context, variableUsedVisitor);
+            foreach (var item in variableUsedVisitor.Identifiers)
+            {
+                var variable = ContextElement.GetVariableName(item);
+                if(variable is not null)
+                {
+                    variable.References.Add(ContextElement);
+                }
+            }
+
+            var typesUsedVisitor = new UsedClasses();
+            Analyzer.Analyze(context, typesUsedVisitor);
+
+            ContextElement.UsedClasses.AddRange(typesUsedVisitor.CPPTypes);
             return false;
         }
         public bool ParseInitializer([NotNull] CPP14Parser.InitializerContext context)
@@ -258,12 +276,16 @@ namespace CPP_Metrics
             //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора)
             if (NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
-                if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName)) //TODO: проверка не являтеся ли типом
+                if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName) is not null) //TODO: проверка не являтеся ли типом
                 {
                     CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
+                    var parameterVariable = ContextElement.GetVariableName(name);
+                    if (parameterVariable is not null)
+                    {
+                        parameterVariable.References.Add(ContextElement);
+                    }
                     Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
-                    //Context.outVariables.Add(new Variable() { Name = name });
-                    
+ 
                     // Если есть параметр то это вызов функции в параметре
 
                     return false;
@@ -271,9 +293,19 @@ namespace CPP_Metrics
             }
             if(DeclSpecifierSeqType is null && (Parameters is not null || Initializer is not null))
             {
+                if(Parameters is not null)
+                    foreach (var item in Parameters)
+                    {
+                        var parameterVariable = ContextElement.GetVariableName(item.Type?.TypeName);
+                        if (parameterVariable is not null)
+                        {
+                            parameterVariable.References.Add(ContextElement);
+                        }
+                    }
                 Console.WriteLine($"#FunCall# {name}");
                 return false;
             }
+
             // проверка декларация функции по параметрам внутри parametrsBraced
             if(DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters))
             {
@@ -288,12 +320,23 @@ namespace CPP_Metrics
                 return false;
             }
 
-            var variable = new Variable()
+            if(DeclSpecifierSeqType is null)
+            {
+                // UsedVariable
+                var usedVariable = ContextElement.GetVariableName(name);
+                if (usedVariable is not null)
+                {
+                    usedVariable.References.Add(ContextElement);
+                }
+                return false;
+            }
+
+            var declarationVariable = new Variable()
             {
                 Name = name,
                 Type = DeclSpecifierSeqType
             };
-            VariablesDeclaration.Add(variable);
+            VariablesDeclaration.Add(declarationVariable);
             
 
             //VariableNames.AddRange(SelectParameters(Parameters, OutVariable));

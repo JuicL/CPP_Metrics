@@ -35,9 +35,12 @@ namespace CPP_Metrics
                     var name = simpleTemplate.templateName().GetText();
                     var templateArguments = simpleTemplate.templateArgumentList();
 
+                    var templateVisitor = new TemplateArgumentVisitor();
+                    Analyzer.Analyze(templateArguments, templateVisitor);
+
                     var templateType = new CPPType();
                     templateType.TypeName = name;
-                    templateType.TemplateNames = new List<CPPType>();
+                    templateType.TemplateNames = templateVisitor.Types;
                     _NestedNames.Add(templateType);
                     return true;
                 }

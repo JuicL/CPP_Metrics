@@ -50,11 +50,12 @@ namespace CPP_Metrics
             FunctionInfo.NestedNames = nestedVisitor.NestedNames.ToList();
             return false;
         }
+
         private void ParseDestructor([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
             if (FunctionInfo.ReturnType is not null)
             {
-                if (FunctionInfo.ReturnType.NestedNames is not null)
+                if (FunctionInfo.ReturnType.NestedNames.Count > 0)
                     FunctionInfo.NestedNames.AddRange(FunctionInfo.ReturnType.NestedNames.ToList());
                 FunctionInfo.NestedNames.Add(FunctionInfo.ReturnType);
             }

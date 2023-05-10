@@ -272,7 +272,7 @@ namespace CPP_Metrics.Tests
             metric.Analyze(tree);
             var func = metric.Cyclomatic.LastOrDefault();
             var cyclomaticResult = func.CyclomaticComplexityValue;
-            var result = cyclomaticResult == 2;
+            var result = cyclomaticResult == 3;
             Assert.True(result);
         }
         [Fact]

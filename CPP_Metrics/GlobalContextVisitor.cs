@@ -18,7 +18,57 @@ namespace CPP_Metrics
         public BaseContextElement ContextElement { get; }
         //Field current context
         public BaseContextElement Current { get; }
+        public override bool VisitExpressionStatement([NotNull] CPP14Parser.ExpressionStatementContext context)
+        {
+            var variableUsedVisitor = new UsedVariables();
+            Analyzer.Analyze(context, variableUsedVisitor);
 
+            foreach (var item in variableUsedVisitor.Identifiers)
+            {
+                var variable = ContextElement.GetVariableName(item);
+                if (variable is not null)
+                {
+                    variable.References.Add(ContextElement);
+                }
+            }
+
+            var typesUsedVisitor = new UsedClasses();
+            Analyzer.Analyze(context, typesUsedVisitor);
+            ContextElement.UsedClasses.AddRange(typesUsedVisitor.CPPTypes);
+
+            return false;
+        }
+        public override bool VisitCompoundStatement([NotNull] CPP14Parser.CompoundStatementContext context)
+        {
+            var statementSeq = context.statementSeq();
+            if (statementSeq is not null)
+            {
+                var contextElem = new BaseContextElement();
+
+                var globalContextVisitor = new GlobalContextVisitor(contextElem);
+                Analyzer.Analyze(statementSeq, globalContextVisitor);
+            }
+            return false;
+        }
+        public override bool VisitIterationStatement([NotNull] CPP14Parser.IterationStatementContext context)
+        {
+            var contextElem = new BaseContextElement();
+            var forInitStat = context.forInitStatement();
+            
+            if(forInitStat is not null)
+            {
+
+            }
+
+            var compoundStatement = context.statement().compoundStatement()?.statementSeq();
+            
+            IParseTree statement = compoundStatement is not null ? compoundStatement : context.statement();
+
+            var globalContextVisitor = new GlobalContextVisitor(contextElem);
+            Analyzer.Analyze(statement, globalContextVisitor);
+
+            return false;
+        }
         // Statement // AND for 
 
         // Using = theTypeId
@@ -84,7 +134,6 @@ namespace CPP_Metrics
         }
         // Usings
 
-
         private List<CPPType> GetFullNameNamespace(BaseContextElement baseContextElement)
         {
             List<CPPType> nestedList = new();
@@ -131,16 +180,27 @@ namespace CPP_Metrics
             }
             return false;
         }
-
+        
         //Function or method
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
             var funcVisitor = new FunctionDefinitionVisitor();
             Analyzer.Analyze(context, funcVisitor);
+            
+            if(ContextElement is ClassStructDeclaration classContext)
+            {
+                funcVisitor.FunctionInfo.NestedNames.Add(new CPPType() { TypeName = classContext.ClassStructInfo.Name });
+            }
 
             var functionContext = new FunctionDeclaration();
             functionContext.FunctionInfo = funcVisitor.FunctionInfo;
             functionContext.Paren = ContextElement;
+
+            foreach (var item in funcVisitor.FunctionInfo.Parameters)
+            {
+                functionContext.VariableDeclaration.Add(item.Name, new Variable() { Name = item.Name ,Type = item.Type});
+            }
+
             ContextElement.Children.Add(functionContext);
 
             if (!ContextElement.FunctionDeclaration.TryGetValue(funcVisitor.FunctionInfo.Name,out var functionInfos))
@@ -150,7 +210,11 @@ namespace CPP_Metrics
             ContextElement.FunctionDeclaration[funcVisitor.FunctionInfo.Name].Add(funcVisitor.FunctionInfo);
 
             var globalContextVisitor = new GlobalContextVisitor(functionContext);
-            Analyzer.Analyze(funcVisitor.FunctionInfo.FunctionBody, globalContextVisitor);
+            var funcBody = (CPP14Parser.FunctionBodyContext)funcVisitor.FunctionInfo.FunctionBody;
+
+            IParseTree funcStatement = funcBody.compoundStatement() is null ? funcBody : funcBody.compoundStatement().statementSeq();
+
+            Analyzer.Analyze(funcStatement, globalContextVisitor);
             return false;
         }
 
@@ -178,7 +242,6 @@ namespace CPP_Metrics
                 }
                 ContextElement.VariableDeclaration.Add(item.Name, item);
             }
-
             return true;
         }
         private List<CPPType> GetNestedList(BaseContextElement baseContextElement)
@@ -207,6 +270,7 @@ namespace CPP_Metrics
 
             List<CPPType> nestedList = GetNestedList(ContextElement);
             nestedList.Reverse();
+
             var classContext = new ClassStructDeclaration();
             classContext.ClassStructInfo = visitor.ClassStructInfo;
             classContext.ClassStructInfo.Nested = nestedList;
@@ -236,6 +300,12 @@ namespace CPP_Metrics
             {
                 var memberSpecificationVisitor = new MemberSpecificationVisitor(classContext.ClassStructInfo.ClassKey, classContext);
                 Analyzer.Analyze(classContext.ClassStructInfo.Body, memberSpecificationVisitor);
+
+                foreach (var func in memberSpecificationVisitor.FunctionDefinition)
+                {
+                    var globalContextVisitor = new GlobalContextVisitor(classContext);
+                    Analyzer.Analyze(func.FunctionBody, globalContextVisitor);
+                }
             }
 
             return false;

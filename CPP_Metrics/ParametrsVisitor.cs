@@ -18,7 +18,16 @@ namespace CPP_Metrics
 
             return false;
         }
+        public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
+        {
+            var name = context.Identifier();
+            if(name is not null)
+            {
+                Parameter.Name = name.GetText();
+            }
 
+            return true;
+        }
         public override bool VisitDeclarator([NotNull] CPP14Parser.DeclaratorContext context)
         {
             var name = context.GetTerminalNodes();

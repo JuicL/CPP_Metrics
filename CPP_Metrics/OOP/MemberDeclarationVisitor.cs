@@ -13,7 +13,8 @@ namespace CPP_Metrics.OOP
         public List<FieldsInfo> VariablesDeclaration = new();
         
         public List<FunctionInfo> FunctionDeclaration = new();
-        
+        public Queue<FunctionInfo> FunctionDefinition { get; private set; } = new();
+
         private CPPType? DeclSpecifierSeqType = null;
 
         private List<Parameter>? Parameters = null;
@@ -29,6 +30,62 @@ namespace CPP_Metrics.OOP
             ContextElement = contextElement;
             AccesSpecifierSelector = accesSpecifierSelector;
         }
+        // Using = theTypeId
+        public override bool VisitAliasDeclaration([NotNull] CPP14Parser.AliasDeclarationContext context)
+        {
+            var name = context.Identifier().GetText();
+            if (context.theTypeId().abstractDeclarator() is not null)
+                return false;
+            var visitor = new TypeVisitor();
+            Analyzer.Analyze(context.theTypeId().typeSpecifierSeq(), visitor);
+            var assingType = visitor.Type;
+            ContextElement.AliasDeclaration.TryAdd(name, assingType);
+            return false;
+        }
+
+        // Using // Only Types
+        public override bool VisitUsingDeclaration([NotNull] CPP14Parser.UsingDeclarationContext context)
+        {
+            SimpleUsing simpleUsing = new SimpleUsing();
+            var unqualifiedId = context.unqualifiedId();
+
+            if (unqualifiedId.Identifier() is not null)
+            {
+                simpleUsing.Name = unqualifiedId.Identifier().GetText();
+            }
+            else if (unqualifiedId.templateId() is not null)
+            {
+                var simpleTemplateId = unqualifiedId.templateId().simpleTemplateId();
+                if (simpleTemplateId is not null)
+                {
+                    simpleUsing.Name = simpleTemplateId.templateName().Identifier().GetText();
+                }
+            }
+
+            var nestedNameSpecifier = context.nestedNameSpecifier();
+            if (nestedNameSpecifier != null)
+            {
+                var visitor = new NestedNameSpecifierVisitor();
+                Analyzer.Analyze(nestedNameSpecifier, visitor);
+                simpleUsing.Nested = visitor.NestedNames;
+            }
+            ContextElement.SimpleUsing.Add(simpleUsing);
+            return false;
+        }
+
+        public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
+        {
+            var funcVisitor = new FunctionDefinitionVisitor();
+            Analyzer.Analyze(context, funcVisitor);
+            var funcInf = funcVisitor.FunctionInfo;
+            funcInf.AccesSpecifier = AccesSpecifierSelector;
+
+            FunctionDeclaration.Add(funcVisitor.FunctionInfo);
+
+            FunctionDefinition.Enqueue(funcInf);
+            return false;
+        }
+
         public override bool VisitMemberDeclarator([NotNull] CPP14Parser.MemberDeclaratorContext context)
         {
             var virtualSpecifierSeq = context.virtualSpecifierSeq();
@@ -114,7 +171,7 @@ namespace CPP_Metrics.OOP
                         return false;
                     }
                     // имя null проверяем type на равенство с именем переменной
-                    if (ContextElement.GetVariableName(parameter.Type.TypeName))
+                    if (ContextElement.GetVariableName(parameter.Type?.TypeName) is not null)
                     {
                         return false;
                     }

@@ -36,7 +36,7 @@ namespace CPP_Metrics.OOP
     }
     public class MemberSpecificationVisitor : CPP14ParserBaseVisitor<bool>
     {
-        private Queue<Pair<IParseTree, AccesSpecifier>> FunctionDefinition = new();
+        public Queue<FunctionInfo> FunctionDefinition { get; private set; } = new();
 
         private AccesSpecifier AccesSpecifierSelector; //default value
 
@@ -60,11 +60,7 @@ namespace CPP_Metrics.OOP
                     throw new Exception("Error recognize type");
             }
         }
-        public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
-        {
-            FunctionDefinition.Enqueue(new Pair<IParseTree, AccesSpecifier>(context,AccesSpecifierSelector));
-            return false;
-        }
+        
         public override bool VisitAccessSpecifier([NotNull] CPP14Parser.AccessSpecifierContext context)
         {
             var accessSpecifier = context.children.First().GetText();

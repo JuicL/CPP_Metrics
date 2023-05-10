@@ -69,6 +69,7 @@ namespace CPP_Metrics.Types.Context
             return res;
         }
         public IParseTree Body { get; set; }
+        public List<CPPType> UsedTypes { get; set; } = new List<CPPType>();
     }
 
     public class FunctionInfo
@@ -85,7 +86,11 @@ namespace CPP_Metrics.Types.Context
         public AccesSpecifier? AccesSpecifier { get; set; }
         public bool IsTemplate { get; set; }
         public bool IsDeclaration { get; set; }
-        public bool IsMethod { get; set; }
+        public bool IsMethod 
+        { 
+            get { return NestedNames.Count > 0; } 
+            set { } 
+        }
 
         public bool Override { get; set; } = false;
 
@@ -93,6 +98,7 @@ namespace CPP_Metrics.Types.Context
 
         public bool IsPure { get; set; } = false;
         public IParseTree FunctionBody { get; set; }
+        public List<BaseContextElement> References { get; set; } = new List<BaseContextElement>();
     }
 
     public enum ContextType
@@ -102,7 +108,8 @@ namespace CPP_Metrics.Types.Context
         Function,
 
     }
-    // Фильтер
+
+    // Фильтр
     // Обнуление контекста 
     public class BaseContextElement
     {
@@ -117,12 +124,13 @@ namespace CPP_Metrics.Types.Context
 
         public IDictionary<string, ClassStructInfo> TypeDeclaration = new Dictionary<string, ClassStructInfo>();
 
+        public List<CPPType> UsedClasses = new List<CPPType>();
+
         public Guid Guid { get; set; }
         // Доступные Using's
         public List<UsingNamespace> UsingNamespaces { get; set; } = new List<UsingNamespace>();
         public List<SimpleUsing> SimpleUsing { get; set; } = new List<SimpleUsing>();
         public Dictionary<string,CPPType> AliasDeclaration { get; set; } = new Dictionary<string,CPPType>();
-
 
         public ContextType ContextType { get; set; }
         public BaseContextElement? Paren { get; set; } = null;
@@ -180,7 +188,7 @@ namespace CPP_Metrics.Types.Context
         }
         
         private static BaseContextElement? GeneralNameSpace;
-        public  string Source { get; set; } = "";
+        public string Source { get; set; } = "";
         public static string CurrentSource { get; set; } = "";
     }
     
