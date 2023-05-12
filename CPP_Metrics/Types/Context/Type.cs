@@ -10,7 +10,7 @@
         public string? ClassMarker { get; set; }
         public string? FunctionSpecifier { get; set; }
         public bool IsTemplate { get { return TemplateNames is not null; } }
-        
+        public bool IsStandartType { get; set; }
         public bool IsVirtual
         {
             get

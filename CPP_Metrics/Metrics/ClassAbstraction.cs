@@ -19,6 +19,7 @@ namespace CPP_Metrics.Metrics
         }
 
         private ConcurrentDictionary<string, List<ClassStructInfo>> NameSpaces = new ConcurrentDictionary<string, List<ClassStructInfo>>();
+
         public ConcurrentDictionary<string, decimal> Result = new ConcurrentDictionary<string, decimal>();
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {

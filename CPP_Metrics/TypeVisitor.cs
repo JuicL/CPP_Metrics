@@ -20,6 +20,8 @@ namespace CPP_Metrics
         }
         private CPPType _Type { get; set;} = new CPPType();
         public bool Typedef { get;private set; }
+        
+
         public override bool VisitDeclSpecifier([NotNull] CPP14Parser.DeclSpecifierContext context)
         {
             if(context.Typedef() is not null)
@@ -115,6 +117,7 @@ namespace CPP_Metrics
             if (context.nestedNameSpecifier() is not null || context.theTypeName() is not null 
                 || context.decltypeSpecifier() is not null)
                 return true;
+            _Type.IsStandartType = true;
 
             var simpleTypeSignednessModifier = context.simpleTypeSignednessModifier();
             var simpleTypeLengthModifiers = context.simpleTypeLengthModifier().ToList();

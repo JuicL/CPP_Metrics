@@ -72,18 +72,21 @@ namespace CPP_Metrics.Tool
         }
         private static Variable? FindThisFields(BaseContextElement contextElement, string thisName)
         {
-            var name = thisName.Remove(5);// this.
+            var name = thisName.Substring(5);// this.
             var func = contextElement.GetFunctionDeclaration();
             if (func is not null && func.FunctionInfo.IsMethod)
             {
-                var nestedList = func.FunctionInfo.NestedNames;
+                var nestedList = new List<CPPType>(func.FunctionInfo.NestedNames);
                 var className = nestedList.Last().TypeName;
                 nestedList.RemoveAt(nestedList.Count - 1);
 
                 var classContext = func.GetTypeName(className, nestedList);
-                if (classContext != null)
+                if (classContext != null && classContext is ClassStructDeclaration)
                 {
-                    if (classContext.VariableDeclaration.TryGetValue(name, out var field))
+
+                    var classStructDeclaration = (ClassStructDeclaration)classContext;
+                    var field = classStructDeclaration.ClassStructInfo.Fields.FirstOrDefault(x => x.Name == name);
+                    if (field is not null)
                     {
                         return field;
                     }
@@ -121,17 +124,19 @@ namespace CPP_Metrics.Tool
                 {
                     if(functionDeclaration.FunctionInfo.IsMethod)
                     {
-                        var nestedList = functionDeclaration.FunctionInfo.NestedNames;
+                        var nestedList = new List<CPPType>(functionDeclaration.FunctionInfo.NestedNames);
                         var className = nestedList.Last().TypeName;
                         nestedList.RemoveAt(nestedList.Count - 1);
 
                         var classContext = functionDeclaration.GetTypeName(className,nestedList);
-                        if(classContext != null)
+                        if(classContext != null && classContext is ClassStructDeclaration)
                         {
-                            if (classContext.VariableDeclaration.TryGetValue(name, out var field))
+                            var classStructDeclaration = (ClassStructDeclaration)classContext;
+                            var field = classStructDeclaration.ClassStructInfo.Fields.FirstOrDefault(x => x.Name == name);
+                            if(field is not null)
                             {
                                 //field.References.Add(context);
-                                return field;
+                                return (Variable)field;
                             }
                         }
                     }

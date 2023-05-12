@@ -9,7 +9,7 @@ namespace CPP_Metrics.FilesPrepare
 {
     public class PrepareFiles
     {
-        public string[] Extentions { get; } = new []{ ".cpp", ".h", ".hpp" };
+        public string[] Extentions { get; } = new []{ ".cpp", ".h", ".hpp",".cppconfig" };
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; } = new();
         public List<Regex> FilesRegex { get; } = new();

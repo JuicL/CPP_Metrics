@@ -74,6 +74,10 @@ namespace CPP_Metrics.OOP
 
             ContextElement.ClassStructInfo.Fields.AddRange(memberDeclarationVisitor.VariablesDeclaration);
             ContextElement.ClassStructInfo.Methods.AddRange(memberDeclarationVisitor.FunctionDeclaration);
+            foreach (var item in memberDeclarationVisitor.FunctionDefinition)
+            {
+                FunctionDefinition.Enqueue(item);
+            }
 
             return false;
         }

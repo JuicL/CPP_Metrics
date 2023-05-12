@@ -220,6 +220,7 @@ namespace CPP_Metrics
             var templateName = context.templateName();
             if (Parameters is not null && DeclSpecifierSeqType is null)
             {
+                CallFuncNames.Add(templateName.Identifier().GetText());
                 Console.WriteLine($"#FunCall# {templateName.Identifier().GetText()}");
             }
 
@@ -284,6 +285,8 @@ namespace CPP_Metrics
                     {
                         parameterVariable.References.Add(ContextElement);
                     }
+
+                    CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
                     Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
  
                     // Если есть параметр то это вызов функции в параметре
@@ -302,6 +305,7 @@ namespace CPP_Metrics
                             parameterVariable.References.Add(ContextElement);
                         }
                     }
+                CallFuncNames.Add(name);
                 Console.WriteLine($"#FunCall# {name}");
                 return false;
             }

@@ -39,6 +39,25 @@ namespace CPP_Metrics.Tool
             }
             return result;
         }
+        public static void AnalyzeWithСondition<T>(IParseTree tree, IParseTreeVisitor<T> visitor, Func<IParseTree, bool> func)
+        {
+            Stack<IParseTree> bag = new Stack<IParseTree>();
+            bag.Push(tree);
+            while (bag.Any())
+            {
+                var vertex = bag.Pop();
+
+                if (func(vertex))
+                {
+                    vertex.Accept((IParseTreeVisitor<bool>)visitor);
+                }
+
+                for (int i = vertex.ChildCount - 1; i >= 0; --i)
+                {
+                    bag.Push(vertex.GetChild(i));
+                }
+            }
+        }
 
         public static void Analyze<T>(IParseTree tree, IParseTreeVisitor<T> visitor)
         {

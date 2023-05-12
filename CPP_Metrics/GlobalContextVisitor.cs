@@ -304,7 +304,7 @@ namespace CPP_Metrics
                 foreach (var func in memberSpecificationVisitor.FunctionDefinition)
                 {
                     var globalContextVisitor = new GlobalContextVisitor(classContext);
-                    Analyzer.Analyze(func.FunctionBody, globalContextVisitor);
+                    Analyzer.Analyze(func.FunctionBody.Parent, globalContextVisitor);
                 }
             }
 
