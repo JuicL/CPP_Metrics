@@ -47,7 +47,6 @@ namespace CPP_Metrics.FilesProcessing
                 thread.Join();
             }
 
-            //Console.WriteLine("-");
         }
 
         private void FinalizeMetrics()

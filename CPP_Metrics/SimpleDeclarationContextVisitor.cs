@@ -103,7 +103,7 @@ namespace CPP_Metrics
         }
         public override bool VisitInitializer([NotNull] CPP14Parser.InitializerContext context)
         {
-            var variableUsedVisitor = new UsedVariables();
+            var variableUsedVisitor = new UsedVariables(ContextElement);
             Analyzer.Analyze(context, variableUsedVisitor);
             foreach (var item in variableUsedVisitor.Identifiers)
             {
@@ -267,9 +267,10 @@ namespace CPP_Metrics
             {
                 if (DeclSpecifierSeqType is not null)
                 {
-                    NestedNames = DeclSpecifierSeqType.NestedNames;
+                    NestedNames = new List<CPPType>(DeclSpecifierSeqType.NestedNames);
                     DeclSpecifierSeqType.NestedNames = null;
                     NestedNames.Add(DeclSpecifierSeqType);
+                    DeclSpecifierSeqType = null;
                 }
             }
             
@@ -277,7 +278,10 @@ namespace CPP_Metrics
             //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора)
             if (NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
-                if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName) is not null) //TODO: проверка не являтеся ли типом
+                var isType = ContextElement.GetTypeName(DeclSpecifierSeqType.TypeName, DeclSpecifierSeqType.NestedNames);
+
+                if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName) is not null ||
+                    isType is null) // проверка не являтеся ли типом
                 {
                     CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
                     var parameterVariable = ContextElement.GetVariableName(name);
@@ -286,7 +290,6 @@ namespace CPP_Metrics
                         parameterVariable.References.Add(ContextElement);
                     }
 
-                    CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
                     Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
  
                     // Если есть параметр то это вызов функции в параметре

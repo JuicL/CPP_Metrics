@@ -49,13 +49,16 @@ namespace CPP_Metrics.Tool
 
                 if (func(vertex))
                 {
-                    vertex.Accept((IParseTreeVisitor<bool>)visitor);
+                    Analyze(vertex,visitor);
+                }
+                else
+                {
+                    for (int i = vertex.ChildCount - 1; i >= 0; --i)
+                    {
+                        bag.Push(vertex.GetChild(i));
+                    }
                 }
 
-                for (int i = vertex.ChildCount - 1; i >= 0; --i)
-                {
-                    bag.Push(vertex.GetChild(i));
-                }
             }
         }
 

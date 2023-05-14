@@ -22,7 +22,7 @@ namespace CPP_Metrics.FilesPrepare
             PathToTempFilesDirectory = CreateDirectoryForTempFiles();
             foreach (var source in SourceFilesPath)
             {
-                var regexString = source.Replace("\\", ".+");
+                var regexString = source.Replace("\\", ".+").Replace("/",".+");
                 Regex regex = new Regex(regexString);
                 FilesRegex.Add(regex);
             }
@@ -97,7 +97,7 @@ namespace CPP_Metrics.FilesPrepare
             bool selector = false;
             bool isProhectFile = false;
 
-            var regexString = fileInfo.FullName.Replace("\\", ".+"); // Bruh dont this s-word
+            var regexString = fileInfo.FullName.Replace("\\", ".+").Replace("/",".+"); // Bruh s-word
             Regex regex = new Regex(regexString);
             
             foreach (string line in File.ReadLines(preprocessedFilePath))

@@ -129,13 +129,13 @@ class TestClass
     }
     static void Main(string[] args)
     {
-        TestRun();
+        //TestRun();
 
-        //var generalVisitor = new GeneralVisitor();
-        //var variableVisitor = new VariableVisitor();
-        //var classVisitor = new ClassStructVisitor();
-        //var typeVisitor = new TypeVisitor();
-        return;
+        ////var generalVisitor = new GeneralVisitor();
+        ////var variableVisitor = new VariableVisitor();
+        ////var classVisitor = new ClassStructVisitor();
+        ////var typeVisitor = new TypeVisitor();
+        //return;
 
         Config config = new Config();
         if (args.Length != 0)

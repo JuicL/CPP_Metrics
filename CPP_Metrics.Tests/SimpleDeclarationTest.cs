@@ -1,158 +1,17 @@
-﻿
-using CPP_Metrics.Tool;
+﻿using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using Facads;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CPP_Metrics.Tests
 {
     public class SimpleDeclarationTest
     {
-		[Fact]
-		public void Simple()
-		{
-			var code = @"""
-            int main()
-			{
-				int a;
-				a = 2;
-			}
-            """; 
-			
-			var facad = new Facad(code);
-			var tree = facad.GetTree();
-			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
-			var visitor = new GlobalContextVisitor(generalNamespase);
-
-			Analyzer.Analyze(tree, visitor);
-
-			Assert.True(generalNamespase.Children.Count == 1);
-			var func = generalNamespase.Children.First();
-			Assert.True(func is FunctionDeclaration);
-			var funcContext = (FunctionDeclaration)func;
-
-			Assert.True(funcContext.VariableDeclaration.Count == 1);
-			var variable = funcContext.VariableDeclaration.First().Value;
-
-
-			Assert.True(variable.References.Count == 1);
-			Assert.True(variable.References.First() == funcContext);
-		}
-		[Fact]
-		public void Simple2()
-		{
-			var code = @"""
-			int a;
-            int main()
-			{
-				a = 2;
-			}
-            """;
-
-			var facad = new Facad(code);
-			var tree = facad.GetTree();
-			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
-			var visitor = new GlobalContextVisitor(generalNamespase);
-
-			Analyzer.Analyze(tree, visitor);
-
-			Assert.True(generalNamespase.Children.Count == 1);
-			var func = generalNamespase.Children.First();
-			Assert.True(func is FunctionDeclaration);
-			var funcContext = (FunctionDeclaration)func;
-
-			Assert.True(generalNamespase.VariableDeclaration.Count == 1);
-			var variable = generalNamespase.VariableDeclaration.First().Value;
-
-
-			Assert.True(variable.References.Count == 1);
-			Assert.True(variable.References.First() == funcContext);
-
-		}
-        [Fact]
-		public void Simple3()
-		{
-			var code = @"""
-			class cl
-			{
-				int a;
-				void foo()
-				{
-					a = 2;
-				}
-			};
-            """;
-
-			var facad = new Facad(code);
-			var tree = facad.GetTree();
-			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
-			var visitor = new GlobalContextVisitor(generalNamespase);
-
-			Analyzer.Analyze(tree, visitor);
-
-			Assert.True(generalNamespase.Children.Count == 1);
-			var context = generalNamespase.Children.First();
-			
-			Assert.True(context is ClassStructDeclaration);
-			var classContext = (ClassStructDeclaration)context;
-
-			Assert.True(classContext.Children.Count == 1);
-			var methodContext = classContext.Children.First();
-
-			Assert.True(methodContext is FunctionDeclaration);
-			var method = (FunctionDeclaration)methodContext;
-
-			Assert.True(classContext.ClassStructInfo.Fields.Count == 1);
-			var variable = (Variable)classContext.ClassStructInfo.Fields.First();
-
-
-			Assert.True(variable.References.Count == 1);
-			Assert.True(variable.References.First() == method);
-
-		}
-		[Fact]
-		public void Simple4()
-		{
-			var code = @"""
-			class cl
-			{
-				int a;
-				void foo()
-				{
-					this.a = 2;
-				}
-			};
-            """;
-
-			var facad = new Facad(code);
-			var tree = facad.GetTree();
-			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
-			var visitor = new GlobalContextVisitor(generalNamespase);
-
-			Analyzer.Analyze(tree, visitor);
-
-			Assert.True(generalNamespase.Children.Count == 1);
-			var context = generalNamespase.Children.First();
-
-			Assert.True(context is ClassStructDeclaration);
-			var classContext = (ClassStructDeclaration)context;
-
-			Assert.True(classContext.Children.Count == 1);
-			var methodContext = classContext.Children.First();
-
-			Assert.True(methodContext is FunctionDeclaration);
-			var method = (FunctionDeclaration)methodContext;
-
-			Assert.True(classContext.ClassStructInfo.Fields.Count == 1);
-			var variable = (Variable)classContext.ClassStructInfo.Fields.First();
-
-
-			Assert.True(variable.References.Count == 1);
-			Assert.True(variable.References.First() == method);
-
-		}
-	}
-}
-/*
+		/*
 
 """
 int foo();
@@ -169,7 +28,7 @@ int main()
 	fff(M1(a));
 	int b = 5;
 
-	int ((f3)());
+	
 	foo1(a);
 	foo1(foo());
 	
@@ -179,19 +38,285 @@ int main()
 	foo2(a,1);
 	
 
-	
-	int (*a1) = &a;
-	int a2(1);
-	int a22(int);
-	int a3{1};
-	int a4((int)a2);
-	int (a5)(a2);
-	
 	int (f)();
-
 	int f1();
-	int (f2)();
+	int f2(int);
+	int ((f3)());
+	int (f4)();
+
 	return 0;
 }
 """
 */
+		[Fact]
+		public void VariableDeclaration()
+        {
+			var code = @"""
+			int main()
+			{
+				int (*a1);
+				int a2(1);
+				int a3{1};
+				int a4((int)a2);
+				int (a5)(a22);
+			}
+            """;
+
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a22",new Variable() { Name = "a22"});
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+
+			Assert.True(visitor.VariablesDeclaration.Count == 5);
+		}
+		[Fact]
+		public void FuncDeclaration()
+		{
+			var code = @"""
+			int main()
+			{
+				int (f)();
+				int f1();
+				int f2(int);
+				int ((f3)());
+				int (f4)();
+			}
+            """;
+
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+
+			Assert.True(visitor.FunctionDeclaration.Count == 5);
+		}
+		[Fact]
+		public void CallFunc1()
+		{
+			var code = @"""
+			int main()
+			{
+				foo1(a);
+			}
+            """;
+
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+			generalNamespase.FunctionDeclaration.Add("foo1", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo1" } });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "foo1");
+		}
+		[Fact]
+		public void CallFunc2()
+		{
+			var code = @"""
+			int main()
+			{
+				foo1(foo());
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.FunctionDeclaration.Add("foo1", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo1" } });
+			generalNamespase.FunctionDeclaration.Add("foo", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo" } });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "foo1");
+		}
+		[Fact]
+		public void CallFunc3()
+		{
+			var code = @"""
+			int main()
+			{
+				foo2(foo(),1);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.FunctionDeclaration.Add("foo2", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo2" } });
+			generalNamespase.FunctionDeclaration.Add("foo", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo" } });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "foo2");
+		}
+		[Fact]
+		public void CallFunc4()
+		{
+			var code = @"""
+			int main()
+			{
+				foo2(a,b);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+			generalNamespase.VariableDeclaration.Add("b", new Variable() { Name = "b" });
+
+			generalNamespase.FunctionDeclaration.Add("foo2", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo2" } });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "foo2");
+		}
+		[Fact]
+		public void CallFunc5()
+		{
+			var code = @"""
+			int main()
+			{
+				foo2(a,1);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+
+			generalNamespase.FunctionDeclaration.Add("foo2", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo2" } });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "foo2");
+		}
+		[Fact]
+		public void CallFunc6()
+		{
+			var code = @"""
+			int main()
+			{
+				foo2(foo(), a);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+
+			generalNamespase.FunctionDeclaration.Add("foo2", new List<FunctionInfo>() { new FunctionInfo() { Name = "foo2" } });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "foo2");
+		}
+		[Fact]
+		public void CallFunc7()
+		{
+			var code = @"""
+			int main()
+			{
+				cl::Foo();
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "Foo");
+		}
+		[Fact]
+		public void CallFunc8()
+		{
+			var code = @"""
+			int main()
+			{
+				cl::Foo(a);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "Foo");
+		}
+		[Fact]
+		public void CallFunc9()
+		{
+			var code = @"""
+			int main()
+			{
+					cl::Foo(1);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			// Additional iformation
+
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			Assert.True(visitor.CallFuncNames.Count == 1);
+			Assert.True(visitor.CallFuncNames.First() == "Foo");
+		}
+		[Fact]
+		public void CallFunc10()
+		{
+			var code = @"""
+			int main()
+			{
+					NN::cl(a);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			var ns = new NamespaceContext() { ParenNameSpace = (NamespaceContext)generalNamespase};
+			ns.NameSpaceInfo = new NameSpaceInfo() { Name = "NN",
+				Nested = new List<CPPType>() { new CPPType() { TypeName ="::"}} };
+			
+			ns.Paren = generalNamespase;
+			var classStuct = new ClassStructDeclaration();
+			classStuct.ClassStructInfo = new ClassStructInfo() { Name = "cl" };
+			ns.Children.Add(classStuct);
+			classStuct.Paren = ns;
+			generalNamespase.Children.Add(ns);
+
+			// Additional iformation
+			generalNamespase.VariableDeclaration.Add("a", new Variable() { Name = "a" });
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+			
+		}
+	}
+}

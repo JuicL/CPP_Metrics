@@ -180,7 +180,7 @@ namespace CPP_Metrics.Tool
                     }
                 }
 
-                    }
+            }
             return null;
         }
         private static BaseContextElement? TypeOrNamespace(BaseContextElement namespaceContext,string name, List<CPPType> nested)

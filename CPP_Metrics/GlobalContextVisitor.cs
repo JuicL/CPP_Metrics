@@ -20,7 +20,7 @@ namespace CPP_Metrics
         public BaseContextElement Current { get; }
         public override bool VisitExpressionStatement([NotNull] CPP14Parser.ExpressionStatementContext context)
         {
-            var variableUsedVisitor = new UsedVariables();
+            var variableUsedVisitor = new UsedVariables(ContextElement);
             Analyzer.Analyze(context, variableUsedVisitor);
 
             foreach (var item in variableUsedVisitor.Identifiers)
