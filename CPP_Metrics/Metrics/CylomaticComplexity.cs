@@ -17,13 +17,14 @@ namespace CPP_Metrics.Metrics
     public class CylomaticComplexity : IMetric
     {
         public IReportBuilder ReportBuilder { get; set; }
+        public List<MetricMessage> Messages { get; set; } = new();
+
         public CylomaticComplexity(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
         }
 
-
-        public ConcurrentBag<CyclomaticComplexityInfo> FunctionCyclomatic = new();
+        public ConcurrentBag<CyclomaticComplexityInfo> FunctionCyclomatic { get; set; } = new();
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
@@ -38,9 +39,19 @@ namespace CPP_Metrics.Metrics
             return true;
         }
 
-        // Not needed
         public void Finalizer()
         {
+            foreach (var item in FunctionCyclomatic)
+            {
+                if(item.CyclomaticComplexityValue > GlobalBoundaryValues.BoundaryValues.Complexity)
+                {
+                    Messages.Add(new MetricMessage() 
+                    { 
+                        MessageType = MessageType.Error,
+                        Message = $"Сyclomatic complexity value is too high {item.FunctionInfo.Text}"
+                    });
+                }
+            }
         }
 
         public string GenerateReport()

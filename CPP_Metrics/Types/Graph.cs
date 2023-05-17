@@ -18,6 +18,7 @@ namespace CPP_Metrics.Types
         public Graph()
         {
             Verticies = new HashSet<TVertex>();
+            
             Edges = new HashSet<TEdge>();
         }
 

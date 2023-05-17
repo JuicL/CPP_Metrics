@@ -3,10 +3,15 @@ using System.Text.Json;
 
 namespace CPP_Metrics
 {
+    public static class GlobalBoundaryValues
+    {
+        public static BoundaryValues BoundaryValues { get; set; } = new BoundaryValues();
+    }
+
     public class BoundaryValues
     {
-        public int Complexity { get; set; }
-        public int DIT { get; set; }
+        public int Complexity { get; set; } = 12;
+        public int DIT { get; set; } = 5;
 
     }
 

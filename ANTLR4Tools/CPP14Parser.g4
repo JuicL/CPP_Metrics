@@ -117,7 +117,7 @@ unaryExpression:
 		LeftParen theTypeId RightParen
 		| Ellipsis LeftParen Identifier RightParen
 	)
-	| Alignof LeftParen theTypeId RightParen
+	| (Alignof | Alignof2 | Alignof3) LeftParen theTypeId RightParen
 	| noExceptExpression
 	| newExpression
 	| deleteExpression;
@@ -153,7 +153,7 @@ noExceptExpression: Noexcept LeftParen expression RightParen;
 
 castExpression:
 	unaryExpression
-	| Tilde? LeftParen theTypeId RightParen castExpression;
+	| unaryOperator? Tilde? LeftParen theTypeId RightParen castExpression;
 
 pointerMemberExpression:
 	castExpression ((DotStar | ArrowStar) castExpression)*;
@@ -317,7 +317,7 @@ simpleDeclaration:
 	| attributeSpecifierSeq declSpecifierSeq? initDeclaratorList Semi;
 
 staticAssertDeclaration:
-	Static_assert LeftParen constantExpression Comma StringLiteral RightParen Semi;
+	Static_assert LeftParen constantExpression Comma StringLiteral+ RightParen Semi;
 
 emptyDeclaration: Semi;
 
@@ -373,13 +373,13 @@ simpleTypeSpecifier:
 	| nestedNameSpecifier Template simpleTemplateId
 
 	| simpleTypeSignednessModifier? simpleTypeLengthModifier+
-	| simpleTypeSignednessModifier
 	| simpleTypeSignednessModifier? Char
 	| simpleTypeSignednessModifier? Char16
 	| simpleTypeSignednessModifier? Char32
 	| simpleTypeSignednessModifier? Wchar
 	| Bool
 	| simpleTypeSignednessModifier? simpleTypeLengthModifier* Int
+	| simpleTypeSignednessModifier
 	| Float
 	| simpleTypeLengthModifier? Double
 	| Void
@@ -393,7 +393,7 @@ theTypeName:
 	| simpleTemplateId;
 
 decltypeSpecifier:
-	Decltype LeftParen (expression | Auto) RightParen;
+	(Decltype | Decltype2) LeftParen (expression | Auto) RightParen;
 
 elaboratedTypeSpecifier:
 	classKey (
@@ -448,7 +448,7 @@ usingDeclaration:
 usingDirective:
 	attributeSpecifierSeq? Using Namespace nestedNameSpecifier? namespaceName Semi;
 
-asmDefinition: Asm LeftParen StringLiteral RightParen Semi;
+asmDefinition: Asm LeftParen StringLiteral+ RightParen Semi;
 
 linkageSpecification:
 	Extern StringLiteral (
@@ -693,10 +693,11 @@ meminitializerid: classOrDeclType | Identifier;
 operatorFunctionId: Operator theOperator;
 
 literalOperatorId:
-	Operator (
-		StringLiteral Identifier
-		| UserDefinedStringLiteral
-	);
+	Operator(
+		literal
+		| StringLiteral Identifier
+		)
+;
 /*Templates*/
 
 templateDeclaration:

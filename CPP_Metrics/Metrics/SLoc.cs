@@ -20,19 +20,13 @@ namespace CPP_Metrics.Metrics
 
     public class SLoc : IMetric
     {
-        public IReportBuilder ReportBuilder { get; set; }
-
         public SLoc(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
         }
-
-        
-
+        public IReportBuilder ReportBuilder { get; set; }
         public ConcurrentDictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
-
-        
-        
+        public List<MetricMessage> Messages { get; set; } = new();
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {

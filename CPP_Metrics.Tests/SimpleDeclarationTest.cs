@@ -318,5 +318,48 @@ int main()
 			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
 			
 		}
+        [Fact]
+		public void Test()
+		{
+			
+			var code = @"""
+			int main()
+			{
+					std::ranges::sort(v);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			
+
+			// Additional iformation
+			//generalNamespase.VariableDeclaration.Add("v", new Variable() { Name = "v" });
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+
+		}
+		[Fact]
+		public void Test2()
+		{
+
+			var code = @"""
+			void SetIP(Address_t ip) { ip = ip; }
+
+			int main()
+			{
+					std::ranges::sort(v);
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+
+
+			// Additional iformation
+			//generalNamespase.VariableDeclaration.Add("v", new Variable() { Name = "v" });
+			var visitor = new FunctionDefinitionVisitor();
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.FunctionDefinitionContext);
+
+		}
 	}
 }

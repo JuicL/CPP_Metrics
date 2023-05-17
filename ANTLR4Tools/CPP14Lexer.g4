@@ -43,7 +43,11 @@ RestrictM2: '__restrict__' -> skip;
 
 RestrictM3: 'restrict' -> skip;
 
-AttributeM: '__attribute__' (StringLiteral? ~[)]+)+ ')'+ -> skip;
+
+fragment ACTION : '(' ( ACTION | ~[()] )* ')' ;
+
+AttributeM: '__attribute' ~[(]* ACTION -> skip;
+
 
 TypeOfIBM: '__typeof__' ~[;]+ -> skip;
 
@@ -52,6 +56,10 @@ TypeOfIBM: '__typeof__' ~[;]+ -> skip;
 Alignas: 'alignas';
 
 Alignof: 'alignof';
+
+Alignof2: '__alignof';
+
+Alignof3: '__alignof__';
 
 Asm: 'asm';
 
@@ -82,6 +90,8 @@ Const_cast: 'const_cast';
 Continue: 'continue';
 
 Decltype: 'decltype';
+
+Decltype2: '__decltype';
 
 Default: 'default';
 

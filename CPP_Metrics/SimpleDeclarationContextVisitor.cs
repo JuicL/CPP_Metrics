@@ -278,23 +278,26 @@ namespace CPP_Metrics
             //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора)
             if (NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
-                var isType = ContextElement.GetTypeName(DeclSpecifierSeqType.TypeName, DeclSpecifierSeqType.NestedNames);
-
+                var isType = false;
+                if(DeclSpecifierSeqType.IsStandartType)
+                    isType = true;
+                else
+                    isType = ContextElement.GetTypeName(DeclSpecifierSeqType.TypeName, DeclSpecifierSeqType.NestedNames) is null;
+                
                 if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName) is not null ||
-                    isType is null) // проверка не являтеся ли типом
+                    isType == false) // проверка не являтеся ли типом
                 {
-                    CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
                     var parameterVariable = ContextElement.GetVariableName(name);
                     if (parameterVariable is not null)
                     {
+                        CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
+                        Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
                         parameterVariable.References.Add(ContextElement);
+                        return false;
                     }
-
-                    Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
- 
                     // Если есть параметр то это вызов функции в параметре
 
-                    return false;
+                    
                 }
             }
             if(DeclSpecifierSeqType is null && (Parameters is not null || Initializer is not null))

@@ -36,7 +36,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
                 //Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
                 stringBuilder.Append("<tr>");
                 stringBuilder.Append($"<td>{vertex.Name}</th>");
-                var colomnClass = vertex.ParenCount < 5 ? "class=\"table-success\"" : "class=\"table-danger\"";
+                var colomnClass = vertex.ParenCount < GlobalBoundaryValues.BoundaryValues.DIT ? "class=\"table-success\"" : "class=\"table-danger\"";
                 stringBuilder.Append($"<td {colomnClass}>{vertex.ParenCount}</th>");
                 stringBuilder.Append("</tr>");
             }

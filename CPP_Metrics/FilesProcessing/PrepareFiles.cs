@@ -99,30 +99,29 @@ namespace CPP_Metrics.FilesPrepare
 
             var regexString = fileInfo.FullName.Replace("\\", ".+").Replace("/",".+"); // Bruh s-word
             Regex regex = new Regex(regexString);
-            
+
             foreach (string line in File.ReadLines(preprocessedFilePath))
             {
-                if(line.StartsWith("#"))
+                if (line.StartsWith("#"))
                 {
-                    selector = regex.IsMatch(line);
-                    //foreach (var item in FilesRegex)
-                    //{
-                    //    var matches = item.Matches(line);
-                        
-                    //    isProhectFile = matches.Count > 0;
-                    //    if(isProhectFile)
-                    //    {
-                    //    }
+                    foreach (var item in FilesRegex)
+                    {
+                        var matches = item.Matches(line);
 
-                    //}
+                        isProhectFile = matches.Count > 0;
+                        if (isProhectFile)
+                        {
+                            selector = regex.IsMatch(line);
+                            break;
+                        }
+
+                    }
                     continue;
                 }
                 if (line.Length == 0)
                     continue;
-                
-                //if (isProhectFile == false)
-                //    continue;
-
+                if (isProhectFile == false)
+                    continue;
                 if (selector)
                 {
                     fileWriter.WriteLine(line);

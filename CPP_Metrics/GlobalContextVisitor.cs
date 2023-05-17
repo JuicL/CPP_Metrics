@@ -1,6 +1,4 @@
-﻿
-
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.OOP;
 using CPP_Metrics.Tool;
@@ -63,7 +61,7 @@ namespace CPP_Metrics
             var compoundStatement = context.statement().compoundStatement()?.statementSeq();
             
             IParseTree statement = compoundStatement is not null ? compoundStatement : context.statement();
-
+            if (statement is null) return false;
             var globalContextVisitor = new GlobalContextVisitor(contextElem);
             Analyzer.Analyze(statement, globalContextVisitor);
 
@@ -78,7 +76,10 @@ namespace CPP_Metrics
             if (context.theTypeId().abstractDeclarator() is not null)
                 return false;
             var visitor = new TypeVisitor();
-            Analyzer.Analyze(context.theTypeId().typeSpecifierSeq(), visitor);
+            var typeSpecifierSeq = context.theTypeId().typeSpecifierSeq();
+            
+            if (typeSpecifierSeq is null) return false;
+            Analyzer.Analyze(typeSpecifierSeq, visitor);
             var assingType = visitor.Type;
             ContextElement.AliasDeclaration.TryAdd(name, assingType);
             return false;
@@ -196,7 +197,7 @@ namespace CPP_Metrics
             functionContext.FunctionInfo = funcVisitor.FunctionInfo;
             functionContext.Paren = ContextElement;
 
-            foreach (var item in funcVisitor.FunctionInfo.Parameters)
+            foreach (var item in funcVisitor.FunctionInfo.Parameters.Where(x => x.Name is not null))
             {
                 functionContext.VariableDeclaration.Add(item.Name, new Variable() { Name = item.Name ,Type = item.Type});
             }
@@ -213,7 +214,7 @@ namespace CPP_Metrics
             var funcBody = (CPP14Parser.FunctionBodyContext)funcVisitor.FunctionInfo.FunctionBody;
 
             IParseTree funcStatement = funcBody.compoundStatement() is null ? funcBody : funcBody.compoundStatement().statementSeq();
-
+            if (funcStatement == null) return false;
             Analyzer.Analyze(funcStatement, globalContextVisitor);
             return false;
         }
@@ -304,6 +305,7 @@ namespace CPP_Metrics
                 foreach (var func in memberSpecificationVisitor.FunctionDefinition)
                 {
                     var globalContextVisitor = new GlobalContextVisitor(classContext);
+                    if (func.FunctionBody.Parent is null) continue;
                     Analyzer.Analyze(func.FunctionBody.Parent, globalContextVisitor);
                 }
             }

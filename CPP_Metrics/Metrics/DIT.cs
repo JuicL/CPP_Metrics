@@ -16,11 +16,14 @@ namespace CPP_Metrics.Metrics
         }
 
         // Граф
-        DITGraph DITGraph { get; set; } = new DITGraph(); 
+        DITGraph DITGraph { get; set; } = new DITGraph();
+        public List<MetricMessage> Messages { get; set; } = new();
+
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
             // Создать контекст
-            BaseContextElement.Clear();
+            //BaseContextElement.Clear();
+            BaseContextElement.CurrentSource = processingFileInfo.ProcessingFilePath;
             BaseContextElement contextElement = BaseContextElement.GetGeneralNameSpace();
 
             //// Запустить для инклюда
@@ -103,6 +106,18 @@ namespace CPP_Metrics.Metrics
                 {
                     chlVer.ParenCount = curVer.ParenCount + 1;
                     queue.Enqueue(chlVer);
+                }
+            }
+
+            foreach (var item in DITGraph.Verticies)
+            {
+                if (item.ParenCount > GlobalBoundaryValues.BoundaryValues.DIT)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        MessageType = MessageType.Error,
+                        Message = $"Depth of inheritance tree value is too high {item.Name}"
+                    });
                 }
             }
         }

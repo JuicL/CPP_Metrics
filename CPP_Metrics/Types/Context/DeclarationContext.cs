@@ -58,6 +58,13 @@ namespace CPP_Metrics.Types.Context
         public string GetFullName()
         {
             string res = "";
+            res += GetNamespace();
+            res += Name;
+            return res;
+        }
+        public string GetNamespace()
+        {
+            string res = "";
             foreach (var item in Nested)
             {
                 res += item.TypeName;
@@ -65,9 +72,10 @@ namespace CPP_Metrics.Types.Context
                     continue;
                 res += "::";
             }
-            res += Name;
+           
             return res;
         }
+
         public IParseTree Body { get; set; }
         public List<CPPType> UsedTypes { get; set; } = new List<CPPType>();
     }
@@ -161,18 +169,21 @@ namespace CPP_Metrics.Types.Context
         }
         public static void Clear()
         {
-            if (GeneralNameSpace is null) return;
-            var generalNamespace = new NamespaceContext();
-            NameSpaceInfo spaceInfo = new()
-            {
-                Name = "::",
-                IsInline = false,
-            };
-            generalNamespace.NameSpaceInfo = spaceInfo;
-            GeneralNameSpace = generalNamespace;
+            //if (GeneralNameSpace is null) return;
+            //var generalNamespace = new NamespaceContext();
+            //NameSpaceInfo spaceInfo = new()
+            //{
+            //    Name = "::",
+            //    IsInline = false,
+            //};
+            //generalNamespace.NameSpaceInfo = spaceInfo;
+            //GeneralNameSpace = generalNamespace;
         }
+
+        
         public static BaseContextElement GetGeneralNameSpace()
         {
+            //Console.WriteLine(Thread.CurrentThread.ManagedThreadId.ToString() + (GeneralNameSpace is null).ToString());
             if(GeneralNameSpace is null)
             {
                 var generalNamespace = new NamespaceContext();
@@ -186,10 +197,11 @@ namespace CPP_Metrics.Types.Context
             }
             return GeneralNameSpace;
         }
-        
+        [ThreadStatic]
         private static BaseContextElement? GeneralNameSpace;
         public string Source { get; set; } = "";
-        public static string CurrentSource { get; set; } = "";
+        [ThreadStatic]
+        public static string CurrentSource  = "";
     }
     
     

@@ -120,7 +120,10 @@ namespace CPP_Metrics
                 return false;
             var nested = context.nestedNameSpecifier();
             var nestedVisitor = new NestedNameSpecifierVisitor();
-            Analyzer.Analyze(nested, nestedVisitor);
+            if (nested is not null)
+            {
+                Analyzer.Analyze(nested, nestedVisitor);
+            }
 
             var indetifier = context.Identifier();
             var simplatemplate = context.simpleTemplateId();
@@ -241,7 +244,7 @@ namespace CPP_Metrics
 
 
 
-        public class PostfixElement : CPP14ParserBaseVisitor<bool>
+     public class PostfixElement : CPP14ParserBaseVisitor<bool>
     {
         public string Name { get; set; }
         // Nested

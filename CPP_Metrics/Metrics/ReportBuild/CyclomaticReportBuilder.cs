@@ -43,7 +43,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
                 stringBuilder.Append("<tr>");
                 stringBuilder.Append($"<td>{item.FunctionInfo.Text}</th>");
                 stringBuilder.Append($"<td>{item.FileName}</th>");
-                var colomnClass = item.CyclomaticComplexityValue < 12 ? "class=\"table-success\"" : "class=\"table-danger\"";
+                var colomnClass = item.CyclomaticComplexityValue > GlobalBoundaryValues.BoundaryValues.Complexity ? "class=\"table-danger\"" : "class=\"table-success\"";
                 stringBuilder.Append($"<td {colomnClass}>{item.CyclomaticComplexityValue}</th>");
                 stringBuilder.Append("</tr>");
             }

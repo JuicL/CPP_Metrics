@@ -98,7 +98,8 @@ class TestClass
 
 
         //var soursePaths = new List<string>() { @"C:\Users\User\source\repos\TestCpp1\TestCpp1" };
-        ProcessingFile processingFile = new ProcessingFile(soursePaths);
+        ProcessingFile processingFile = new ProcessingFile(soursePaths,config.OutReportPath);
+        
         processingFile.ReportInfo = reportInfo;
         
         var SLocReport = new SlocReportBuilder(reportInfo);
@@ -107,11 +108,12 @@ class TestClass
         var cyclomaticReport = new CyclomaticReportBuilder(reportInfo);
         processingFile.Metrics.Add(new CylomaticComplexity(cyclomaticReport));
 
+        var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
+        
         var DITReport = new DITReportBuilder(reportInfo);
         processingFile.Metrics.Add(new DIT(DITReport));
 
-        var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
-        processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
 
         processingFile.Run();
     }

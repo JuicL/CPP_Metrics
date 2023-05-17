@@ -12,6 +12,7 @@ namespace CPP_Metrics.Metrics
     public class ClassAbstraction : IMetric
     {
         public IReportBuilder ReportBuilder { get; set; }
+        public List<MetricMessage> Messages { get; set; } = new();
 
         public ClassAbstraction(IReportBuilder reportBuilder)
         {
@@ -25,6 +26,7 @@ namespace CPP_Metrics.Metrics
         {
             // Создать контекст
             BaseContextElement.Clear();
+            BaseContextElement.CurrentSource = processingFileInfo.ProcessingFilePath;
             BaseContextElement contextElement = BaseContextElement.GetGeneralNameSpace();
 
             //// Запустить для инклюда
@@ -33,7 +35,7 @@ namespace CPP_Metrics.Metrics
             //Analyzer.Analyze(processingFileInfo.IncludeFileTree, contextVisitor);
 
             // Запустить для основного
-            contextElement.Source = processingFileInfo.ProcessingFilePath;
+            //contextElement.Source = processingFileInfo.ProcessingFilePath;
             var contextVisitor = new GlobalContextVisitor(contextElement);
             Analyzer.Analyze(processingFileInfo.ProcessingFileTree, contextVisitor);
 

@@ -1,5 +1,6 @@
 ﻿
 using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
@@ -30,17 +31,22 @@ namespace CPP_Metrics
         }
         public override bool VisitDeclarator([NotNull] CPP14Parser.DeclaratorContext context)
         {
-            var name = context.GetTerminalNodes();
-            if(name.Count == 0)
-                return false;
-            Parameter.Name = name.First().GetText();
+            return true;
+            //var name = context.GetTerminalNodes();
+            //if(name.Count == 0)
+            //    return false;
+            //Parameter.Name = name.First().GetText();
             
-            return false;
+            //return false;
 
             //var visitor = new NameVisitor();
             //Analyzer.Analyze(context, visitor);
             //Parameter.Name = visitor.Name;
             //return false;
+        }
+        public override bool VisitChildren(IRuleNode node)
+        {
+            return true;
         }
 
     }

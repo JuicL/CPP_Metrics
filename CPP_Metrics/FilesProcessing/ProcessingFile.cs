@@ -14,24 +14,24 @@ namespace CPP_Metrics.FilesProcessing
         public Queue<FileInfo> ProcessingFilesQueue { get; } = new Queue<FileInfo>();
         public ReportInfo ReportInfo { get; set; }
         public List<IMetric> Metrics { get; set; } = new List<IMetric>();
-        
-        public ProcessingFile(List<string> sourceFilesPath)
+        protected string OutPath;
+        public ProcessingFile(List<string> sourceFilesPath, string outPath)
         {
             SourceFilesPath = sourceFilesPath;
+            OutPath = outPath;
         }
 
         private void RunMetrics(ProcessingFileInfo processingFileInfo)
         {
-            
             var metricsThreads = new List<Thread>();
 
             foreach (var metric in Metrics)
             {
                 var thread = new Thread(() =>
                 {
+                        metric.Handle(processingFileInfo);
                     try
                     {
-                        metric.Handle(processingFileInfo);
                     }
                     catch (Exception ex)
                     {
@@ -60,15 +60,18 @@ namespace CPP_Metrics.FilesProcessing
         // Генерация отчетов
         public void GenerateReport()
         {
+
             IReportBuilder generalReportBuilder = new GeneralPageReportBuilder(ReportInfo);
-            ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
-
-            generalReportBuilder.ReportBuild();
-
+            List<MetricMessage> metricMessages = new();
             foreach (var metric in Metrics)
             {
                 metric.GenerateReport();
+                metricMessages.AddRange(metric.Messages);
             }
+            ((GeneralPageReportBuilder)generalReportBuilder).MetricMessages.AddRange(metricMessages);
+            ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
+
+            generalReportBuilder.ReportBuild();
         }
         private void HandleFile(FileInfo fileInfo, PrepareFiles prepareFiles)
         {
@@ -95,7 +98,7 @@ namespace CPP_Metrics.FilesProcessing
                 processingFileInfo.ProcessingFileTree = facad.GetTree();
             }
             // Запускаем сбор метрик для файла
-            //RunMetrics(processingFileInfo);
+            RunMetrics(processingFileInfo);
         }
         public void Run()
         {
@@ -110,20 +113,20 @@ namespace CPP_Metrics.FilesProcessing
             {
                 var currentFile = ProcessingFilesQueue.Dequeue();
                 Console.WriteLine("Processing file:" + currentFile.Name);
-                HandleFile(currentFile, prepareFiles);
-                //var thread = new Thread(()=> HandleFile(currentFile,prepareFiles));
-                //thread.Start();
-                //threads.Add(thread);
+                //HandleFile(currentFile, prepareFiles);
+                var thread = new Thread(() => HandleFile(currentFile, prepareFiles));
+                thread.Start();
+                threads.Add(thread);
             }
 
-            //foreach (var thread in threads)
-            //{
-            //    thread.Join();
-            //}
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
 
-            // Если метрика требует пост операций, то вызываем финализацию подсчетов
-            //FinalizeMetrics();
-            //GenerateReport();
+            //Если метрика требует пост операций, то вызываем финализацию подсчетов
+            FinalizeMetrics();
+            GenerateReport();
         }
         
     }
