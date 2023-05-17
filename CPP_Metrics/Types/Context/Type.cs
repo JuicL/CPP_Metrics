@@ -21,7 +21,7 @@
         public List<CPPType> GetTemplateNamesList()
         {
             var list = new List<CPPType>();
-            if (TemplateNames != null) return list;
+            if (TemplateNames == null) return list;
             Stack<CPPType> stack = new();
             foreach (var type in TemplateNames.Reverse<CPPType>())
             {

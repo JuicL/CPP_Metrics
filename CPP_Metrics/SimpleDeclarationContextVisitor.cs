@@ -221,7 +221,7 @@ namespace CPP_Metrics
             if (Parameters is not null && DeclSpecifierSeqType is null)
             {
                 CallFuncNames.Add(templateName.Identifier().GetText());
-                Console.WriteLine($"#FunCall# {templateName.Identifier().GetText()}");
+                ///Console.WriteLine($"#FunCall# {templateName.Identifier().GetText()}");
             }
 
             return false;
@@ -291,7 +291,7 @@ namespace CPP_Metrics
                     if (parameterVariable is not null)
                     {
                         CallFuncNames.Add(DeclSpecifierSeqType.TypeName);
-                        Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
+                        //Console.WriteLine($"#FunCall# {DeclSpecifierSeqType.TypeName}");
                         parameterVariable.References.Add(ContextElement);
                         return false;
                     }
@@ -312,7 +312,7 @@ namespace CPP_Metrics
                         }
                     }
                 CallFuncNames.Add(name);
-                Console.WriteLine($"#FunCall# {name}");
+                //Console.WriteLine($"#FunCall# {name}");
                 return false;
             }
 

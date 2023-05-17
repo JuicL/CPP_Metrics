@@ -1,4 +1,5 @@
-﻿using CPP_Metrics.Metrics.ReportBuild;
+﻿using Antlr4.Runtime.Misc;
+using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
@@ -32,10 +33,19 @@ namespace CPP_Metrics.Metrics
 
     public class CBOMetric : IMetric
     {
+        public CBOMetric()
+        {
+
+        }
+        public CBOMetric(IReportBuilder reportBuilder)
+        {
+            ReportBuilder = reportBuilder;
+        }
         public IReportBuilder ReportBuilder { get ; set ; }
         public Dictionary<string, CBOVertex> Classes { get; set; } = new();
         public CBOGraph Graph { get; set; } = new();
         public List<MetricMessage> Messages { get; set; } = new ();
+        public List<Pair<string, decimal>> Result { get; set; } = new();
 
         private void ConnectType(CPPType? type,CBOVertex from,ClassStructDeclaration classItem)
         {
@@ -73,6 +83,7 @@ namespace CPP_Metrics.Metrics
 
             // Создать контекст
             BaseContextElement.Clear();
+            BaseContextElement.CurrentSource = processingFileInfo.ProcessingFilePath;
             BaseContextElement contextElement = BaseContextElement.GetGeneralNameSpace();
 
             //// Запустить для инклюда
@@ -121,7 +132,10 @@ namespace CPP_Metrics.Metrics
 
             foreach (var method in methods)
             {
-                var classContext = method.GetTypeName(method.FunctionInfo.Name, method.FunctionInfo.NestedNames);
+                var nested = new List<CPPType>(method.FunctionInfo.NestedNames);
+                var name = nested.Last();
+                nested.RemoveAt(nested.Count-1);
+                var classContext = method.GetTypeName(name.TypeName, nested);
 
                 if (classContext is not null && classContext is ClassStructDeclaration classStructDecl)
                 {
@@ -181,12 +195,20 @@ namespace CPP_Metrics.Metrics
                 
         public void Finalizer()
         {
-            throw new NotImplementedException();
+            foreach (var vertex in Graph.Verticies)
+            {
+                var from = Graph.Edges.Where(x => x.From == vertex).Count();
+                var to = Graph.Edges.Where(x => x.To == vertex).Count();
+                Result.Add(new Pair<string, decimal>(vertex.FullName, from + to));
+            }
+
         }
 
         public string GenerateReport()
         {
-            throw new NotImplementedException();
+            ((CBOReportBuilder)ReportBuilder).Result = Result;
+            ReportBuilder.ReportBuild();
+            return "";
         }
 
     }

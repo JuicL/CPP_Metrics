@@ -192,7 +192,9 @@ namespace CPP_Metrics.Tool
             {
                 var namespaceFind = currentContext.GetNameSpace(item.TypeName,new List<CPPType>());
                 var typeFind = currentContext.GetTypeName(item.TypeName);
-                BaseContextElement? find = namespaceFind is null ? typeFind : namespaceFind;
+
+                BaseContextElement? find = typeFind is null ? namespaceFind : typeFind;
+                //BaseContextElement? find = namespaceFind is null ? typeFind : namespaceFind;
                 if (find == null) return null;
                 currentContext = find;
             }

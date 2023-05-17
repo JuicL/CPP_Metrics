@@ -101,7 +101,7 @@ class TestClass
         ProcessingFile processingFile = new ProcessingFile(soursePaths,config.OutReportPath);
         
         processingFile.ReportInfo = reportInfo;
-        
+
         var SLocReport = new SlocReportBuilder(reportInfo);
         processingFile.Metrics.Add(new SLoc(SLocReport));
 
@@ -110,10 +110,12 @@ class TestClass
 
         var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
         processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
-        
+
         var DITReport = new DITReportBuilder(reportInfo);
         processingFile.Metrics.Add(new DIT(DITReport));
 
+        var CBOReport = new CBOReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new CBOMetric(CBOReport));
 
         processingFile.Run();
     }
