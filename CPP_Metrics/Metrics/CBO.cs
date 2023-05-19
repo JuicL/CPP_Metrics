@@ -8,7 +8,15 @@ namespace CPP_Metrics.Metrics
 {
     public class CBOGraph: Graph<CBOVertex,CBOEdge>
     {
-
+        public new CBOEdge? CreateEdge(CBOVertex v1,CBOVertex v2)
+        {
+            CBOEdge? edge = null;
+            if(v1 != v2)
+            {
+                base.CreateEdge(v1,v2);
+            }
+            return edge;
+        }
     }
 
     public class CBOEdge : IEdge<CBOVertex>
@@ -61,7 +69,7 @@ namespace CPP_Metrics.Metrics
                     cBOVertexForField.Namespace = classStructInfoForField.GetNamespace();
                     Classes.Add(classStructInfoForField.GetFullName(), cBOVertexForField);
                 }
-                // Тип поля класса является другой класс, связываем
+                // Тип поля переменной является другой класс, связываем
                 Graph.CreateEdge(from, cBOVertexForField);
             }
             else
@@ -113,7 +121,7 @@ namespace CPP_Metrics.Metrics
                     cBOVertex.Namespace = classStructInfo.GetNamespace();
                     Classes.Add(classStructInfo.GetFullName(), cBOVertex);
                 }
-
+                // Обработка полей класса
                 foreach (var field in classStructInfo.Fields.Where(x => x.Type is not null && x.Type.IsStandartType == false))
                 {
                     ConnectType(field.Type, cBOVertex, classItem);
@@ -159,7 +167,7 @@ namespace CPP_Metrics.Metrics
                         }
                     }
                     // Возвращаемое значение функции
-                    if(method.FunctionInfo.ReturnType is not null)
+                    if(method.FunctionInfo.ReturnType is not null && method.FunctionInfo.ReturnType.IsStandartType == false)
                         ConnectType(method.FunctionInfo.ReturnType, cBOVertex, classStructDecl);
 
 
@@ -169,7 +177,7 @@ namespace CPP_Metrics.Metrics
                         .Where(x => x.Value.Type is not null
                         && x.Value.Type.IsStandartType == false).Select(x => x.Value) ;
                     
-                    foreach (var variable in variables)
+                    foreach (var variable in variables.Where(x => x.Type is not null && x.Type.IsStandartType == false))
                     {
                         ConnectType(variable.Type, cBOVertex, classStructDecl);
                         foreach (var item in variable.Type.GetTemplateNamesList())
@@ -197,8 +205,11 @@ namespace CPP_Metrics.Metrics
         {
             foreach (var vertex in Graph.Verticies)
             {
-                var from = Graph.Edges.Where(x => x.From == vertex).Count();
-                var to = Graph.Edges.Where(x => x.To == vertex).Count();
+                var from1 = Graph.Edges.Where(x => x.From == vertex).Select(x => x.To.FullName).Distinct().ToList();
+                var to1 = Graph.Edges.Where(x => x.To == vertex).Select(x => x.From.FullName).Distinct().ToList();
+
+                var from = Graph.Edges.Where(x => x.From == vertex).Distinct().Count();
+                var to = Graph.Edges.Where(x => x.To == vertex).Distinct().Count();
                 Result.Add(new Pair<string, decimal>(vertex.FullName, from + to));
             }
 

@@ -102,17 +102,17 @@ class TestClass
         
         processingFile.ReportInfo = reportInfo;
 
-        var SLocReport = new SlocReportBuilder(reportInfo);
-        processingFile.Metrics.Add(new SLoc(SLocReport));
+        //var SLocReport = new SlocReportBuilder(reportInfo);
+        //processingFile.Metrics.Add(new SLoc(SLocReport));
 
-        var cyclomaticReport = new CyclomaticReportBuilder(reportInfo);
-        processingFile.Metrics.Add(new CylomaticComplexity(cyclomaticReport));
+        //var cyclomaticReport = new CyclomaticReportBuilder(reportInfo);
+        //processingFile.Metrics.Add(new CylomaticComplexity(cyclomaticReport));
 
-        var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
-        processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
+        //var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
+        //processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
 
-        var DITReport = new DITReportBuilder(reportInfo);
-        processingFile.Metrics.Add(new DIT(DITReport));
+        //var DITReport = new DITReportBuilder(reportInfo);
+        //processingFile.Metrics.Add(new DIT(DITReport));
 
         var CBOReport = new CBOReportBuilder(reportInfo);
         processingFile.Metrics.Add(new CBOMetric(CBOReport));
