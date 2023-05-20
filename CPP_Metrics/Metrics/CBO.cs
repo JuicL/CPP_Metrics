@@ -31,13 +31,9 @@ namespace CPP_Metrics.Metrics
         // Полный путь до типа
         public string FullName { get; set; }
         public string? Namespace { get; set; }
+        public bool IsProjectClass { get; set; } = false;
     }
 
-    public class CBOValue
-    {
-        public CPPType Type { get; set; }
-        public int Value { get; set; }
-    }
 
     public class CBOMetric : IMetric
     {
@@ -65,6 +61,7 @@ namespace CPP_Metrics.Metrics
                 if (!Classes.TryGetValue(classStructInfoForField.GetFullName(), out var cBOVertexForField))
                 {
                     cBOVertexForField = Graph.CreateVertex();
+                    cBOVertexForField.IsProjectClass = true;
                     cBOVertexForField.FullName = classStructInfoForField.GetFullName();
                     cBOVertexForField.Namespace = classStructInfoForField.GetNamespace();
                     Classes.Add(classStructInfoForField.GetFullName(), cBOVertexForField);
@@ -105,6 +102,7 @@ namespace CPP_Metrics.Metrics
             Analyzer.Analyze(processingFileInfo.ProcessingFileTree, contextVisitor2);
 
             // Получить все что было в основном
+
             var classes = contextElement.Filter(x => x is ClassStructDeclaration
                                                     && x.Source.Equals(processingFileInfo.ProcessingFilePath))
                                         .Cast<ClassStructDeclaration>().ToList();
@@ -117,6 +115,7 @@ namespace CPP_Metrics.Metrics
                 if (!Classes.TryGetValue(classStructInfo.GetFullName(), out cBOVertex))
                 {
                     cBOVertex = Graph.CreateVertex();
+                    cBOVertex.IsProjectClass = true;
                     cBOVertex.FullName = classStructInfo.GetFullName();
                     cBOVertex.Namespace = classStructInfo.GetNamespace();
                     Classes.Add(classStructInfo.GetFullName(), cBOVertex);
@@ -153,6 +152,7 @@ namespace CPP_Metrics.Metrics
                     if (!Classes.TryGetValue(classStructInfoForMethod.GetFullName(), out cBOVertex))
                     {
                         cBOVertex = Graph.CreateVertex();
+                        cBOVertex.IsProjectClass = true;
                         cBOVertex.FullName = classStructInfoForMethod.GetFullName();
                         cBOVertex.Namespace = classStructInfoForMethod.GetNamespace();
                         Classes.Add(classStructInfoForMethod.GetFullName(), cBOVertex);
@@ -208,9 +208,11 @@ namespace CPP_Metrics.Metrics
                 var from1 = Graph.Edges.Where(x => x.From == vertex).Select(x => x.To.FullName).Distinct().ToList();
                 var to1 = Graph.Edges.Where(x => x.To == vertex).Select(x => x.From.FullName).Distinct().ToList();
 
-                var from = Graph.Edges.Where(x => x.From == vertex).Distinct().Count();
-                var to = Graph.Edges.Where(x => x.To == vertex).Distinct().Count();
-                Result.Add(new Pair<string, decimal>(vertex.FullName, from + to));
+                var from = from1.Count();
+                var to = to1.Count();
+                
+                if(vertex.IsProjectClass)
+                    Result.Add(new Pair<string, decimal>(vertex.FullName, from + to));
             }
 
         }

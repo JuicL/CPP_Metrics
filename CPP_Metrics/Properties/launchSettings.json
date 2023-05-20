@@ -3,6 +3,9 @@
     "CPP_Metrics": {
       "commandName": "Project",
       "commandLineArgs": "-f C:\\Users\\User\\Documents\\interpreter\\Interpreter -o C:\\Users\\User\\Documents\\interpreter\\Interpreter"
+    },
+    "Docker": {
+      "commandName": "Docker"
     }
   }
 }

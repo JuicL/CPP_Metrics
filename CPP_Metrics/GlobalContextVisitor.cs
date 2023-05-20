@@ -16,7 +16,7 @@ namespace CPP_Metrics
         public BaseContextElement ContextElement { get; }
         //Field current context
         public BaseContextElement Current { get; }
-        public override bool VisitExpressionStatement([NotNull] CPP14Parser.ExpressionStatementContext context)
+        public override bool VisitExpression([NotNull] CPP14Parser.ExpressionContext context)
         {
             var variableUsedVisitor = new UsedVariables(ContextElement);
             Analyzer.Analyze(context, variableUsedVisitor);
@@ -33,27 +33,32 @@ namespace CPP_Metrics
             var typesUsedVisitor = new UsedClasses();
             Analyzer.Analyze(context, typesUsedVisitor);
             ContextElement.UsedClasses.AddRange(typesUsedVisitor.CPPTypes);
-
             return false;
         }
+        public override bool VisitExpressionStatement([NotNull] CPP14Parser.ExpressionStatementContext context)
+        {
+            return true;
+        }
+
         public override bool VisitCompoundStatement([NotNull] CPP14Parser.CompoundStatementContext context)
         {
             var statementSeq = context.statementSeq();
             if (statementSeq is not null)
             {
                 var contextElem = new BaseContextElement();
-
+                contextElem.Paren = ContextElement;
                 var globalContextVisitor = new GlobalContextVisitor(contextElem);
                 Analyzer.Analyze(statementSeq, globalContextVisitor);
             }
             return false;
         }
+
         public override bool VisitIterationStatement([NotNull] CPP14Parser.IterationStatementContext context)
         {
             var contextElem = new BaseContextElement();
             var forInitStat = context.forInitStatement();
-            
-            if(forInitStat is not null)
+            contextElem.Paren = ContextElement;
+            if (forInitStat is not null)
             {
 
             }

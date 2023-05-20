@@ -153,7 +153,52 @@ namespace CPP_Metrics.Tests
 		[Fact]
 		public void Simple5()
 		{
+			var code = @"""
+			class ArifParser
+			{
+				int input;
+			};
+
+			Expression ArifParser::parse_binary_expression(int min_priority) {
+				for (;;) {
+					if (priority <= min_priority) {
+						input -= op.size();
+						return left_expr;
+					}
+
+					auto right_expr = parse_binary_expression(priority);
+					left_expr = Expression(op, left_expr, right_expr);
+				}
+			}
+
+            """;
+
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			var visitor = new GlobalContextVisitor(generalNamespase);
+
+			Analyzer.Analyze(tree, visitor);
+
+			Assert.True(generalNamespase.Children.Count == 2);
+			var context = generalNamespase.Children.FirstOrDefault(x => x is ClassStructDeclaration);
+
+			Assert.True(context is not null);
+			var classContext = (ClassStructDeclaration)context;
+
 			
+
+			var methodContext = generalNamespase.Children.FirstOrDefault(x => x is FunctionDeclaration);
+
+			Assert.True(methodContext is not null);
+			var method = (FunctionDeclaration)methodContext;
+
+			Assert.True(classContext.ClassStructInfo.Fields.Count == 1);
+			var variable = (Variable)classContext.ClassStructInfo.Fields.First();
+
+
+			Assert.True(variable.References.Count == 1);
+			//Assert.True(variable.References.First() == method);
 
 
 		}
