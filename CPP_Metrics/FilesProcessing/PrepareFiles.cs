@@ -2,6 +2,7 @@
 
 using Antlr4.Runtime.Misc;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -57,23 +58,29 @@ namespace CPP_Metrics.FilesPrepare
             var outFile = Path.Combine(PathToTempFilesDirectory, 
                 filePath.Name + ".ii");
             //var test = $"g++ -E {filePath.FullName} -o {outFile}";
-            var command = $"-E {filePath.FullName} -o {outFile}";
-            
-            ProcessStartInfo startInfoLinux = new ProcessStartInfo() {
-                FileName = "g++",
-                UseShellExecute = true,
-                Arguments = command, };
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                FileName = "cmd.exe",
-                UseShellExecute = true,
-                Arguments = $"/C g++ -E {filePath.FullName} -o {outFile} && exit",
-                WindowStyle = ProcessWindowStyle.Hidden
-            };
+                var command = $"-E {filePath.FullName} -o {outFile}";
+                startInfo = new ProcessStartInfo() {
+                    FileName = "g++",
+                    UseShellExecute = true,
+                    Arguments = command, };
+            }
+            else
+            {
+                startInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    UseShellExecute = true,
+                    Arguments = $"/C g++ -E {filePath.FullName} -o {outFile} && exit",
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+            }
+            
 
             Process process = new Process();
-            process.StartInfo = startInfoLinux;
+            process.StartInfo = startInfo;
             //process.StartInfo.RedirectStandardOutput = true;
             process.Start();
             //string output = process.StandardOutput.ReadToEnd();
