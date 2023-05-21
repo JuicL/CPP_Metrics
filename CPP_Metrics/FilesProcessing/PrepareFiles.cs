@@ -56,7 +56,14 @@ namespace CPP_Metrics.FilesPrepare
         {
             var outFile = Path.Combine(PathToTempFilesDirectory, 
                 filePath.Name + ".ii");
-            var test = $"g++ -E {filePath.FullName} -o {outFile}";
+            //var test = $"g++ -E {filePath.FullName} -o {outFile}";
+            var command = $"-E {filePath.FullName} -o {outFile}";
+            
+            ProcessStartInfo startInfoLinux = new ProcessStartInfo() {
+                FileName = "g++",
+                UseShellExecute = true,
+                Arguments = command, };
+
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
@@ -66,7 +73,7 @@ namespace CPP_Metrics.FilesPrepare
             };
 
             Process process = new Process();
-            process.StartInfo = startInfo;
+            process.StartInfo = startInfoLinux;
             //process.StartInfo.RedirectStandardOutput = true;
             process.Start();
             //string output = process.StandardOutput.ReadToEnd();

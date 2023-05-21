@@ -29,7 +29,7 @@ namespace CPP_Metrics.FilesProcessing
             {
                 var thread = new Thread(() =>
                 {
-                        metric.Handle(processingFileInfo);
+                    metric.Handle(processingFileInfo);
                     try
                     {
                     }
@@ -79,7 +79,6 @@ namespace CPP_Metrics.FilesProcessing
             processingFileInfo.FileInfo = fileInfo;
             var preprocessingFile = prepareFiles.CreatePreprocessorFile(fileInfo);
             var preprocessorFiles = prepareFiles.ReadPreprocessedFile(fileInfo, preprocessingFile);
-
 
             //using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             processingFileInfo.IncludeFilePath = preprocessorFiles.a;

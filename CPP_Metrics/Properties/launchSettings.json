@@ -5,7 +5,8 @@
       "commandLineArgs": "-f C:\\Users\\User\\Documents\\interpreter\\Interpreter -o C:\\Users\\User\\Documents\\interpreter\\Interpreter"
     },
     "Docker": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "commandLineArgs": "-f /testapp/ -o /"
     }
   }
 }

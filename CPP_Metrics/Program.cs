@@ -45,7 +45,7 @@ class TestClass
                             throw new Exception("Expected path to project files");
                         config.ProjectFiles.Add(args[i]);
                         i++;
-                    } while (!args[i].StartsWith('-') && i < args.Length);
+                    } while (i < args.Length && !args[i].StartsWith('-'));
 
                     break;
                 case "-o":
@@ -102,17 +102,17 @@ class TestClass
         
         processingFile.ReportInfo = reportInfo;
 
-        //var SLocReport = new SlocReportBuilder(reportInfo);
-        //processingFile.Metrics.Add(new SLoc(SLocReport));
+        var SLocReport = new SlocReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new SLoc(SLocReport));
 
-        //var cyclomaticReport = new CyclomaticReportBuilder(reportInfo);
-        //processingFile.Metrics.Add(new CylomaticComplexity(cyclomaticReport));
+        var cyclomaticReport = new CyclomaticReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new CylomaticComplexity(cyclomaticReport));
 
-        //var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
-        //processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
+        var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
 
-        //var DITReport = new DITReportBuilder(reportInfo);
-        //processingFile.Metrics.Add(new DIT(DITReport));
+        var DITReport = new DITReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new DIT(DITReport));
 
         var CBOReport = new CBOReportBuilder(reportInfo);
         processingFile.Metrics.Add(new CBOMetric(CBOReport));
@@ -133,22 +133,24 @@ class TestClass
     }
     static void Main(string[] args)
     {
+        Console.WriteLine("Cpp metrics running");
+        
+        foreach (var item in args)
+        {
+            Console.WriteLine($"arg {item}");
+        }
         //TestRun();
-
-        ////var generalVisitor = new GeneralVisitor();
-        ////var variableVisitor = new VariableVisitor();
-        ////var classVisitor = new ClassStructVisitor();
-        ////var typeVisitor = new TypeVisitor();
-        //return;
 
         Config config = new Config();
         if (args.Length != 0)
         {
             HandleArguments(config, args);
             RunMetrics(config.ProjectFiles,config);
+            Console.WriteLine("Cpp metrics finished");
             return;
         }
-            //C:\Users\User\source\repos\TestCpp1\TestCpp1
+
+        //C:\Users\User\source\repos\TestCpp1\TestCpp1
         //config.ProjectFiles.Add(@"C:\Users\User\Documents\interpreter\Interpreter");
         //config.OutReportPath = @"C:\Users\User\Documents\interpreter\Interpreter";
 
