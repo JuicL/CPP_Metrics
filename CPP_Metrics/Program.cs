@@ -10,6 +10,7 @@ using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using Facads;
 using System.Globalization;
+using System.Text;
 
 public class Config
 {
@@ -90,6 +91,7 @@ class TestClass
         reportInfo.OutPath = currentReportFolderPath;
         return reportInfo;
     }
+    public static List<MetricMessage> metricMessages= new List<MetricMessage>();
     private static void RunMetrics(List<string> soursePaths, Config config)
     {
         if (soursePaths.Count == 0)
@@ -118,6 +120,7 @@ class TestClass
         processingFile.Metrics.Add(new CBOMetric(CBOReport));
 
         processingFile.Run();
+        metricMessages.AddRange(processingFile.MetricMessages);
     }
     static void TestRun()
     {
@@ -147,6 +150,18 @@ class TestClass
             HandleArguments(config, args);
             RunMetrics(config.ProjectFiles,config);
             Console.WriteLine("Cpp metrics finished");
+            StringBuilder stringBuilder= new StringBuilder();
+
+            foreach (var item in metricMessages.Where(x=> x.MessageType == MessageType.Error)) {
+                stringBuilder.AppendLine(item.Message);
+            }
+            
+            if(stringBuilder.Length > 0)
+            {
+                var str = stringBuilder.ToString();
+                throw new Exception(str);
+            }
+
             return;
         }
 

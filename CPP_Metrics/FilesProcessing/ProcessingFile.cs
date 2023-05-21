@@ -14,7 +14,11 @@ namespace CPP_Metrics.FilesProcessing
         public Queue<FileInfo> ProcessingFilesQueue { get; } = new Queue<FileInfo>();
         public ReportInfo ReportInfo { get; set; }
         public List<IMetric> Metrics { get; set; } = new List<IMetric>();
+        
         protected string OutPath;
+
+        public List<MetricMessage> MetricMessages = new();
+        
         public ProcessingFile(List<string> sourceFilesPath, string outPath)
         {
             SourceFilesPath = sourceFilesPath;
@@ -62,16 +66,17 @@ namespace CPP_Metrics.FilesProcessing
         {
 
             IReportBuilder generalReportBuilder = new GeneralPageReportBuilder(ReportInfo);
-            List<MetricMessage> metricMessages = new();
+            
             foreach (var metric in Metrics)
             {
                 metric.GenerateReport();
-                metricMessages.AddRange(metric.Messages);
+                MetricMessages.AddRange(metric.Messages);
             }
-            ((GeneralPageReportBuilder)generalReportBuilder).MetricMessages.AddRange(metricMessages);
+            ((GeneralPageReportBuilder)generalReportBuilder).MetricMessages.AddRange(MetricMessages);
             ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
 
             generalReportBuilder.ReportBuild();
+
         }
         private void HandleFile(FileInfo fileInfo, PrepareFiles prepareFiles)
         {
