@@ -1,4 +1,5 @@
 ﻿
+using Antlr4.Runtime.Misc;
 using CPP_Metrics.FilesPrepare;
 using CPP_Metrics.Metrics;
 using CPP_Metrics.Metrics.ReportBuild;
@@ -83,8 +84,19 @@ namespace CPP_Metrics.FilesProcessing
             ProcessingFileInfo processingFileInfo = new ProcessingFileInfo();
             processingFileInfo.FileInfo = fileInfo;
             var preprocessingFile = prepareFiles.CreatePreprocessorFile(fileInfo);
-            var preprocessorFiles = prepareFiles.ReadPreprocessedFile(fileInfo, preprocessingFile);
+            Pair<string, string>? preprocessorFiles = null;
+            try
+            {
+                preprocessorFiles = prepareFiles.ReadPreprocessedFile(fileInfo, preprocessingFile);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"Preprocesser fail: {fileInfo.FullName}");
+                return;
+            }
 
+            if (preprocessorFiles is null) return;
+            
             //using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             processingFileInfo.IncludeFilePath = preprocessorFiles.a;
             using (StreamReader sr = new StreamReader(processingFileInfo.IncludeFilePath))

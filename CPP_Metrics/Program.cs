@@ -164,6 +164,7 @@ class TestClass
 
             return;
         }
+        throw new Exception("Empty arguments");
 
         //C:\Users\User\source\repos\TestCpp1\TestCpp1
         //config.ProjectFiles.Add(@"C:\Users\User\Documents\interpreter\Interpreter");
