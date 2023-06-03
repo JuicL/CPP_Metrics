@@ -99,7 +99,10 @@ namespace CPP_Metrics.Types.Context
             get { return NestedNames.Count > 0; } 
             set { } 
         }
-
+        public string GetFullName()
+        {
+            return "";
+        }
         public bool Override { get; set; } = false;
 
         public bool Final { get; set; } = false;
@@ -210,6 +213,7 @@ namespace CPP_Metrics.Types.Context
     {
         public string Name { get; set; }
         public List<CPPType> Nested { get; set; } = new List<CPPType>();
+        public ClassStructDeclaration? BaseContextElement { get; set; }
     }
 
     public class UsingNamespace

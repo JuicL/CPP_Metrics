@@ -118,7 +118,10 @@ class TestClass
 
         var CBOReport = new CBOReportBuilder(reportInfo);
         processingFile.Metrics.Add(new CBOMetric(CBOReport));
-
+        
+        var CaCeReport = new CaCeReportBuilder(reportInfo);
+        processingFile.Metrics.Add(new CaCeMetric(CaCeReport));
+        
         processingFile.Run();
         metricMessages.AddRange(processingFile.MetricMessages);
     }

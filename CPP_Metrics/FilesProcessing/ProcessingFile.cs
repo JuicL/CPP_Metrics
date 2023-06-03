@@ -32,19 +32,19 @@ namespace CPP_Metrics.FilesProcessing
 
             foreach (var metric in Metrics)
             {
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                    metric.Handle(processingFileInfo);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                });
-                thread.Start();
-                metricsThreads.Add(thread);
+                metric.Handle(processingFileInfo);
+                //var thread = new Thread(() =>
+                //{
+                //    try
+                //    {
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Console.WriteLine(ex.Message);
+                //    }
+                //});
+                //thread.Start();
+                //metricsThreads.Add(thread);
             }
 
             foreach(var thread in metricsThreads)
@@ -129,10 +129,10 @@ namespace CPP_Metrics.FilesProcessing
             {
                 var currentFile = ProcessingFilesQueue.Dequeue();
                 Console.WriteLine("Processing file:" + currentFile.Name);
-                //HandleFile(currentFile, prepareFiles);
-                var thread = new Thread(() => HandleFile(currentFile, prepareFiles));
-                thread.Start();
-                threads.Add(thread);
+                HandleFile(currentFile, prepareFiles);
+                //var thread = new Thread(() => HandleFile(currentFile, prepareFiles));
+                //thread.Start();
+                //threads.Add(thread);
             }
 
             foreach (var thread in threads)

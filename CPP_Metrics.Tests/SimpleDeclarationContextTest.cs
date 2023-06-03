@@ -202,5 +202,44 @@ namespace CPP_Metrics.Tests
 
 
 		}
+		[Fact]
+		public void Simple6()
+		{
+			var code = @"""
+			namespace N1
+			{
+				class CL1{};
+			}
+
+			namespace N2 {
+				using namespace N1;
+				class CL2 {
+		
+				};
+			}
+
+            """;
+
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+			var visitor = new GlobalContextVisitor(generalNamespase);
+
+			Analyzer.Analyze(tree, visitor);
+
+			Assert.True(generalNamespase.Children.Count == 2);
+			var context = generalNamespase.Children.LastOrDefault(x => x is NamespaceContext);
+
+			Assert.True(context is not null);
+			var namespaceContext = (NamespaceContext)context;
+
+			var class1 = namespaceContext.Children.FirstOrDefault(x => x is ClassStructDeclaration);
+			Assert.True(class1 is not null);
+
+			var t = class1.GetTypeName("CL1", new List<CPPType>());
+			Assert.True(t is not null);
+
+
+		}
 	}
 }

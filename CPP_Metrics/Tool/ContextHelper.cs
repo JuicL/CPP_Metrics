@@ -46,7 +46,8 @@ namespace CPP_Metrics.Tool
                     if (currentNamespace != null && i < newnested.Count)
                         currentNamespace = currentNamespace.GetNameSpace(newnested[i].TypeName, new List<CPPType>());
                 }
-                if (currentNamespace != null) return (NamespaceContext?)currentNamespace;
+                if (currentNamespace != null) 
+                    return (NamespaceContext?)currentNamespace;
             }
             // Ищем среди using
             var usingNamespaces = contextElement.UsingNamespaces;
@@ -191,7 +192,7 @@ namespace CPP_Metrics.Tool
             foreach (var item in newnested)
             {
                 var namespaceFind = currentContext.GetNameSpace(item.TypeName,new List<CPPType>());
-                var typeFind = currentContext.GetTypeName(item.TypeName);
+                var typeFind = GetTypeName2(currentContext,item.TypeName);
 
                 BaseContextElement? find = typeFind is null ? namespaceFind : typeFind;
                 //BaseContextElement? find = namespaceFind is null ? typeFind : namespaceFind;
@@ -206,52 +207,82 @@ namespace CPP_Metrics.Tool
         {
             List<BaseContextElement> namespaces = new List<BaseContextElement>();
             namespaces.Add(contextElement);
-            // Добавляем namespace
-            foreach (var item in contextElement.UsingNamespaces)
-            {
-                var temp = contextElement.GetNameSpace(item.Name, item.Nested);
-                if (temp is null)
-                    throw new Exception("Using namespace not found");
-                    namespaces.Add(temp);
-            }
-
-            // Ищем тип в using <Ns::Class>
-            foreach (var item in contextElement.SimpleUsing)
-            {
-                var temp = TypeOrNamespace(contextElement, item.Name,item.Nested);
-                if(temp != null && temp is ClassStructDeclaration structDeclaration)
-                {
-                    if (structDeclaration.ClassStructInfo.Name.Equals(name) && nested.Count == 0)
-                        return structDeclaration;
-                    
-                    var temp2 = TypeOrNamespace(temp, name, nested);
-                    if (temp2 is not null) 
-                        return temp2;
-                }
-            }
-            // проверяем среди всех включенных областей
+            
             foreach (var currentContext in namespaces)
             {
                 var temp2 = TypeOrNamespace(currentContext, name, nested);
                 if (temp2 is not null && temp2 is ClassStructDeclaration) 
                     return temp2;
-            
             }
 
+            List<SimpleUsing> simpleUsing = new();
+
+            foreach (var item in simpleUsing)
+            {
+                var temp = TypeOrNamespace(contextElement, item.Name, item.Nested);
+                if (temp != null && temp is ClassStructDeclaration structDeclaration)
+                {
+                    if (structDeclaration.ClassStructInfo.Name.Equals(name) && nested.Count == 0)
+                        return structDeclaration;
+
+                    var temp2 = TypeOrNamespace(temp, name, nested);
+                    if (temp2 is not null)
+                        return (ClassStructDeclaration?)temp2;
+                }
+            }
 
             return null;
         }
-        public static ClassStructDeclaration? GetTypeName(this BaseContextElement contextElement, string name)
+        private static ClassStructDeclaration? GetTypeName2(BaseContextElement contextElement, string name)
         {
+            List<BaseContextElement> namespaces = new List<BaseContextElement>();
+            List<ClassStructDeclaration> simpleUsings = new List<ClassStructDeclaration>();
+
             var currentContext = contextElement;
             while (currentContext is not null)
             {
+                foreach (var item in currentContext.UsingNamespaces)
+                {
+                    var temp = contextElement.GetNameSpace(item.Name, item.Nested);
+                    if (temp is not null)
+                        namespaces.Add(temp);
+                }
+                var simpleUsing = currentContext.SimpleUsing.Where(x => x.BaseContextElement is not null).Select(x => x.BaseContextElement);
+                if(simpleUsing is not null)
+                    simpleUsings.AddRange(simpleUsing);
+
                 var classStructInfo = currentContext.Children.Where(n => n is ClassStructDeclaration)
                                             .Cast<ClassStructDeclaration>().FirstOrDefault(x => x.ClassStructInfo.Name.Equals(name));
                 if(classStructInfo != null)
                     return classStructInfo;
                 currentContext = currentContext.Paren;
             }
+            // перебираем все добавленные области
+            foreach (var item in namespaces)
+            {
+                foreach (var item2 in item.UsingNamespaces)
+                {
+                    var temp = contextElement.GetNameSpace(item2.Name, item2.Nested);
+                    if (temp is not null)
+                        namespaces.Add(temp);
+                }
+
+                var classStructInfo = item.Children.Where(n => n is ClassStructDeclaration)
+                                            .Cast<ClassStructDeclaration>().FirstOrDefault(x => x.ClassStructInfo.Name.Equals(name));
+                if (classStructInfo != null)
+                    return classStructInfo;
+            }
+
+            // Перебираем все Using types
+            foreach (var item in simpleUsings)
+            {
+                if(item.ClassStructInfo.Name.Equals(name))
+                {
+                    return item;
+                }
+            }
+
+
             return null;
         }
 

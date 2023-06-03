@@ -25,10 +25,18 @@ namespace CPP_Metrics.Tool
             {
                 if (className.children.First() is CPP14Parser.SimpleTemplateIdContext simpleTemplate)
                 {
-                    identifier.TypeName = simpleTemplate.children.First().GetText();
-                    var templateArgumentList = simpleTemplate.children
-                                                .FirstOrDefault(x => x is CPP14Parser.TemplateArgumentListContext);
-                    identifier.TemplateNames = new List<CPPType>();
+                    var templateName = simpleTemplate.templateName(); // typeName actually
+                    identifier.TypeName = templateName.GetText();
+                    
+                    var templateVisitor = new TemplateArgumentVisitor();
+                    Analyzer.Analyze(simpleTemplate.templateArgumentList(), templateVisitor);
+
+                    identifier.TemplateNames = templateVisitor.Types;
+
+                    //identifier.TypeName = simpleTemplate.children.First().GetText();
+                    //var templateArgumentList = simpleTemplate.children
+                    //                            .FirstOrDefault(x => x is CPP14Parser.TemplateArgumentListContext);
+                    //identifier.TemplateNames = new List<CPPType>();
                 }
                 else
                 {

@@ -116,6 +116,12 @@ namespace CPP_Metrics
                 Analyzer.Analyze(nestedNameSpecifier, visitor);
                 simpleUsing.Nested = visitor.NestedNames;
             }
+
+            var typeContext = ContextElement.GetTypeName(simpleUsing.Name,simpleUsing.Nested);
+            if(typeContext is not null && typeContext is ClassStructDeclaration structDeclaration)
+            {
+                simpleUsing.BaseContextElement = structDeclaration;
+            }
             ContextElement.SimpleUsing.Add(simpleUsing);
             return false;
         }

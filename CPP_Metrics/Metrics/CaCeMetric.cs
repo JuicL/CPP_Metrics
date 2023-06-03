@@ -1,31 +1,35 @@
 ﻿using Antlr4.Runtime.Misc;
 using CPP_Metrics.Metrics.ReportBuild;
-using CPP_Metrics.Metrics;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CPP_Metrics.Metrics
 {
-
-
-    public class CBOMetric : IMetric
+    
+    internal class CaCeMetric : IMetric
     {
-        public CBOMetric()
+        public CaCeMetric()
         {
 
         }
-        public CBOMetric(IReportBuilder reportBuilder)
+        public CaCeMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
         }
-        public IReportBuilder ReportBuilder { get ; set ; }
+        public IReportBuilder ReportBuilder { get; set; }
         public Dictionary<string, CBOVertex> Classes { get; set; } = new();
         public CBOGraph Graph { get; set; } = new();
-        public List<MetricMessage> Messages { get; set; } = new ();
-        public List<Pair<string, decimal>> Result { get; set; } = new();
-
-        private void ConnectType(CPPType? type,CBOVertex from,ClassStructDeclaration classItem)
+        public List<MetricMessage> Messages { get; set; } = new();
+       
+        public Dictionary<string, int> Ca { get; set; } = new();
+        public Dictionary<string, int> Ce { get; set; } = new();
+        private void ConnectType(CPPType? type, CBOVertex from, ClassStructDeclaration classItem)
         {
             if (type == null) return;
             var fieldType = classItem.GetTypeName(type.TypeName, type.NestedNames);
@@ -81,7 +85,7 @@ namespace CPP_Metrics.Metrics
                                                     && x.Source.Equals(processingFileInfo.ProcessingFilePath))
                                         .Cast<ClassStructDeclaration>().ToList();
 
-           
+
             foreach (var classItem in classes)
             {
                 var classStructInfo = classItem.ClassStructInfo;
@@ -115,12 +119,12 @@ namespace CPP_Metrics.Metrics
             {
                 var nested = new List<CPPType>(method.FunctionInfo.NestedNames);
                 var name = nested.Last();
-                nested.RemoveAt(nested.Count-1);
+                nested.RemoveAt(nested.Count - 1);
                 var classContext = method.GetTypeName(name.TypeName, nested);
 
                 if (classContext is not null && classContext is ClassStructDeclaration classStructDecl)
                 {
-                    
+
                     var classStructInfoForMethod = classStructDecl.ClassStructInfo;
                     CBOVertex cBOVertex;
                     if (!Classes.TryGetValue(classStructInfoForMethod.GetFullName(), out cBOVertex))
@@ -141,7 +145,7 @@ namespace CPP_Metrics.Metrics
                         }
                     }
                     // Возвращаемое значение функции
-                    if(method.FunctionInfo.ReturnType is not null && method.FunctionInfo.ReturnType.IsStandartType == false)
+                    if (method.FunctionInfo.ReturnType is not null && method.FunctionInfo.ReturnType.IsStandartType == false)
                         ConnectType(method.FunctionInfo.ReturnType, cBOVertex, classStructDecl);
 
 
@@ -149,8 +153,8 @@ namespace CPP_Metrics.Metrics
                     // Переменные в методе
                     var variables = allContext.SelectMany(x => x.VariableDeclaration)
                         .Where(x => x.Value.Type is not null
-                        && x.Value.Type.IsStandartType == false).Select(x => x.Value) ;
-                    
+                        && x.Value.Type.IsStandartType == false).Select(x => x.Value);
+
                     foreach (var variable in variables.Where(x => x.Type is not null && x.Type.IsStandartType == false))
                     {
                         ConnectType(variable.Type, cBOVertex, classStructDecl);
@@ -170,16 +174,15 @@ namespace CPP_Metrics.Metrics
                         }
                     }
                 }
-                          
+
             }
             return true;
         }
-        public Dictionary<string, int> Ca = new();
-        public Dictionary<string, int> Ce = new();
+        
 
         public void Finalizer()
         {
-            //CBO
+            
             foreach (var vertex in Graph.Verticies)
             {
                 if (!vertex.IsProjectClass)
@@ -189,9 +192,8 @@ namespace CPP_Metrics.Metrics
                 var from = Graph.Edges.Where(x => x.From == vertex).Select(x => x.To).GroupBy(x => x.FullName).Select(x => x.First()).ToList();
                 // Сколько классов ссылается на этот класс
                 var to = Graph.Edges.Where(x => x.To == vertex).Select(x => x.From).GroupBy(x => x.FullName).Select(x => x.First()).ToList();
-                Result.Add(new Pair<string, decimal>(vertex.FullName, from.Count + to.Count));
-
-                if (vertex.Namespace is null) 
+                
+                if (vertex.Namespace is null)
                     continue;
 
                 //CA -- кол-во классов вне этой категории, которые зависят от классов внутри этой категории
@@ -200,7 +202,7 @@ namespace CPP_Metrics.Metrics
                     Ca.Add(vertex.Namespace, 0);
                 }
                 var out_category_ca = to.Where(x => vertex.Namespace != x.Namespace);
-                Ca[vertex.Namespace] = out_category_ca.Count();
+                Ca[vertex.Namespace] += out_category_ca.Count();
 
                 //CE -- кол-во классов внутри категории которые зависят от классов вне этой категории
                 if (!Ce.TryGetValue(vertex.Namespace, out int ce_value))
@@ -208,17 +210,18 @@ namespace CPP_Metrics.Metrics
                     Ce.Add(vertex.Namespace, 0);
                 }
                 var out_category_ce = from.Where(x => vertex.Namespace != x.Namespace);
-                Ce[vertex.Namespace] = out_category_ce.Count();
-                
+                Ce[vertex.Namespace] += out_category_ce.Count();
+
             }
         }
 
         public string GenerateReport()
         {
-            ((CBOReportBuilder)ReportBuilder).Result = Result;
+            ((CaCeReportBuilder)ReportBuilder).Ca = Ca;
+            ((CaCeReportBuilder)ReportBuilder).Ce = Ce;
+
             ReportBuilder.ReportBuild();
             return "";
         }
-
     }
 }

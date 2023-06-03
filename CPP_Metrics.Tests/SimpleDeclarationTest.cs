@@ -361,5 +361,27 @@ int main()
 			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.FunctionDefinitionContext);
 
 		}
+		//std::vector<std::unique_ptr<class Command>> _command;
+		[Fact]
+		public void Test3()
+		{
+
+			var code = @"""
+			std::vector<std::unique_ptr<class Command>> _command;
+			int main()
+			{
+			}
+            """;
+			var facad = new Facad(code);
+			var tree = facad.GetTree();
+			var generalNamespase = BaseContextElement.GetGeneralNameSpace();
+
+
+			// Additional iformation
+			//generalNamespase.VariableDeclaration.Add("v", new Variable() { Name = "v" });
+			var visitor = new SimpleDeclarationContextVisitor(generalNamespase);
+			Analyzer.AnalyzeWithСondition(tree, visitor, x => x is CPP14Parser.SimpleDeclarationContext);
+
+		}
 	}
 }
