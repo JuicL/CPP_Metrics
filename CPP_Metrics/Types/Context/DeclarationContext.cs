@@ -172,15 +172,8 @@ namespace CPP_Metrics.Types.Context
         }
         public static void Clear()
         {
-            //if (GeneralNameSpace is null) return;
-            //var generalNamespace = new NamespaceContext();
-            //NameSpaceInfo spaceInfo = new()
-            //{
-            //    Name = "::",
-            //    IsInline = false,
-            //};
-            //generalNamespace.NameSpaceInfo = spaceInfo;
-            //GeneralNameSpace = generalNamespace;
+            if (GeneralNameSpace is null) return;
+            GeneralNameSpace = null;
         }
 
         
