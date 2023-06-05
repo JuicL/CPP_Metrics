@@ -14,9 +14,10 @@ namespace CPP_Metrics.FilesProcessing
         public Dictionary<string, FileInfo> Files { get; set; } = new();
         public Queue<FileInfo> ProcessingFilesQueue { get; } = new Queue<FileInfo>();
         public ReportInfo ReportInfo { get; set; }
-        public List<IMetric> Metrics { get; set; } = new List<IMetric>();
-        
-        protected string OutPath;
+        public List<IMetric> Metrics { get; set; } = new();
+        public List<ICombineMetric> CombineMetrics { get; set; } = new();
+
+        protected string OutPath { get; set; }
 
         public List<MetricMessage> MetricMessages = new();
         
@@ -25,7 +26,7 @@ namespace CPP_Metrics.FilesProcessing
             SourceFilesPath = sourceFilesPath;
             OutPath = outPath;
         }
-
+        
         private void RunMetrics(ProcessingFileInfo processingFileInfo)
         {
             var metricsThreads = new List<Thread>();
@@ -52,6 +53,15 @@ namespace CPP_Metrics.FilesProcessing
                 thread.Join();
             }
 
+            foreach (var combineMetric in CombineMetrics)
+            {
+                combineMetric.Handle(Metrics);
+            }
+
+            foreach (var thread in metricsThreads)
+            {
+                thread.Join();
+            }
         }
 
         private void FinalizeMetrics()
@@ -59,6 +69,11 @@ namespace CPP_Metrics.FilesProcessing
             foreach (var metric in Metrics)
             {
                 metric.Finalizer();
+            }
+
+            foreach (var combineMetric in CombineMetrics)
+            {
+                combineMetric.Finalizer();
             }
         }
 
@@ -77,6 +92,12 @@ namespace CPP_Metrics.FilesProcessing
             ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
 
             generalReportBuilder.ReportBuild();
+
+            foreach (var combineMetric in CombineMetrics)
+            {
+                combineMetric.GenerateReport();
+                MetricMessages.AddRange(combineMetric.Messages);
+            }
 
         }
         private void HandleFile(FileInfo fileInfo, PrepareFiles prepareFiles)

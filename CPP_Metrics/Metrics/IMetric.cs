@@ -23,4 +23,10 @@ namespace CPP_Metrics.Metrics
 
         public List<MetricMessage> Messages { get; set; }
     }
+    public interface ICombineMetric: IMetric
+    {
+        public bool Handle(List<IMetric> metrics);
+
+    }
+
 }
