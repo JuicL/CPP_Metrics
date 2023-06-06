@@ -122,6 +122,10 @@ class TestClass
         var CaCeReport = new CaCeReportBuilder(reportInfo);
         processingFile.Metrics.Add(new CaCeMetric(CaCeReport));
         
+        // Комбинированные метрики
+        var instabilityReport = new InstabilityReport(reportInfo);
+        processingFile.CombineMetrics.Add(new InstabilityMetric(instabilityReport));
+        
         processingFile.Run();
         metricMessages.AddRange(processingFile.MetricMessages);
     }

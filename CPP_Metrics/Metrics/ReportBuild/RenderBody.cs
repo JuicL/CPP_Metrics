@@ -82,6 +82,15 @@ namespace CPP_Metrics.Metrics.ReportBuild
                                 <i class="fas fa-tachometer-alt fa-fw me-3"></i
                                     ><span>CaCe</span>
                                </a>
+                               </a>
+                                <a
+                                    href="Instability.html"
+                                    class="list-group-item list-group-item-action py-2 ripple"
+                                    aria-current="true"
+                                    >
+                                <i class="fas fa-tachometer-alt fa-fw me-3"></i
+                                    ><span>Instability</span>
+                               </a>
                             </div>
                           </div>
                         </nav>
