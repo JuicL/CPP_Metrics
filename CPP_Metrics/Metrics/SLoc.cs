@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CPP_Metrics.Metrics
@@ -30,6 +31,9 @@ namespace CPP_Metrics.Metrics
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
+            
+            var regexCommnets = new Regex(@"(\/\*(.*\n)*\*\/)|(\/\/.*\n(\s*\r\n)*)|("".*"")|(\n\s*\r\n)");
+
             using (StreamReader sr = new StreamReader(processingFileInfo.FileInfo.FullName))
             {
                 SLocInfo slocInfo = new();
