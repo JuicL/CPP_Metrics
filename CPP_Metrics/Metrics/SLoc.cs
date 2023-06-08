@@ -31,37 +31,39 @@ namespace CPP_Metrics.Metrics
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
-            
             var regexCommnets = new Regex(@"(\/\*(.*\n)*\*\/)|(\/\/.*\n(\s*\r\n)*)|("".*"")|(\n\s*\r\n)");
 
             using (StreamReader sr = new StreamReader(processingFileInfo.FileInfo.FullName))
             {
                 SLocInfo slocInfo = new();
-
-                var str = sr.ReadLine();
-                while (str is not null)
+                string? line;
+                StringBuilder stringBuilder = new();
+                while ((line = sr.ReadLine()) != null)
                 {
                     slocInfo.Lines++;
-                    if (str.Length == 0)
-                    {
-                        slocInfo.EmptyLines++;
-                    }
-                    else if (str.Contains("//"))
-                    {
-                        slocInfo.Commented++;
-                    }
-                    //else if(str.Contains("/*"))
-                    //{
-                    //    while (!str.Contains("*/"))
-                    //    {
-                    //        slocInfo.Commented = +1;
-                    //        str = sr.ReadLine();
-                    //    }
-                    //    slocInfo.Commented = +1;
-                        
-                    //}
-                    str = sr.ReadLine();
+                    stringBuilder.Append(line);
                 }
+
+                var str = stringBuilder.ToString();
+
+                var m2 = regexCommnets.Matches(str);
+
+                // 1 - /**/
+                var miltiCommentLine = m2.Where(x => x.Groups[1].Captures.Count > 0).Select(x => x.Groups[1].Value);
+                slocInfo.Commented += miltiCommentLine.Sum(x => x.Count(s => s == '\n'));
+
+                // 4 - empty line after //
+                var EmptyLine = m2.Where(x => x.Groups[4].Captures.Count > 0).Select(x => x.Groups[4].Value);
+                slocInfo.EmptyLines += EmptyLine.Sum(x => x.Count(s => s == '\n'));
+
+                // 3 - //
+                var CommentLine = m2.Where(x => x.Groups[3].Captures.Count > 0).Select(x => x.Groups[3].Value);
+                slocInfo.Commented += CommentLine.Count();
+
+                // 6 - empty line
+                var EmptyLine2 = m2.Where(x => x.Groups[6].Captures.Count > 0).Select(x => x.Groups[6].Value);
+                slocInfo.EmptyLines += EmptyLine2.Sum(x => x.Count(s => s == '\n') - 1);
+
                 slocInfo.PercentСomment = Math.Round(((100m * slocInfo.Commented) / slocInfo.Lines), 2);
                 slocInfo.PercentEmptyLines = Math.Round(((100m * slocInfo.EmptyLines) / slocInfo.Lines), 2);
                 SlocMetrics.TryAdd(processingFileInfo.FileInfo, slocInfo);
