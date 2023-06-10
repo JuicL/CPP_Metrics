@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime.Tree;
 using CPP_Metrics.OOP;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CPP_Metrics.Types.Context
 {
@@ -59,20 +60,28 @@ namespace CPP_Metrics.Types.Context
         {
             string res = "";
             res += GetNamespace();
+            if(!res.EndsWith("::"))
+            {
+                res += "::";
+            }
             res += Name;
             return res;
         }
+
         public string GetNamespace()
         {
+            
             string res = "";
             foreach (var item in Nested)
             {
-                res += item.TypeName;
                 if (item.TypeName.Equals("::"))
                     continue;
                 res += "::";
+                res += item.TypeName;
             }
-           
+
+            if (res.Length == 0)
+                res += "::";
             return res;
         }
 

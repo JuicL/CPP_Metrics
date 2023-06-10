@@ -24,8 +24,8 @@ namespace CPP_Metrics.Metrics
         public Dictionary<string, decimal> D { get; set; } = new();
 
 
-        public IReportBuilder ReportBuilder { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public List<MetricMessage> Messages { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IReportBuilder ReportBuilder { get; set; }
+        public List<MetricMessage> Messages { get; set; } = new();
         public InstabilityMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
