@@ -1,6 +1,7 @@
 ﻿
 using CPP_Metrics;
 using CPP_Metrics.CyclomaticComplexity;
+using CPP_Metrics.DatabaseContext;
 using CPP_Metrics.FilesPrepare;
 using CPP_Metrics.FilesProcessing;
 using CPP_Metrics.Metrics;
@@ -21,6 +22,11 @@ public class Config
 
 class TestClass
 {
+    static void Database()
+    {
+        var db = new DbContextMetrics();
+       
+    }
     static public void HandleArguments(Config config, string[] args)
     {
         // -f C:\Users\User\Documents\interpreter\Interpreter -o C:\Users\User\Documents\interpreter\Interpreter
@@ -144,6 +150,8 @@ class TestClass
     static void Main(string[] args)
     {
         Console.WriteLine("Cpp metrics running");
+        
+       
         
         foreach (var item in args)
         {

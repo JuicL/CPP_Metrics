@@ -4,6 +4,7 @@ using CPP_Metrics.Metrics;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
+using CPP_Metrics.DatabaseContext;
 
 namespace CPP_Metrics.Metrics
 {
@@ -220,5 +221,9 @@ namespace CPP_Metrics.Metrics
             return "";
         }
 
+        public void Save(DbContextMetrics dbContext, Solution solution)
+        {
+
+        }
     }
 }
