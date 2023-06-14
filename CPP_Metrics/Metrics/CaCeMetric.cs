@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace CPP_Metrics.Metrics
 {
     
-    internal class CaCeMetric : IMetric
+    public class CaCeMetric : IMetric
     {
         public CaCeMetric()
         {

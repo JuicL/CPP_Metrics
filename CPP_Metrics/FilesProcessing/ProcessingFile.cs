@@ -54,15 +54,7 @@ namespace CPP_Metrics.FilesProcessing
                 thread.Join();
             }
 
-            foreach (var combineMetric in CombineMetrics)
-            {
-                combineMetric.Handle(Metrics);
-            }
-
-            foreach (var thread in metricsThreads)
-            {
-                thread.Join();
-            }
+            
         }
 
         private void FinalizeMetrics()
@@ -72,10 +64,7 @@ namespace CPP_Metrics.FilesProcessing
                 metric.Finalizer();
             }
 
-            foreach (var combineMetric in CombineMetrics)
-            {
-                combineMetric.Finalizer();
-            }
+            
         }
 
         // Генерация отчетов
@@ -94,11 +83,7 @@ namespace CPP_Metrics.FilesProcessing
 
             generalReportBuilder.ReportBuild();
 
-            foreach (var combineMetric in CombineMetrics)
-            {
-                combineMetric.GenerateReport();
-                MetricMessages.AddRange(combineMetric.Messages);
-            }
+            
 
         }
         private void HandleFile(FileInfo fileInfo, PrepareFiles prepareFiles)
@@ -137,6 +122,31 @@ namespace CPP_Metrics.FilesProcessing
             }
             // Запускаем сбор метрик для файла
             RunMetrics(processingFileInfo);
+        }
+        void RunCombineMetrics()
+        {
+            var metricsThreads = new List<Thread>();
+
+            foreach (var combineMetric in CombineMetrics)
+            {
+                combineMetric.Handle(Metrics);
+            }
+
+            //foreach (var thread in metricsThreads)
+            //{
+            //    thread.Join();
+            //}
+
+            foreach (var combineMetric in CombineMetrics)
+            {
+                combineMetric.Finalizer();
+            }
+
+            foreach (var combineMetric in CombineMetrics)
+            {
+                combineMetric.GenerateReport();
+                MetricMessages.AddRange(combineMetric.Messages);
+            }
         }
         public void Run()
         {

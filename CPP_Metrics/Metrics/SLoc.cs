@@ -51,14 +51,14 @@ namespace CPP_Metrics.Metrics
 
                 // 1 - /**/
                 var miltiCommentLine = m2.Where(x => x.Groups[1].Captures.Count > 0).Select(x => x.Groups[1].Value);
-                slocInfo.Commented += miltiCommentLine.Sum(x => x.Count(s => s == '\n'));
+                slocInfo.Commented += miltiCommentLine.Sum(x => x.Count(s => s == '\n')  + 1);
 
                 // 4 - empty line after //
                 var EmptyLine = m2.Where(x => x.Groups[4].Captures.Count > 0).Select(x => x.Groups[4].Value);
                 slocInfo.EmptyLines += EmptyLine.Sum(x => x.Count(s => s == '\n'));
 
                 // 3 - //
-                var CommentLine = m2.Where(x => x.Groups[3].Captures.Count > 0).Select(x => x.Groups[3].Value);
+                 var CommentLine = m2.Where(x => x.Groups[3].Captures.Count > 0).Select(x => x.Groups[3].Value);
                 slocInfo.Commented += CommentLine.Count();
 
                 // 6 - empty line
