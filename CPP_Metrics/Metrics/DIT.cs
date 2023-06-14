@@ -138,7 +138,19 @@ namespace CPP_Metrics.Metrics
 
         public void Save(DbContextMetrics dbContext, Solution solution)
         {
-            
+            foreach (var dit in DITGraph.Verticies)
+            {
+                var value = new MetricValue()
+                {
+                    SolutionID = solution.ID,
+                    MetricDirectoryID = (int)dbContext.GetIdMetric("DIT"),
+                    FileName = "",
+                    ObjectName = dit.Name,
+                    Value = dit.ParenCount
+                };
+                dbContext.MetricValues.Add(value);
+            }
+            dbContext.SaveChanges();
         }
     }
 }

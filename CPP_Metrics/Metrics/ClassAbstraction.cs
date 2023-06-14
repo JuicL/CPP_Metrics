@@ -93,6 +93,19 @@ namespace CPP_Metrics.Metrics
 
         public void Save(DbContextMetrics dbContext, Solution solution)
         {
+            foreach (var item in Result)
+            {
+                var value = new MetricValue()
+                {
+                    SolutionID = solution.ID,
+                    MetricDirectoryID = (int)dbContext.GetIdMetric("A"),
+                    FileName = "",
+                    ObjectName = item.Key,
+                    Value = item.Value
+                };
+                dbContext.MetricValues.Add(value);
+            }
+            dbContext.SaveChanges();
         }
     }
 }

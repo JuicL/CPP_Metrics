@@ -223,7 +223,19 @@ namespace CPP_Metrics.Metrics
 
         public void Save(DbContextMetrics dbContext, Solution solution)
         {
-
+            foreach (var item in Result)
+            {
+                var value = new MetricValue()
+                {
+                    SolutionID = solution.ID,
+                    MetricDirectoryID = (int)dbContext.GetIdMetric("CBO"),
+                    FileName = "",
+                    ObjectName = item.a,
+                    Value = item.b
+                };
+                dbContext.MetricValues.Add(value);
+            }
+            dbContext.SaveChanges();
         }
     }
 }

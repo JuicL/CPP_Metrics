@@ -199,7 +199,7 @@ namespace CPP_Metrics.FilesProcessing
                 foreach (var item in CombineMetrics)
                 {
                     item.Save(db, new Solution() { ID = 1 });
-                }
+                } 
             }
         }
     }

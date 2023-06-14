@@ -227,6 +227,31 @@ namespace CPP_Metrics.Metrics
 
         public void Save(DbContextMetrics dbContext, Solution solution)
         {
+            foreach (var ca in Ca)
+            {
+                var value = new MetricValue()
+                {
+                    SolutionID = solution.ID,
+                    MetricDirectoryID = (int)dbContext.GetIdMetric("CA"),
+                    FileName = "",
+                    ObjectName = ca.Key,
+                    Value = ca.Value
+                };
+                dbContext.MetricValues.Add(value);
+            }
+            foreach (var ce in Ce)
+            {
+                var value = new MetricValue()
+                {
+                    SolutionID = solution.ID,
+                    MetricDirectoryID = (int)dbContext.GetIdMetric("CE"),
+                    FileName = "",
+                    ObjectName = ce.Key,
+                    Value = ce.Value
+                };
+                dbContext.MetricValues.Add(value);
+            }
+            dbContext.SaveChanges();
         }
     }
 }

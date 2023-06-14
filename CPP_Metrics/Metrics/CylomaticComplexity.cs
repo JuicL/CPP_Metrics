@@ -66,7 +66,19 @@ namespace CPP_Metrics.Metrics
 
         public void Save(DbContextMetrics dbContext, Solution solution)
         {
-            
+            foreach (var cyclomatic in FunctionCyclomatic)
+            {
+                var value = new MetricValue()
+                {
+                    SolutionID = solution.ID,
+                    MetricDirectoryID = (int)dbContext.GetIdMetric("Cyclomatic"),
+                    FileName = cyclomatic.FileName,
+                    ObjectName = cyclomatic.FunctionInfo.Name,
+                    Value = cyclomatic.CyclomaticComplexityValue
+                };
+                dbContext.MetricValues.Add(value);
+            }
+            dbContext.SaveChanges();
         }
     }
 }
