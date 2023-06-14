@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.CyclomaticComplexity;
+using CPP_Metrics.DatabaseContext;
 using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
@@ -59,13 +60,13 @@ namespace CPP_Metrics.Metrics
             ((CyclomaticReportBuilder)ReportBuilder).CyclomaticComplexityInfos = FunctionCyclomatic;
             ReportBuilder.ReportBuild();
 
-            //foreach (var item in
-            //tionCyclomatic)
-            //{
-            //    Console.WriteLine($"{item.FunctionInfo.Text} {item.CyclomaticComplexityValue}");
-            //}
+           
             return "";
         }
 
+        public void Save(DbContextMetrics dbContext, Solution solution)
+        {
+            
+        }
     }
 }

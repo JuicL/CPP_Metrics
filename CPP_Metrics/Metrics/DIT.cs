@@ -1,4 +1,5 @@
-﻿using CPP_Metrics.Metrics.ReportBuild;
+﻿using CPP_Metrics.DatabaseContext;
+using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
@@ -133,6 +134,11 @@ namespace CPP_Metrics.Metrics
             //    Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
             //}
             return "";
+        }
+
+        public void Save(DbContextMetrics dbContext, Solution solution)
+        {
+            
         }
     }
 }

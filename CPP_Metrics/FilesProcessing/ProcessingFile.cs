@@ -1,5 +1,6 @@
 ﻿
 using Antlr4.Runtime.Misc;
+using CPP_Metrics.DatabaseContext;
 using CPP_Metrics.FilesPrepare;
 using CPP_Metrics.Metrics;
 using CPP_Metrics.Metrics.ReportBuild;
@@ -164,7 +165,22 @@ namespace CPP_Metrics.FilesProcessing
             //Если метрика требует пост операций, то вызываем финализацию подсчетов
             FinalizeMetrics();
             GenerateReport();
+            Save();
         }
-        
+        private void Save()
+        {
+            using (var db = new DbContextMetrics())
+            {
+                foreach (var item in Metrics)
+                {
+                    item.Save(db,new Solution() { ID = 1});
+                }
+
+                foreach (var item in CombineMetrics)
+                {
+                    item.Save(db, new Solution() { ID = 1 });
+                }
+            }
+        }
     }
 }

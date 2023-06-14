@@ -1,4 +1,5 @@
-﻿using CPP_Metrics.Metrics.ReportBuild;
+﻿using CPP_Metrics.DatabaseContext;
+using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Types;
 using System;
 using System.Collections.Generic;
@@ -79,6 +80,10 @@ namespace CPP_Metrics.Metrics
             return false;
         }
 
+        public void Save(DbContextMetrics dbContext, Solution solution)
+        {
+            
+        }
     }
 
 

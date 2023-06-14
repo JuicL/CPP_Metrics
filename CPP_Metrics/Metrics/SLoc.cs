@@ -1,4 +1,5 @@
-﻿using CPP_Metrics.Metrics.ReportBuild;
+﻿using CPP_Metrics.DatabaseContext;
+using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Types;
 using System;
 using System.Collections.Concurrent;
@@ -41,7 +42,7 @@ namespace CPP_Metrics.Metrics
                 while ((line = sr.ReadLine()) != null)
                 {
                     slocInfo.Lines++;
-                    stringBuilder.Append(line);
+                    stringBuilder.AppendLine(line);
                 }
 
                 var str = stringBuilder.ToString();
@@ -96,5 +97,42 @@ namespace CPP_Metrics.Metrics
             return "";
         }
 
+        
+
+        public void Save(DbContextMetrics dbContext, Solution solution)
+        {
+
+            foreach (var sloc in SlocMetrics)
+            {
+                var value = sloc.Value;
+                MetricValue line = new() { FileName = sloc.Key.FullName, ObjectName = sloc.Key.Name, SolutionID = solution.ID};
+                line.Value = value.Lines;
+                line.MetricDirectoryID = (int)dbContext.GetIdMetric("LOC");
+                dbContext.MetricValues.Add(line);
+
+                MetricValue comment = new() { FileName = sloc.Key.FullName, ObjectName = sloc.Key.Name, SolutionID = solution.ID };
+                comment.Value = value.Commented;
+                comment.MetricDirectoryID = (int)dbContext.GetIdMetric("LOCo");
+                dbContext.MetricValues.Add(comment);
+
+                MetricValue emptyLines = new() { FileName = sloc.Key.FullName, ObjectName = sloc.Key.Name, SolutionID = solution.ID };
+                emptyLines.Value = value.EmptyLines;
+                emptyLines.MetricDirectoryID = (int)dbContext.GetIdMetric("LOE");
+                dbContext.MetricValues.Add(emptyLines);
+
+                MetricValue percentСomment = new() { FileName = sloc.Key.FullName, ObjectName = sloc.Key.Name, SolutionID = solution.ID };
+                percentСomment.Value = value.PercentСomment;
+                percentСomment.MetricDirectoryID = (int)dbContext.GetIdMetric("PC");
+                dbContext.MetricValues.Add(percentСomment);
+
+                MetricValue percentEmptyLines = new() { FileName = sloc.Key.FullName, ObjectName = sloc.Key.Name, SolutionID = solution.ID };
+                percentEmptyLines.Value = value.PercentEmptyLines;
+                percentEmptyLines.MetricDirectoryID = (int)dbContext.GetIdMetric("PE");
+                dbContext.MetricValues.Add(percentEmptyLines);
+                dbContext.SaveChanges();
+
+            }
+
+        }
     }
 }

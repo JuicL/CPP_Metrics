@@ -1,4 +1,4 @@
-﻿namespace CPP_Metrics.DbContextMetrics
+﻿namespace CPP_Metrics.DatabaseContext
 {
     public class ThresholdValue
     {

@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using CPP_Metrics.DatabaseContext;
 using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
@@ -222,6 +223,10 @@ namespace CPP_Metrics.Metrics
 
             ReportBuilder.ReportBuild();
             return "";
+        }
+
+        public void Save(DbContextMetrics dbContext, Solution solution)
+        {
         }
     }
 }
