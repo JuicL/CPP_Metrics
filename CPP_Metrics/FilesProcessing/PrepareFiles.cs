@@ -10,9 +10,13 @@ namespace CPP_Metrics.FilesPrepare
 {
     public class PrepareFiles
     {
-        public string[] Extentions { get; } = new []{ ".cpp", ".h", ".hpp",".cppconfig" };
+        public string[] Extentions { get; } = new []{ ".cpp", ".h", ".hpp" };
+        public string[] CongigExtentions { get; } = new[] { ".cppconfig" };
+
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; } = new();
+        public Dictionary<string, FileInfo> ConfigFiles { get; } = new();
+
         public List<Regex> FilesRegex { get; } = new();
 
         public string PathToTempFilesDirectory { get; }
@@ -27,6 +31,18 @@ namespace CPP_Metrics.FilesPrepare
                 Regex regex = new Regex(regexString);
                 FilesRegex.Add(regex);
             }
+            GetConfigFiles();
+        }
+        private void GetConfigFiles()
+        {
+            var files = DirectoiryFiles.GetFiles(SourceFilesPath, CongigExtentions);
+            foreach (var item in files)
+            {
+                ConfigFiles.Add(item.FullName, item);
+            }
+            
+
+
         }
         private void GetFileProject()
         {

@@ -151,6 +151,16 @@ namespace CPP_Metrics.FilesProcessing
         {
             PrepareFiles prepareFiles = new PrepareFiles(SourceFilesPath);
             Files = prepareFiles.Files;
+            var boundaryFile = prepareFiles.ConfigFiles.Where(x => x.Value.Extension == ".cppconfig")?.SingleOrDefault().Value;
+            if (boundaryFile is not null)
+            {
+                var boundaryValue = BoundaryValuesReader.ReadConfigFile(boundaryFile.FullName);
+                if(boundaryValue is not null)
+                {
+                    GlobalBoundaryValues.BoundaryValues = boundaryValue;
+                }
+            }
+
             foreach (var item in prepareFiles.Files)
             {
                 ProcessingFilesQueue.Enqueue(item.Value);
