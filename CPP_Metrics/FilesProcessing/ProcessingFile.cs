@@ -17,15 +17,16 @@ namespace CPP_Metrics.FilesProcessing
         public ReportInfo ReportInfo { get; set; }
         public List<IMetric> Metrics { get; set; } = new();
         public List<ICombineMetric> CombineMetrics { get; set; } = new();
-
+        private Config Config { get; set; }
         protected string OutPath { get; set; }
 
         public List<MetricMessage> MetricMessages = new();
         
-        public ProcessingFile(List<string> sourceFilesPath, string outPath)
+        public ProcessingFile(List<string> sourceFilesPath, Config config)
         {
             SourceFilesPath = sourceFilesPath;
-            OutPath = outPath;
+            OutPath = config.OutReportPath;
+            Config = config;
         }
         
         private void RunMetrics(ProcessingFileInfo processingFileInfo)
@@ -185,20 +186,31 @@ namespace CPP_Metrics.FilesProcessing
             //Если метрика требует пост операций, то вызываем финализацию подсчетов
             FinalizeMetrics();
             GenerateReport();
+            RunCombineMetrics();
             Save();
         }
         private void Save()
         {
+            if (Config.ProjectName is null || Config.ProjectName.Length == 0)
+                return;
+
             using (var db = new DbContextMetrics())
             {
+                var project = db.Projects.FirstOrDefault(x => x.Name == Config.ProjectName);
+                if (project is null) return;
+
+                var solution = new Solution() { ProjectID = project.ID, Date = DateTime.UtcNow };
+                db.Solutions.Add(solution);
+                db.SaveChanges();
+                
                 foreach (var item in Metrics)
                 {
-                    item.Save(db,new Solution() { ID = 1});
+                    item.Save(db, solution);
                 }
 
                 foreach (var item in CombineMetrics)
                 {
-                    item.Save(db, new Solution() { ID = 1 });
+                    item.Save(db, solution);
                 } 
             }
         }

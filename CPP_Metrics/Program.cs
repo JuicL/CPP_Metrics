@@ -18,15 +18,30 @@ public class Config
     public List<string> ProjectFiles { get; set; } = new();
     public string OutReportPath { get; set; }
     public List<string> CompilerAddFiles { get; set; } = new();
+    public string? ProjectName { get; set; }
 }
 
 class TestClass
 {
-    static void Database()
+    static void CreateProject(string name)
     {
         var db = new DbContextMetrics();
-       
+
     }
+
+    static void UpdateProject(string name, string newName)
+    {
+        var db = new DbContextMetrics();
+
+    }
+
+    static void DeleteProject(string name)
+    {
+        var db = new DbContextMetrics();
+
+    }
+    
+
     static public void HandleArguments(Config config, string[] args)
     {
         // -f C:\Users\User\Documents\interpreter\Interpreter -o C:\Users\User\Documents\interpreter\Interpreter
@@ -60,6 +75,13 @@ class TestClass
                     if (args[i].StartsWith('-') || i >= args.Length)
                         throw new Exception("Expected path to out report files");
                     config.OutReportPath = args[i];
+                    i++;
+                    break;
+                case "-p":
+                    i++;
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected project name");
+                    config.ProjectName = args[i];
                     i++;
                     break;
                 case "-cfg":
@@ -106,7 +128,7 @@ class TestClass
 
 
         //var soursePaths = new List<string>() { @"C:\Users\User\source\repos\TestCpp1\TestCpp1" };
-        ProcessingFile processingFile = new ProcessingFile(soursePaths,config.OutReportPath);
+        ProcessingFile processingFile = new ProcessingFile(soursePaths,config);
         
         processingFile.ReportInfo = reportInfo;
 
