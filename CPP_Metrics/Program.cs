@@ -23,24 +23,35 @@ public class Config
 
 class TestClass
 {
-    static void CreateProject(string name)
-    {
-        var db = new DbContextMetrics();
-
-    }
+    
 
     static void UpdateProject(string name, string newName)
     {
-        var db = new DbContextMetrics();
-
+        using (var db = new DbContextMetrics())
+        {
+            var project = db.Projects.FirstOrDefault(x => x.Name == name);
+            if(project is not null)
+            {
+                project.Name = newName;
+                db.SaveChanges();
+            }
+        }
+        
     }
 
     static void DeleteProject(string name)
     {
-        var db = new DbContextMetrics();
-
+        using (var db = new DbContextMetrics())
+        {
+            var project = db.Projects.FirstOrDefault(x => x.Name == name);
+            if (project is not null)
+            {
+                db.Projects.Remove(project);
+                db.SaveChanges();
+            }
+        }
     }
-    
+
 
     static public void HandleArguments(Config config, string[] args)
     {
@@ -82,6 +93,28 @@ class TestClass
                     if (args[i].StartsWith('-') || i >= args.Length)
                         throw new Exception("Expected project name");
                     config.ProjectName = args[i];
+                    i++;
+                    break;
+                case "-up":
+                    // Update
+                    i++;
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected project name");
+                    var name = args[i];
+                    i++;
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected project name");
+                    var newName = args[i];
+                    UpdateProject(name,newName);
+                    i++;
+                    break;
+                case "-dp":
+                    // Delete
+                    i++;
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected project name");
+                    var deleteName = args[i];
+                    DeleteProject(deleteName);
                     i++;
                     break;
                 case "-cfg":
@@ -186,14 +219,21 @@ class TestClass
         {
             HandleArguments(config, args);
             RunMetrics(config.ProjectFiles,config);
+            XMLReport xMLReport = new("C:/Users/User/Desktop", metricMessages);
+            xMLReport.ReportBuild();
+
             Console.WriteLine("Cpp metrics finished");
-            StringBuilder stringBuilder= new StringBuilder();
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("\n======================================================================================");
+            stringBuilder.AppendLine("                                     PROBLEMS                                           ");
+            stringBuilder.AppendLine("======================================================================================");
 
             foreach (var item in metricMessages.Where(x=> x.MessageType == MessageType.Error)) {
                 stringBuilder.AppendLine(item.Message);
             }
-            
-            if(stringBuilder.Length > 0)
+
+            if (stringBuilder.Length > 0)
             {
                 var str = stringBuilder.ToString();
                 throw new Exception(str);

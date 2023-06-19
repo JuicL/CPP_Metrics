@@ -24,7 +24,8 @@ namespace CPP_Metrics.Metrics.ReportBuild
             stringBuilder.Append("<thead>");
             stringBuilder.Append("<tr>");
             stringBuilder.Append("<th style = \"width:80%\" scope = \"col\" > Класс </th>");
-            stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > Значение </th>");
+            stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > DIT </th>");
+            stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > NOC </th>");
 
             stringBuilder.Append("</tr>");
             stringBuilder.Append("</thead>");
@@ -38,6 +39,10 @@ namespace CPP_Metrics.Metrics.ReportBuild
                 stringBuilder.Append($"<td>{vertex.Name}</th>");
                 var colomnClass = vertex.ParenCount < GlobalBoundaryValues.BoundaryValues.DIT ? "class=\"table-success\"" : "class=\"table-danger\"";
                 stringBuilder.Append($"<td {colomnClass}>{vertex.ParenCount}</th>");
+                
+                colomnClass = DITGraph[vertex].Count < GlobalBoundaryValues.BoundaryValues.NOC ? "class=\"table-success\"" : "class=\"table-danger\"";
+                stringBuilder.Append($"<td {colomnClass}>{DITGraph[vertex].Count}</th>");
+
                 stringBuilder.Append("</tr>");
             }
 

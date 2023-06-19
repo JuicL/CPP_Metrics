@@ -8,13 +8,34 @@ namespace CPP_Metrics.Metrics
     {
         Error,Warning, 
     }
-   
+
+    /*
+    Rules id
+    + CyclomaticComplexityId
+    + DitId
+    + CBOId
+    - CA
+    - CE
+    + NocId
+    +SLOCCommentedPercendId
+    +SLOCEmptyPercendId
+        
+
+     */
+
+
 
     public class MetricMessage
     { 
         public MessageType MessageType { get; set; }
+        public string Id { get; set; }
+        public string Severity { get; set; } = "warning";
+        // Подробнее
+        public string Verbose { get; set; } = "";
+        
         public string Message { get; set; }
     }
+
     public interface IMetric
     {
         public IReportBuilder ReportBuilder { get; set; }
@@ -24,6 +45,7 @@ namespace CPP_Metrics.Metrics
         public void Save(DbContextMetrics dbContext,Solution solution);
         public List<MetricMessage> Messages { get; set; }
     }
+
     public interface ICombineMetric: IMetric
     {
         public bool Handle(List<IMetric> metrics);

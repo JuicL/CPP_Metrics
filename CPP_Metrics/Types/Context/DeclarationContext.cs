@@ -84,7 +84,8 @@ namespace CPP_Metrics.Types.Context
                 res += "::";
             return res;
         }
-
+        public string FileName { get; set; }
+        public int Line { get; set; }
         public IParseTree Body { get; set; }
         public List<CPPType> UsedTypes { get; set; } = new List<CPPType>();
     }
@@ -117,6 +118,7 @@ namespace CPP_Metrics.Types.Context
         public bool Final { get; set; } = false;
 
         public bool IsPure { get; set; } = false;
+        public int Line { get; set; }
         public IParseTree FunctionBody { get; set; }
         public List<BaseContextElement> References { get; set; } = new List<BaseContextElement>();
     }

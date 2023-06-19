@@ -116,8 +116,18 @@ namespace CPP_Metrics.Metrics
                 {
                     Messages.Add(new MetricMessage()
                     {
+                        Id = "DitId",
                         MessageType = MessageType.Error,
                         Message = $"Depth of inheritance tree value is too high {item.Name}"
+                    });
+                }
+                if (DITGraph[item].Count > GlobalBoundaryValues.BoundaryValues.NOC)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        Id = "NocId",
+                        MessageType = MessageType.Error,
+                        Message = $"NOC value is too high {item.Name}"
                     });
                 }
             }

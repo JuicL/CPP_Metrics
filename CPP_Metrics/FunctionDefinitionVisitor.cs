@@ -13,6 +13,7 @@ namespace CPP_Metrics
        
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
+            FunctionInfo.Line = context.SourceInterval.a;
             string text = "";
             foreach (var item in context.children)
             {

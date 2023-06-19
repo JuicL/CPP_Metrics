@@ -47,9 +47,10 @@ namespace CPP_Metrics.Metrics
                 if(item.CyclomaticComplexityValue > GlobalBoundaryValues.BoundaryValues.Complexity)
                 {
                     Messages.Add(new MetricMessage() 
-                    { 
+                    {  Id = "CyclomaticComplexityId", 
                         MessageType = MessageType.Error,
-                        Message = $"Сyclomatic complexity value is too high {item.FunctionInfo.Text}"
+                        Message = $"Сyclomatic complexity value is too high {item.FunctionInfo.Text} allowed {GlobalBoundaryValues.BoundaryValues.Complexity}." +
+                        $"\n File {item.FileName} Line {item.FunctionInfo.Line}"
                     });
                 }
             }

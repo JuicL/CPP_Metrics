@@ -197,7 +197,12 @@ namespace CPP_Metrics.FilesProcessing
             using (var db = new DbContextMetrics())
             {
                 var project = db.Projects.FirstOrDefault(x => x.Name == Config.ProjectName);
-                if (project is null) return;
+                if (project is null)
+                {
+                    project = new Project() { Name = Config.ProjectName, Date = DateTime.UtcNow };
+                    db.Projects.Add(project);
+                    db.SaveChanges();
+                }
 
                 var solution = new Solution() { ProjectID = project.ID, Date = DateTime.UtcNow };
                 db.Solutions.Add(solution);
