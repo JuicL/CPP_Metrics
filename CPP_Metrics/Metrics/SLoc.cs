@@ -88,6 +88,28 @@ namespace CPP_Metrics.Metrics
             slocInfo.PercentEmptyLines = Math.Round(((100m * slocInfo.EmptyLines) / slocInfo.Lines), 2);
             SlocMetrics.TryAdd(fileInfo, slocInfo);
 
+            foreach (var item in SlocMetrics)
+            {
+                //SLOCEmptyPercendId
+                if (item.Value.PercentСomment > GlobalBoundaryValues.BoundaryValues.PercentCommented)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        Id = "SLOCCommentedPercendId",
+                        Message = $"Percentage of commented code is greater than allowed. File {item.Key.Name} .Current {item.Value.PercentСomment} Threshold {GlobalBoundaryValues.BoundaryValues.PercentCommented} ",
+                        MessageType = MessageType.Error
+                    });
+                }
+                if (item.Value.PercentEmptyLines > GlobalBoundaryValues.BoundaryValues.PercentEmpty)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        Id = "SLOCEmptyPercendId",
+                        Message = $"Percentage of empty code is greater than allowed. File {item.Key.Name}. Current {item.Value.PercentEmptyLines} Threshold {GlobalBoundaryValues.BoundaryValues.PercentEmpty} ",
+                        MessageType = MessageType.Error
+                    });
+                }
+            }
         }
 
         public string GenerateReport()

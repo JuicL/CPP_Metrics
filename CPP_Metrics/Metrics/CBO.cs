@@ -9,7 +9,13 @@ using CPP_Metrics.DatabaseContext;
 namespace CPP_Metrics.Metrics
 {
 
-
+    public class CBOResult
+    {
+        public string ClassName { get; set; }
+        public string FileName { get; set; }
+        public decimal Value { get; set; }
+        public decimal Line { get; set; }
+    }
     public class CBOMetric : IMetric
     {
         public CBOMetric()
@@ -24,9 +30,9 @@ namespace CPP_Metrics.Metrics
         public Dictionary<string, CBOVertex> Classes { get; set; } = new();
         public CBOGraph Graph { get; set; } = new();
         public List<MetricMessage> Messages { get; set; } = new ();
-        public List<Pair<string, decimal>> Result { get; set; } = new();
+        public List<CBOResult> Result { get; set; } = new();
 
-        private void ConnectType(CPPType? type,CBOVertex from,ClassStructDeclaration classItem)
+        private void ConnectType(CPPType? type,CBOVertex from, ClassStructDeclaration classItem)
         {
             if (type == null) return;
             var fieldType = classItem.GetTypeName(type.TypeName, type.NestedNames);
@@ -39,6 +45,7 @@ namespace CPP_Metrics.Metrics
                     cBOVertexForField.IsProjectClass = true;
                     cBOVertexForField.FullName = classStructInfoForField.GetFullName();
                     cBOVertexForField.Namespace = classStructInfoForField.GetNamespace();
+                    
                     Classes.Add(classStructInfoForField.GetFullName(), cBOVertexForField);
                 }
                 // Тип поля переменной является другой класс, связываем
@@ -95,6 +102,8 @@ namespace CPP_Metrics.Metrics
                     cBOVertex.Namespace = classStructInfo.GetNamespace();
                     Classes.Add(classStructInfo.GetFullName(), cBOVertex);
                 }
+                cBOVertex.FileName = processingFileInfo.FileInfo.Name;
+
                 // Обработка полей класса
                 foreach (var field in classStructInfo.Fields.Where(x => x.Type is not null && x.Type.IsStandartType == false))
                 {
@@ -132,6 +141,7 @@ namespace CPP_Metrics.Metrics
                         cBOVertex.Namespace = classStructInfoForMethod.GetNamespace();
                         Classes.Add(classStructInfoForMethod.GetFullName(), cBOVertex);
                     }
+                    cBOVertex.FileName = processingFileInfo.FileInfo.Name;
                     // параметры функции
                     foreach (var parameter in method.FunctionInfo.Parameters.Where(x => x.Type is not null && x.Type.IsStandartType == false))
                     {
@@ -190,7 +200,10 @@ namespace CPP_Metrics.Metrics
                 var from = Graph.Edges.Where(x => x.From == vertex).Select(x => x.To).GroupBy(x => x.FullName).Select(x => x.First()).ToList();
                 // Сколько классов ссылается на этот класс
                 var to = Graph.Edges.Where(x => x.To == vertex).Select(x => x.From).GroupBy(x => x.FullName).Select(x => x.First()).ToList();
-                Result.Add(new Pair<string, decimal>(vertex.FullName, from.Count + to.Count));
+                Result.Add(new CBOResult() { ClassName = vertex.FullName, 
+                    Value = from.Count + to.Count ,
+                    FileName = vertex.FileName})
+                
 
                 if (vertex.Namespace is null) 
                     continue;
@@ -210,8 +223,21 @@ namespace CPP_Metrics.Metrics
                 }
                 var out_category_ce = from.Where(x => vertex.Namespace != x.Namespace);
                 Ce[vertex.Namespace] = out_category_ce.Count();
-                
             }
+
+            foreach (var item in Result)
+            {
+                if(item.Value > GlobalBoundaryValues.BoundaryValues.CBO)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        Id = "CBOId",
+                        MessageType = MessageType.Error,
+                        Message = $"CBO value is too high {item.a}"
+                    });
+                }
+            }
+
         }
 
         public string GenerateReport()

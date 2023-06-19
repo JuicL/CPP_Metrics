@@ -16,7 +16,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
         }
 
         public string FileTag { get; set; } = "CBO";
-        public List<Pair<string, decimal>> Result { get; set; } = new();
+        public List<CBOResult> Result { get; set; } = new();
 
         public string GenerateBody()
         {
@@ -35,13 +35,13 @@ namespace CPP_Metrics.Metrics.ReportBuild
 
             stringBuilder.Append("<tbody>");
 
-            foreach (var vertex in Result.OrderByDescending(x => x.b))
+            foreach (var vertex in Result.OrderByDescending(x => x.Value))
             {
                 //Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
                 stringBuilder.Append("<tr>");
-                stringBuilder.Append($"<td>{vertex.a}</th>");
-                var colomnClass = vertex.b < GlobalBoundaryValues.BoundaryValues.CBO ? "class=\"table-success\"" : "class=\"table-danger\"";
-                stringBuilder.Append($"<td {colomnClass}>{vertex.b}</th>");
+                stringBuilder.Append($"<td>{vertex.ClassName}</th>");
+                var colomnClass = vertex.Value < GlobalBoundaryValues.BoundaryValues.CBO ? "class=\"table-success\"" : "class=\"table-danger\"";
+                stringBuilder.Append($"<td {colomnClass}>{vertex.Value}</th>");
                 stringBuilder.Append("</tr>");
             }
 

@@ -14,6 +14,8 @@ namespace CPP_Metrics.OOP
 
         public override bool VisitClassHead([NotNull] CPP14Parser.ClassHeadContext context)
         {
+            ClassStructInfo.Line = context.SourceInterval.a;
+
             var classKey = context.children.First();
             if (classKey != null)
             {

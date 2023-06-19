@@ -13,6 +13,12 @@ namespace CPP_Metrics
         public int Complexity { get; set; } = 12;
         public int DIT { get; set; } = 5;
         public int CBO { get; set; } = 15;
+        public int CA { get; set; } = 15;
+        public int CE { get; set; } = 15;
+        public int NOC { get; set; } = 15;
+        public int PercentCommented { get; set; } = 25;
+        public int PercentEmpty { get; set; } = 25;
+
 
     }
 

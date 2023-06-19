@@ -9,5 +9,6 @@ namespace CPP_Metrics.Metrics
         public string FullName { get; set; }
         public string? Namespace { get; set; }
         public bool IsProjectClass { get; set; } = false;
+        public string FileName { get; set; } = "";
     }
 }
