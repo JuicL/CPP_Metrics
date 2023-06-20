@@ -14,8 +14,8 @@ namespace CPP_Metrics.Metrics
     + CyclomaticComplexityId
     + DitId
     + CBOId
-    - CA
-    - CE
+    - CAId
+    - CEId
     + NocId
     + SLOCCommentedPercendId
     + SLOCEmptyPercendId
