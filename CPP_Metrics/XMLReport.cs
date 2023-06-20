@@ -31,7 +31,7 @@ namespace CPP_Metrics
                   <error id="Dit" severity="portability" msg="Dit  2warrning" verbose="Dit 2verbose">
                   </error>
                  */
-                stringBuilder.AppendLine($"   <error id=\"{item.Id}\" severity=\"{item.Severity}\" msg=\"{item.Message}\" verbose=\"{item.Verbose}\">");
+                stringBuilder.AppendLine($"   <error id=\"{item.Id}\" severity=\"{WebUtility.HtmlEncode(item.Severity)}\" msg=\"{WebUtility.HtmlEncode(item.Message)}\" verbose=\"{WebUtility.HtmlEncode(item.Verbose)}\">");
                 stringBuilder.AppendLine("    </error>");
             }
             stringBuilder.AppendLine("""
@@ -39,8 +39,8 @@ namespace CPP_Metrics
                 </results>
                 """);
             var str = stringBuilder.ToString();
-            var correctStr = WebUtility.HtmlEncode(str);
-            return correctStr;
+            
+            return str;
         }
         public string ReportBuild()
         {
