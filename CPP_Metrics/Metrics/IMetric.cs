@@ -17,8 +17,8 @@ namespace CPP_Metrics.Metrics
     - CA
     - CE
     + NocId
-    +SLOCCommentedPercendId
-    +SLOCEmptyPercendId
+    + SLOCCommentedPercendId
+    + SLOCEmptyPercendId
         
 
      */
