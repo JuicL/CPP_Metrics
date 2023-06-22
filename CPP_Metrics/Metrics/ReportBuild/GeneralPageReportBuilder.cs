@@ -53,7 +53,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
                             <h2 class="h4 font-weight-bold text-center mb-5"></h2>
 
                             <p class="my-4" style="font-size: 22px;" >Количество файлов проекта: <strong>{ProjectFiles.Count}</strong> </p>
-                            <p class="my-4" style="font-size: 22px;">Название проекта: {(Config.ProjectFiles is null ? "-" : Config.ProjectFiles)}</p>
+                            <p class="my-4" style="font-size: 22px;">Название проекта: {(Config.ProjectName is null ? "-" : Config.ProjectName)}</p>
                             <p class="my-4" style="font-size: 22px;">Пороговые значения: <strong>{(Config.BoundaryValues is null ? "default" : Config.BoundaryValues.Name) }</strong></p>
                             </div>
                         </div>
