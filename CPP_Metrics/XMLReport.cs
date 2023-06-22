@@ -2,6 +2,7 @@
 
 using CPP_Metrics.Metrics;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CPP_Metrics
@@ -47,8 +48,15 @@ namespace CPP_Metrics
             if (MetricMessages.Count == 0)
                 return "";
 
-            var fileIncludesPath = Path.Combine(OutPath, "Report.xml");
-
+            string fileIncludesPath;
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                fileIncludesPath = Path.Combine("/", "Report.xml");
+            }
+            else
+            {
+                fileIncludesPath = Path.Combine(OutPath, "Report.xml");
+            }
             FileStream fileStream = new FileStream(fileIncludesPath, FileMode.Create);
             StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.Default);
             
