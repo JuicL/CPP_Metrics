@@ -175,10 +175,10 @@ namespace CPP_Metrics.FilesProcessing
             {
                 var currentFile = ProcessingFilesQueue.Dequeue();
                 Console.WriteLine("Processing file:" + currentFile.Name);
-                HandleFile(currentFile, prepareFiles);
-                //var thread = new Thread(() => HandleFile(currentFile, prepareFiles));
-                //thread.Start();
-                //threads.Add(thread);
+                //HandleFile(currentFile, prepareFiles);
+                var thread = new Thread(() => HandleFile(currentFile, prepareFiles));
+                thread.Start();
+                threads.Add(thread);
             }
 
             foreach (var thread in threads)
