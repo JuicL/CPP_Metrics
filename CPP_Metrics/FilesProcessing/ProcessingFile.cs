@@ -81,6 +81,8 @@ namespace CPP_Metrics.FilesProcessing
             }
             ((GeneralPageReportBuilder)generalReportBuilder).MetricMessages.AddRange(MetricMessages);
             ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
+            ((GeneralPageReportBuilder)generalReportBuilder).Config = Config;
+
 
             generalReportBuilder.ReportBuild();
 
@@ -156,6 +158,7 @@ namespace CPP_Metrics.FilesProcessing
             var boundaryFile = prepareFiles.ConfigFiles.Where(x => x.Value.Extension == ".cppconfig")?.SingleOrDefault().Value;
             if (boundaryFile is not null)
             {
+                Config.BoundaryValues = boundaryFile;
                 var boundaryValue = BoundaryValuesReader.ReadConfigFile(boundaryFile.FullName);
                 if(boundaryValue is not null)
                 {

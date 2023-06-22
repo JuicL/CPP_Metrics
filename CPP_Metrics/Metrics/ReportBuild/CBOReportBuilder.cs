@@ -22,31 +22,37 @@ namespace CPP_Metrics.Metrics.ReportBuild
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.Append("<h3 class=\"my-4\">CBO</h3>");
+            stringBuilder.AppendLine("""
+                <div class="container pt-4"><h3 class="my-4">Cцепление между классами</h3>
+                  <p>
+                    <strong>CBO (Coupling between object classes)</strong> — 
+                    сцепление между классами, показывает количество классов, с которыми связан исходный класс
+                  </p>
+                  <table class="table mt-4">
+                """);
 
-            stringBuilder.Append("<table class=\"table\">");
-            stringBuilder.Append("<thead>");
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<th style = \"width:80%\" scope = \"col\" > Класс </th>");
-            stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > Значение </th>");
+            stringBuilder.AppendLine("<thead>");
+            stringBuilder.AppendLine("<tr>");
+            stringBuilder.AppendLine("<th style = \"width:80%\" scope = \"col\" > Класс </th>");
+            stringBuilder.AppendLine("<th style = \"width:20%\" scope = \"col\" > Значение </th>");
 
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("</thead>");
+            stringBuilder.AppendLine("</tr>");
+            stringBuilder.AppendLine("</thead>");
 
             stringBuilder.Append("<tbody>");
 
             foreach (var vertex in Result.OrderByDescending(x => x.Value))
             {
                 //Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
-                stringBuilder.Append("<tr>");
-                stringBuilder.Append($"<td>{vertex.ClassName}</th>");
+                stringBuilder.AppendLine("<tr>");
+                stringBuilder.AppendLine($"<td>{vertex.ClassName}</th>");
                 var colomnClass = vertex.Value < GlobalBoundaryValues.BoundaryValues.CBO ? "class=\"table-success\"" : "class=\"table-danger\"";
-                stringBuilder.Append($"<td {colomnClass}>{vertex.Value}</th>");
-                stringBuilder.Append("</tr>");
+                stringBuilder.AppendLine($"<td {colomnClass}>{vertex.Value}</th>");
+                stringBuilder.AppendLine("</tr>");
             }
 
-            stringBuilder.Append("</tbody>");
-            stringBuilder.Append("</table>");
+            stringBuilder.AppendLine("</tbody>");
+            stringBuilder.AppendLine("</table>");
 
             return stringBuilder.ToString();
         }

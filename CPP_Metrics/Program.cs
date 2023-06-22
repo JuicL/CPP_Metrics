@@ -19,6 +19,7 @@ public class Config
     public string OutReportPath { get; set; }
     public List<string> CompilerAddFiles { get; set; } = new();
     public string? ProjectName { get; set; }
+    public FileInfo? BoundaryValues { get; set; }
 }
 
 class TestClass

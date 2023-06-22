@@ -21,34 +21,48 @@ namespace CPP_Metrics.Metrics.ReportBuild
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.Append("<h3 class=\"my-4\">CBO</h3>");
+            stringBuilder.AppendLine("""
+                <div class="container pt-4"><h3 class="my-4">Центростремительное и центробежное сцепление</h3>
+                  <p>
+                    <strong>
+                      Ca: 
+                    </strong>
+                    Центростремительное сцепление. Количество классов вне этой категории, которые зависят от классов внутри этой категории.
+                  </p>
+                  <p>
+                    <strong>
+                      Ce: 
+                    </strong>
+                    Центробежное сцепление. Количество классов внутри этой категории, которые зависят от классов вне этой категории.
+                  </p>
+                  <table class="table mt-4">
+                """);
 
-            stringBuilder.Append("<table class=\"table\">");
-            stringBuilder.Append("<thead>");
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<th style = \"width:80%\" scope = \"col\" > Категория </th>");
-            stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > Ca </th>");
-            stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > Ce </th>");
+            stringBuilder.AppendLine("<thead>");
+            stringBuilder.AppendLine("<tr>");
+            stringBuilder.AppendLine("<th style = \"width:80%\" scope = \"col\" > Категория </th>");
+            stringBuilder.AppendLine("<th style = \"width:20%\" scope = \"col\" > Ca </th>");
+            stringBuilder.AppendLine("<th style = \"width:20%\" scope = \"col\" > Ce </th>");
 
 
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("</thead>");
+            stringBuilder.AppendLine("</tr>");
+            stringBuilder.AppendLine("</thead>");
 
-            stringBuilder.Append("<tbody>");
+            stringBuilder.AppendLine("<tbody>");
 
             foreach (var vertex in Ca)
             {
                 //Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
-                stringBuilder.Append("<tr>");
-                stringBuilder.Append($"<td>{vertex.Key}</th>");
+                stringBuilder.AppendLine("<tr>");
+                stringBuilder.AppendLine($"<td>{vertex.Key}</th>");
                 //var colomnClass = vertex.b < GlobalBoundaryValues.BoundaryValues.CBO ? "class=\"table-success\"" : "class=\"table-danger\"";
-                stringBuilder.Append($"<td >{vertex.Value}</th>");
-                stringBuilder.Append($"<td >{Ce[vertex.Key]}</th>");
-                stringBuilder.Append("</tr>");
+                stringBuilder.AppendLine($"<td >{vertex.Value}</th>");
+                stringBuilder.AppendLine($"<td >{Ce[vertex.Key]}</th>");
+                stringBuilder.AppendLine("</tr>");
             }
 
-            stringBuilder.Append("</tbody>");
-            stringBuilder.Append("</table>");
+            stringBuilder.AppendLine("</tbody>");
+            stringBuilder.AppendLine("</table>");
 
             return stringBuilder.ToString();
         }

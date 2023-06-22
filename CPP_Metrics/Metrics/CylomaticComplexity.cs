@@ -50,7 +50,7 @@ namespace CPP_Metrics.Metrics
                     {  Id = "CyclomaticComplexityId", 
                         MessageType = MessageType.Error,
                         Message = $"Сyclomatic complexity value is too high {item.FunctionInfo.Text} allowed {GlobalBoundaryValues.BoundaryValues.Complexity}." +
-                        $"\n File {item.FileName} Line {item.FunctionInfo.Line}"
+                        $"\n File {item.FileName}"
                     });
                 }
             }

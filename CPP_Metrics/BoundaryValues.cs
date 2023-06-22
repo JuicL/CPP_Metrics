@@ -18,6 +18,8 @@ namespace CPP_Metrics
         public int NOC { get; set; } = 15;
         public int PercentCommented { get; set; } = 25;
         public int PercentEmpty { get; set; } = 25;
+        public decimal RadiusPain { get; set; } = 0.4m;
+        public decimal RadiusFutility { get; set; } = 0.4m;
 
 
     }

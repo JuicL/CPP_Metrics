@@ -4,6 +4,7 @@ using CPP_Metrics.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -34,8 +35,45 @@ namespace CPP_Metrics.Metrics
             ReportBuilder = reportBuilder;
         }
 
+        private bool InCircle(Point point, decimal radios,decimal px, decimal py)
+        {
+            var res = ((px - point.X) * (px - point.X) + (py - point.Y) * (py - point.Y)) < radios * radios;
+            return res;
+        }
+
         public void Finalizer()
         {
+            if (ClassAbstraction is null) return;
+
+            var pointPain = new Point(0,0);
+            var pointFutility = new Point(1, 1);
+
+            foreach (var item in Instability)
+            {
+                var abstractTake = ClassAbstraction.Result.TryGetValue(item.Key, out decimal abstraction);
+                if (abstractTake == false) continue;
+                var pain = InCircle(pointPain,GlobalBoundaryValues.BoundaryValues.RadiusPain, item.Value, abstraction);
+                if (pain == true)
+                {
+                    Messages.Add(new()
+                    {
+                        Id = "PainSectionId",
+                        Message = $"The category {item.Key} is in the field of pain",
+                        MessageType = MessageType.Error
+                    });
+                }
+
+                var futility = InCircle(pointFutility, GlobalBoundaryValues.BoundaryValues.RadiusFutility, item.Value, abstraction);
+                if (futility == true)
+                {
+                    Messages.Add(new()
+                    {
+                        Id = "FutilitySectionId",
+                        Message = $"The category {item.Key} is the area of ​​uselessness",
+                        MessageType = MessageType.Error
+                    });
+                }
+            }
         }
 
         public string GenerateReport()
@@ -144,7 +182,7 @@ namespace CPP_Metrics.Metrics
 
             stringBuilder.AppendLine("</script>");
             stringBuilder.AppendLine($"<h3 class=\"my-4\">Расстояние от главной последовательности</h3>");
-            stringBuilder.AppendLine("<div id ='myDiv'> </div>");
+            stringBuilder.AppendLine("<div id ='myDiv' style=\"outline: 1px solid #000;\"></div>");
             stringBuilder.AppendLine("""
                 <script src='https://cdn.plot.ly/plotly-2.24.1.min.js'></script>
                 <script>
@@ -160,9 +198,27 @@ namespace CPP_Metrics.Metrics
                               },
                               showlegend: false
                             }]
-                                            var layout = {
-                          xaxis: {range:[0,1]},
-                          yaxis: {range:[0,1]}
+                        var layout = {
+                          xaxis: {range:[0,1],
+                            title: {
+                            text: 'I (Нестабильность)',
+                            font: {
+                              family: 'Arial, monospace',
+                              size: 22,
+                              color: '#000000'
+                              }
+                            }
+                          },
+                          yaxis: {
+                            range:[0,1],
+                            title: {
+                            text: 'A (Абстрактность)',
+                            font: {
+                              family: 'Arial, monospace',
+                              size: 22,
+                              color: '#000000'
+                              }
+                            }}
                         };
                 
                         Plotly.newPlot('myDiv', data,layout)

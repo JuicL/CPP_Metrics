@@ -19,7 +19,8 @@ namespace CPP_Metrics.Metrics
     + NocId
     + SLOCCommentedPercendId
     + SLOCEmptyPercendId
-        
+    + PainSectionId
+    + FutilitySectionId
 
      */
 

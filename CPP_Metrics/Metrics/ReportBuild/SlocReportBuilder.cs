@@ -21,12 +21,12 @@ namespace CPP_Metrics.Metrics.ReportBuild
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.Append("<h3 class=\"my-4\">Sloc</h3>");
-            stringBuilder.Append("<h3 class=\"my-4\">Общее</h3>");
+            stringBuilder.AppendLine("<h3 class=\"my-4\">Количественные метрики SLOC</h3>");
+            stringBuilder.AppendLine("<h4 class=\"my-4\">Общее</h4>");
             
             SLocInfo sLocInfo = SlocMetrics.Single(x => x.Key.Name == "|global|").Value;
 
-            stringBuilder.Append($"""
+            stringBuilder.AppendLine($"""
                 <div class="row">
                       <div class="col-xl-3  my-4">
                         <div class="bg-white rounded-lg p-5 shadow">

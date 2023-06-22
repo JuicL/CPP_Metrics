@@ -10,6 +10,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
 
         public List<FileInfo> ProjectFiles = new();
         public List<MetricMessage> MetricMessages { get; set; } = new();
+        public Config Config { get; set; }
         public GeneralPageReportBuilder(ReportInfo reportInfo)
         {
             ReportInfo = reportInfo;
@@ -21,6 +22,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine($"""
+                <div class="row">
                           <div class="col-xl-6 col-lg-6 my-4">
                             <div class="bg-white rounded-lg p-5 shadow" style="height: 370px;">
                             <h2 class="h5 font-weight-bold text-center mb-4">Найдено проблем</h2>
@@ -43,6 +45,20 @@ namespace CPP_Metrics.Metrics.ReportBuild
 
                           </div>
                         </div>
+
+                        <div class="col-xl-6 col-lg-6 my-4">
+                          <div class="bg-white rounded-lg p-4 shadow" style="height: 370px;">
+                            <h2 class="h4 font-weight-bold text-center mb-5">Общие сведения</h2>
+            
+                            <h2 class="h4 font-weight-bold text-center mb-5"></h2>
+
+                            <p class="my-4" style="font-size: 22px;" >Количество файлов проекта: <strong>{ProjectFiles.Count}</strong> </p>
+                            <p class="my-4" style="font-size: 22px;">Название проекта: {(Config.ProjectFiles is null ? "-" : Config.ProjectFiles)}</p>
+                            <p class="my-4" style="font-size: 22px;">Пороговые значения: <strong>{(Config.BoundaryValues is null ? "default" : Config.BoundaryValues.Name) }</strong></p>
+                            </div>
+                        </div>
+
+                 </div>
                 """);
 
             //stringBuilder.Append($"<h4> Количество ошибок в проекте {MetricMessages.Count}</h4>");
