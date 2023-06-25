@@ -119,6 +119,21 @@ class TestClass
                     i++;
                     break;
                 case "-cfg":
+                    i++;
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected path to cfg file");
+                    var cfgFilePath = args[i];
+                    var path = Path.Combine(cfgFilePath, ".cppconfig");
+                    try
+                    {
+                        BoundaryValuesWriter.CreateConfigFile(path);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine( ex.Message);
+                    }
+                    i++;
                     break;
                 default:
                     throw new Exception($"Invalid parameter {args[i]}");

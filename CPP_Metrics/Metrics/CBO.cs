@@ -113,6 +113,12 @@ namespace CPP_Metrics.Metrics
                         ConnectType(item, cBOVertex, classItem);
                     }
                 }
+                // наследование
+                foreach (var item in classStructInfo.BaseClasses)
+                {
+                    ConnectType(item, cBOVertex, classItem);
+                }
+
             }
 
             var methods = contextElement.Filter(x => x is FunctionDeclaration

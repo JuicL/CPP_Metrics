@@ -28,7 +28,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
             stringBuilder.Append("<thead>");
             stringBuilder.Append("<tr>");
             stringBuilder.Append("<th style = \"width:60%\" scope = \"col\" > Функция </th>");
-            stringBuilder.Append("<th style = \"width:30%\" scope = \"col\" > Функция </th>");
+            stringBuilder.Append("<th style = \"width:30%\" scope = \"col\" > Файл </th>");
             stringBuilder.Append("<th style = \"width:10%\" scope = \"col\" > Значение </th>");
 
             stringBuilder.Append("</tr>");

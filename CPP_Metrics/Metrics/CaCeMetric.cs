@@ -108,6 +108,11 @@ namespace CPP_Metrics.Metrics
                         ConnectType(item, cBOVertex, classItem);
                     }
                 }
+                // наследование
+                foreach (var item in classStructInfo.BaseClasses)
+                {
+                    ConnectType(item, cBOVertex, classItem);
+                }
             }
 
             var methods = contextElement.Filter(x => x is FunctionDeclaration
@@ -183,7 +188,7 @@ namespace CPP_Metrics.Metrics
 
         public void Finalizer()
         {
-            
+            Dictionary<string, List<CBOVertex>> ca = new();
             foreach (var vertex in Graph.Verticies)
             {
                 if (!vertex.IsProjectClass)
@@ -198,12 +203,11 @@ namespace CPP_Metrics.Metrics
                     continue;
 
                 //CA -- кол-во классов вне этой категории, которые зависят от классов внутри этой категории
-                if (!Ca.TryGetValue(vertex.Namespace, out int ca_value))
+                if (!ca.TryGetValue(vertex.Namespace, out var ca_value))
                 {
-                    Ca.Add(vertex.Namespace, 0);
+                    ca.Add(vertex.Namespace, new());
                 }
-                var out_category_ca = to.Where(x => vertex.Namespace != x.Namespace);
-                Ca[vertex.Namespace] += out_category_ca.Count();
+                ca[vertex.Namespace].AddRange(to);
 
                 //CE -- кол-во классов внутри категории которые зависят от классов вне этой категории
                 if (!Ce.TryGetValue(vertex.Namespace, out int ce_value))
@@ -211,9 +215,17 @@ namespace CPP_Metrics.Metrics
                     Ce.Add(vertex.Namespace, 0);
                 }
                 var out_category_ce = from.Where(x => vertex.Namespace != x.Namespace);
-                Ce[vertex.Namespace] += out_category_ce.Count();
+                if(out_category_ce.Count() != 0)
+                    Ce[vertex.Namespace] += 1;
 
             }
+            foreach (var item in ca)
+            {
+               var list = item.Value.Where(x=> x.Namespace != item.Key).GroupBy(x => x.FullName).Select(x => x.First()).ToList();
+                Ca.Add(item.Key, list.Count);
+            }
+            
+
         }
 
         public string GenerateReport()

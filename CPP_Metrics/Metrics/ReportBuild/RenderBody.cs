@@ -89,7 +89,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
                                     aria-current="true"
                                     >
                                 <i class="fas fa-tachometer-alt fa-fw me-3"></i
-                                    ><span>Instability</span>
+                                    ><span>Главная последовательность</span>
                                </a>
                             </div>
                           </div>
