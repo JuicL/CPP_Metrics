@@ -16,7 +16,7 @@ namespace CPP_Metrics.FilesPrepare
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; } = new();
         public Dictionary<string, FileInfo> ConfigFiles { get; } = new();
-
+        public Config Config { get; set; }
         public List<Regex> FilesRegex { get; } = new();
 
         public string PathToTempFilesDirectory { get; }
@@ -40,10 +40,8 @@ namespace CPP_Metrics.FilesPrepare
             {
                 ConfigFiles.Add(item.FullName, item);
             }
-            
-
-
         }
+
         private void GetFileProject()
         {
             var files = DirectoiryFiles.GetFiles(SourceFilesPath, Extentions);
@@ -77,11 +75,16 @@ namespace CPP_Metrics.FilesPrepare
             ProcessStartInfo startInfo;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                var command = $"-E {filePath.FullName} -o {outFile}";
+                StringBuilder command = new($"-E {filePath.FullName} -o {outFile}");
+                foreach (var item in Config.CompilerAddFiles)
+                {
+                    command.Append("-I " + item);
+                }
+
                 startInfo = new ProcessStartInfo() {
                     FileName = "g++",
                     UseShellExecute = true,
-                    Arguments = command, };
+                    Arguments = command.ToString(), };
             }
             else
             {

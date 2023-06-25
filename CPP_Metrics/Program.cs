@@ -63,13 +63,10 @@ class TestClass
             {
                 case "-i":
                     i++;
-                    do
-                    {
-                        if (args[i].StartsWith('-') || i >= args.Length)
-                            throw new Exception("Expected path to additional processor files");
-                        config.ProjectFiles.Add(args[i]);
-                        i++;
-                    } while (!args[i].StartsWith('-') && i < args.Length);
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected path to additional processor files");
+                    config.CompilerAddFiles.Add(args[i]);
+                    i++;
                     break;
                 case "-f":
                     i++;

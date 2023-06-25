@@ -156,6 +156,8 @@ namespace CPP_Metrics.FilesProcessing
         {
             PrepareFiles prepareFiles = new PrepareFiles(SourceFilesPath);
             Files = prepareFiles.Files;
+            prepareFiles.Config = Config;
+
             var boundaryFile = prepareFiles.ConfigFiles.Where(x => x.Value.Extension == ".cppconfig")?.SingleOrDefault().Value;
             if (boundaryFile is not null)
             {
