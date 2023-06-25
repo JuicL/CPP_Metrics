@@ -263,7 +263,9 @@ namespace CPP_Metrics
             
             var arguments = context.templateArgumentList();
             var templateVisitor = new TemplateArgumentVisitor();
-            Analyzer.Analyze(arguments, templateVisitor);
+            if(arguments != null)
+                Analyzer.Analyze(arguments, templateVisitor);
+            
             TemplateTypes = templateVisitor.Types;
 
             return true;

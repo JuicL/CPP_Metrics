@@ -29,7 +29,9 @@ namespace CPP_Metrics.Tool
                     identifier.TypeName = templateName.GetText();
                     
                     var templateVisitor = new TemplateArgumentVisitor();
-                    Analyzer.Analyze(simpleTemplate.templateArgumentList(), templateVisitor);
+                    var templateArgumentList = simpleTemplate.templateArgumentList();
+                    if(templateArgumentList is not null)
+                        Analyzer.Analyze(templateArgumentList, templateVisitor);
 
                     identifier.TemplateNames = templateVisitor.Types;
 

@@ -35,9 +35,9 @@ namespace CPP_Metrics.FilesProcessing
 
             foreach (var metric in Metrics)
             {
+                metric.Handle(processingFileInfo);
                 try
                 {
-                metric.Handle(processingFileInfo);
                 }
                 catch (Exception ex)
                 {

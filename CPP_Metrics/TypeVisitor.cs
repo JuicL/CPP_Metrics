@@ -49,7 +49,10 @@ namespace CPP_Metrics
             _Type.TypeName = templateName.GetText();
             // TODO: visitor template argumentList mb based on Type visitor 
             var templateVisitor = new TemplateArgumentVisitor();
-            Analyzer.Analyze(context.templateArgumentList(),templateVisitor);
+            var templateArgumentList = context.templateArgumentList();
+            if(templateArgumentList == null)
+                return false;
+            Analyzer.Analyze(templateArgumentList, templateVisitor);
 
             _Type.TemplateNames = templateVisitor.Types;
 

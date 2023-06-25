@@ -36,7 +36,8 @@ namespace CPP_Metrics
                     var templateArguments = simpleTemplate.templateArgumentList();
 
                     var templateVisitor = new TemplateArgumentVisitor();
-                    Analyzer.Analyze(templateArguments, templateVisitor);
+                    if(templateArguments != null)
+                        Analyzer.Analyze(templateArguments, templateVisitor);
 
                     var templateType = new CPPType();
                     templateType.TypeName = name;
