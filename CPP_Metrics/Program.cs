@@ -150,6 +150,16 @@ class TestClass
         {
             reportDirInf.Create();
         }
+        var curdir = Directory.GetCurrentDirectory();
+        try
+        {
+            File.Copy(Path.Combine(curdir, "7c8770672ebc45c18fbc3a5bdc3dd9b9.png"), reportFilesPath);
+            File.Copy(Path.Combine(curdir, "main.css"), reportFilesPath);
+        }
+        catch (Exception)
+        {
+        }
+
         DateTime localDate = DateTime.Now;
         var culture = new CultureInfo("ru-RU");
         var folderName = localDate.ToString(culture);

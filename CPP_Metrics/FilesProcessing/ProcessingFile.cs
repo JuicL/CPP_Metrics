@@ -35,16 +35,17 @@ namespace CPP_Metrics.FilesProcessing
 
             foreach (var metric in Metrics)
             {
+                try
+                {
                 metric.Handle(processingFileInfo);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
                 //var thread = new Thread(() =>
                 //{
-                //    try
-                //    {
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Console.WriteLine(ex.Message);
-                //    }
+                //    
                 //});
                 //thread.Start();
                 //metricsThreads.Add(thread);
