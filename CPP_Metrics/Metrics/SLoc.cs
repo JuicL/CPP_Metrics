@@ -32,7 +32,7 @@ namespace CPP_Metrics.Metrics
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
-            var regexCommnets = new Regex(@"(\/\*(.*\n)*\*\/)|(\/\/.*\n(\s*\r\n)*)|("".*"")|(\n\s*\r\n)");
+            var regexCommnets = new Regex(@"(\/\*([\s\S]*?)\*\/)|(\/\/.*\n(\s*\r\n)*)|("".*"")|(\n\s*\r\n)");
 
             using (StreamReader sr = new StreamReader(processingFileInfo.FileInfo.FullName))
             {
