@@ -58,7 +58,7 @@ namespace CPP_Metrics.Metrics
                     Messages.Add(new()
                     {
                         Id = "PainSectionId",
-                        Message = $"The category {item.Key} is in the field of pain",
+                        Message = $"Категория: {item.Key} находится в области \"боли\"",
                         MessageType = MessageType.Error
                     });
                 }
@@ -69,11 +69,12 @@ namespace CPP_Metrics.Metrics
                     Messages.Add(new()
                     {
                         Id = "FutilitySectionId",
-                        Message = $"The category {item.Key} is the area of ​​uselessness",
+                        Message = $"Категория {item.Key} находится в области бесполезности",
                         MessageType = MessageType.Error
                     });
                 }
             }
+
         }
 
         public string GenerateReport()

@@ -96,7 +96,7 @@ namespace CPP_Metrics.Metrics
                     Messages.Add(new MetricMessage()
                     {
                         Id = "SLOCCommentedPercendId",
-                        Message = $"Percentage of commented code is greater than allowed. File {item.Key.Name} .Current {item.Value.PercentСomment} Threshold {GlobalBoundaryValues.BoundaryValues.PercentCommented} ",
+                        Message = $"Процент комментариев превысил допустимое значение. Файл {item.Key.Name}. Текущее {item.Value.PercentСomment}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.PercentCommented} ",
                         MessageType = MessageType.Error
                     });
                 }
@@ -105,7 +105,7 @@ namespace CPP_Metrics.Metrics
                     Messages.Add(new MetricMessage()
                     {
                         Id = "SLOCEmptyPercendId",
-                        Message = $"Percentage of empty code is greater than allowed. File {item.Key.Name}. Current {item.Value.PercentEmptyLines} Threshold {GlobalBoundaryValues.BoundaryValues.PercentEmpty} ",
+                        Message = $"Процент пустых строк превысил допустимое значение. Файл {item.Key.Name}. Текущее {item.Value.PercentEmptyLines}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.PercentEmpty} ",
                         MessageType = MessageType.Error
                     });
                 }

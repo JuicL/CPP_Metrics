@@ -224,8 +224,32 @@ namespace CPP_Metrics.Metrics
                var list = item.Value.Where(x=> x.Namespace != item.Key).GroupBy(x => x.FullName).Select(x => x.First()).ToList();
                 Ca.Add(item.Key, list.Count);
             }
-            
 
+            
+            foreach (var caItem in Ca)
+            {
+                if(caItem.Value > GlobalBoundaryValues.BoundaryValues.CA)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        Id = "CAId",
+                        MessageType = MessageType.Error,
+                        Message = $"Ca: Центростремительное сцепление превысило допустимое значение. Категория {caItem.Key}. Значение {caItem.Value}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.CA}"
+                    });
+                }
+            }
+            foreach (var ceItem in Ce)
+            {
+                if (ceItem.Value > GlobalBoundaryValues.BoundaryValues.CE)
+                {
+                    Messages.Add(new MetricMessage()
+                    {
+                        Id = "CAId",
+                        MessageType = MessageType.Error,
+                        Message = $"Ce: Центробежное сцепление превысило допустимое значение. Категория {ceItem.Key}. Значение {ceItem.Value}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.CE}"
+                    });
+                }
+            }
         }
 
         public string GenerateReport()

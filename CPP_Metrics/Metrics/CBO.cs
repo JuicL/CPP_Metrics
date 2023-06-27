@@ -242,7 +242,7 @@ namespace CPP_Metrics.Metrics
                     {
                         Id = "CBOId",
                         MessageType = MessageType.Error,
-                        Message = $"CBO value is too high {item.ClassName}. Current value {item.Value} allowed {GlobalBoundaryValues.BoundaryValues.CBO}"
+                        Message = $"Сцепление класса: {item.ClassName} превысило допустимое значение, текущее {item.Value}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.CBO}"
                     });
                 }
             }

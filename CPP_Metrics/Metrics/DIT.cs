@@ -118,7 +118,7 @@ namespace CPP_Metrics.Metrics
                     {
                         Id = "DitId",
                         MessageType = MessageType.Error,
-                        Message = $"Depth of inheritance tree value is too high {item.Name}"
+                        Message = $"Высота дерева наследования превысила допустимое значение. Класс {item.Name}. Значение {item.ParenCount}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.DIT}"
                     });
                 }
                 if (DITGraph[item].Count > GlobalBoundaryValues.BoundaryValues.NOC)
@@ -127,7 +127,7 @@ namespace CPP_Metrics.Metrics
                     {
                         Id = "NocId",
                         MessageType = MessageType.Error,
-                        Message = $"NOC value is too high {item.Name}"
+                        Message = $"Количество прямых потомков превысило допустимое значение. Класс {item.Name}. Значение {DITGraph[item].Count}. Пороговое значение {GlobalBoundaryValues.BoundaryValues.NOC}"
                     });
                 }
             }
