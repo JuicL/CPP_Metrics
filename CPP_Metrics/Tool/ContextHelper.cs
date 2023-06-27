@@ -31,7 +31,8 @@ namespace CPP_Metrics.Tool
             currentNamespaceList.Add(contextElement);
 
             List<CPPType> newnested = new List<CPPType>(nested);
-            newnested.Add(new CPPType() { TypeName = name });
+            if(name is not null)
+                newnested.Add(new CPPType() { TypeName = name });
 
             //foreach (var item in newnested)
             // Проход наверх -- зацепим больше 
