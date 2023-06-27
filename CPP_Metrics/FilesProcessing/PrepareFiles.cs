@@ -20,10 +20,13 @@ namespace CPP_Metrics.FilesPrepare
         public List<Regex> FilesRegex { get; } = new();
 
         public string PathToTempFilesDirectory { get; }
-        public PrepareFiles(List<string> sourceFilesPath)
+        public PrepareFiles(List<string> sourceFilesPath, Config config)
         {
+            Config = config;
             SourceFilesPath = sourceFilesPath;
             GetFileProject();
+            AddPathToProjectFolders();
+
             PathToTempFilesDirectory = CreateDirectoryForTempFiles();
             foreach (var source in SourceFilesPath)
             {
@@ -32,6 +35,14 @@ namespace CPP_Metrics.FilesPrepare
                 FilesRegex.Add(regex);
             }
             GetConfigFiles();
+        }
+        private void AddPathToProjectFolders()
+        {
+            foreach (var file in Files)
+            {
+                Config.CompilerAddFiles.Add(file.Value.DirectoryName);
+            }
+
         }
         private void GetConfigFiles()
         {
@@ -75,10 +86,10 @@ namespace CPP_Metrics.FilesPrepare
             ProcessStartInfo startInfo;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                StringBuilder command = new($"-E {filePath.FullName} -o {outFile}");
+                StringBuilder command = new($"-E {filePath.FullName} -o {outFile} ");
                 foreach (var item in Config.CompilerAddFiles)
                 {
-                    command.Append("-I " + item);
+                    command.Append(" -I " + item);
                 }
 
                 startInfo = new ProcessStartInfo() {
@@ -88,11 +99,17 @@ namespace CPP_Metrics.FilesPrepare
             }
             else
             {
+                StringBuilder command = new($"g++ -E {filePath.FullName} -o {outFile} ");
+                foreach (var item in Config.CompilerAddFiles)
+                {
+                    command.Append(" -I " + item);
+                }
+                var test = Path.GetDirectoryName(filePath.FullName);
                 startInfo = new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
                     UseShellExecute = true,
-                    Arguments = $"/C g++ -E {filePath.FullName} -o {outFile} && exit",
+                    Arguments = $"/C cd {Path.GetDirectoryName(filePath.FullName)} && {command.ToString()} && exit",
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
             }

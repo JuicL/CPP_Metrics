@@ -57,7 +57,8 @@ namespace CPP_Metrics.Metrics
                     var typeContext = classStruct.GetTypeName(basedClass.TypeName, basedClass.NestedNames);
                     if (typeContext is null)
                     {
-                        throw new Exception($"Dont find type context {basedClass.TypeName}" );
+                        continue;
+                        //throw new Exception($"Dont find type context {basedClass.TypeName}" );
                         
                         var secondChance = DITGraph.Verticies.SingleOrDefault(x => x.Name.EndsWith(basedClass.TypeName));
                         if(secondChance is null)

@@ -46,10 +46,10 @@ namespace CPP_Metrics.Metrics.ReportBuild
                 //Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
                 stringBuilder.AppendLine("<tr>");
                 stringBuilder.AppendLine($"<td>{vertex.Name}</th>");
-                var colomnClass = vertex.ParenCount < GlobalBoundaryValues.BoundaryValues.DIT ? "class=\"table-success\"" : "class=\"table-danger\"";
+                var colomnClass = vertex.ParenCount > GlobalBoundaryValues.BoundaryValues.DIT ? "class=\"table-danger\"" : "class=\"table-success\"";
                 stringBuilder.AppendLine($"<td {colomnClass}>{vertex.ParenCount}</th>");
                 
-                colomnClass = DITGraph[vertex].Count < GlobalBoundaryValues.BoundaryValues.NOC ? "class=\"table-success\"" : "class=\"table-danger\"";
+                colomnClass = DITGraph[vertex].Count > GlobalBoundaryValues.BoundaryValues.NOC ? "class=\"table-danger\"" : "class=\"table-success\"";
                 stringBuilder.AppendLine($"<td {colomnClass}>{DITGraph[vertex].Count}</th>");
 
                 stringBuilder.AppendLine("</tr>");

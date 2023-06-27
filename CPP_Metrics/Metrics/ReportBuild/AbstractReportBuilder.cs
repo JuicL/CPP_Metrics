@@ -24,7 +24,7 @@ namespace CPP_Metrics.Metrics.ReportBuild
             stringBuilder.Append("<table class=\"table\">");
             stringBuilder.Append("<thead>");
             stringBuilder.Append("<tr>");
-            stringBuilder.Append("<th style = \"width:80%\" scope = \"col\" > Класс </th>");
+            stringBuilder.Append("<th style = \"width:80%\" scope = \"col\" > Категория </th>");
             stringBuilder.Append("<th style = \"width:20%\" scope = \"col\" > Значение </th>");
 
             stringBuilder.Append("</tr>");
