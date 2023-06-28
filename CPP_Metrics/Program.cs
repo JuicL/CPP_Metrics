@@ -17,6 +17,7 @@ public class Config
 {
     public List<string> ProjectFiles { get; set; } = new();
     public string? OutReportPath { get; set; }
+    public string? OutReportPathXml { get; set; }
     public List<string> CompilerAddFiles { get; set; } = new();
     public string? ProjectName { get; set; }
     public FileInfo? BoundaryValues { get; set; }
@@ -24,18 +25,18 @@ public class Config
 
 class TestClass
 {
-    
-
     static void UpdateProject(string name, string newName)
     {
         using (var db = new DbContextMetrics())
         {
             var project = db.Projects.FirstOrDefault(x => x.Name == name);
-            if(project is not null)
+            if (project is null)
             {
-                project.Name = newName;
-                db.SaveChanges();
+                Console.WriteLine("Error! Update project name was not found");
+                return;
             }
+            project.Name = newName;
+            db.SaveChanges();
         }
         
     }
@@ -45,11 +46,13 @@ class TestClass
         using (var db = new DbContextMetrics())
         {
             var project = db.Projects.FirstOrDefault(x => x.Name == name);
-            if (project is not null)
+            if (project is null)
             {
-                db.Projects.Remove(project);
-                db.SaveChanges();
+                Console.WriteLine("Error! Delete project name was not found");
+                return;
             }
+            db.Projects.Remove(project);
+            db.SaveChanges();
         }
     }
 
@@ -101,7 +104,7 @@ class TestClass
                     var name = args[i];
                     i++;
                     if (args[i].StartsWith('-') || i >= args.Length)
-                        throw new Exception("Expected project name");
+                        throw new Exception("Expected new project name");
                     var newName = args[i];
                     UpdateProject(name,newName);
                     i++;
@@ -113,6 +116,15 @@ class TestClass
                         throw new Exception("Expected project name");
                     var deleteName = args[i];
                     DeleteProject(deleteName);
+                    i++;
+                    break;
+                case "-xmlo":
+                    // Delete
+                    i++;
+                    if (args[i].StartsWith('-') || i >= args.Length)
+                        throw new Exception("Expected path to xml report");
+                    var xmlo = args[i];
+                    config.OutReportPathXml = xmlo;
                     i++;
                     break;
                 case "-cfg":
@@ -245,7 +257,10 @@ class TestClass
         {
             HandleArguments(config, args);
             RunMetrics(config.ProjectFiles,config);
-            XMLReport xMLReport = new("C:/Users/User/Desktop", metricMessages);
+            var xmlpath = "C:/Users/User/Desktop";
+            if (config.OutReportPathXml is not null)
+                xmlpath = config.OutReportPathXml;
+            XMLReport xMLReport = new(xmlpath, metricMessages);
             xMLReport.ReportBuild();
 
             Console.WriteLine("Cpp metrics finished");
