@@ -56,10 +56,10 @@ namespace CPP_Metrics.Metrics.ReportBuild
                 stringBuilder.AppendLine("<tr>");
                 stringBuilder.AppendLine($"<td>{vertex.Key}</th>");
 
-                var colomnClass = vertex.Value < GlobalBoundaryValues.BoundaryValues.CA ? "class=\"table-success\"" : "class=\"table-danger\"";
+                var colomnClass = vertex.Value > GlobalBoundaryValues.BoundaryValues.CA ? "class=\"table-danger\"" : "class=\"table-success\"";
                 stringBuilder.AppendLine($"<td {colomnClass}>{vertex.Value}</th>");
 
-                colomnClass = Ce[vertex.Key] < GlobalBoundaryValues.BoundaryValues.CE ? "class=\"table-success\"" : "class=\"table-danger\"";
+                colomnClass = Ce[vertex.Key] > GlobalBoundaryValues.BoundaryValues.CE ? "class=\"table-danger\"" : "class=\"table-success\"";
 
                 stringBuilder.AppendLine($"<td {colomnClass}>{Ce[vertex.Key]}</th>");
                 stringBuilder.AppendLine("</tr>");

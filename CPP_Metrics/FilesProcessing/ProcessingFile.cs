@@ -35,9 +35,9 @@ namespace CPP_Metrics.FilesProcessing
 
             foreach (var metric in Metrics)
             {
-                metric.Handle(processingFileInfo);
                 try
                 {
+                metric.Handle(processingFileInfo);
                 }
                 catch (Exception ex)
                 {
@@ -154,9 +154,8 @@ namespace CPP_Metrics.FilesProcessing
         }
         public void Run()
         {
-            PrepareFiles prepareFiles = new PrepareFiles(SourceFilesPath);
+            PrepareFiles prepareFiles = new PrepareFiles(SourceFilesPath, Config);
             Files = prepareFiles.Files;
-            prepareFiles.Config = Config;
 
             var boundaryFile = prepareFiles.ConfigFiles.Where(x => x.Value.Extension == ".cppconfig")?.SingleOrDefault().Value;
             if (boundaryFile is not null)
