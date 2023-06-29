@@ -12,8 +12,13 @@ namespace CPP_Metrics.CyclomaticComplexity
     {
         public static int GetCyclomaticComplexity(this CyclomaticGraph graph)
         {
+            var condition = 0;
+            foreach (var item in graph.Verticies)
+            {
+                condition += item.Value;
+            }
             var P = 1; // Todo: Компонет связности
-            return graph.Edges.Count - graph.Verticies.Count + 2 * P;
+            return (graph.Edges.Count - graph.Verticies.Count + 2 * P) + condition;
         }
     }
 

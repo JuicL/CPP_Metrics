@@ -29,6 +29,29 @@ namespace CPP_Metrics.Tests
             Assert.True(result);
         }
         [Fact]
+        public void OneIf2()
+        {
+            string text = """
+            void TestFoo()
+            {
+                bool a = true;
+                if (a == true || a == false)
+                {
+
+                }
+            }
+            """;
+
+            CyclomaticComplexityMetric metric = new();
+            var facad = new Facad(text);
+            var tree = facad.GetTree();
+            metric.Analyze(tree);
+            var func = metric.Cyclomatic.LastOrDefault();
+
+            var result = func.CyclomaticComplexityValue == 3;
+            Assert.True(result);
+        }
+        [Fact]
         public void OneIfElse()
         {
             string text = """

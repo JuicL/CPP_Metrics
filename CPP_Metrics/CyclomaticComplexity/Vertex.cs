@@ -29,7 +29,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         public Guid Id { get; set; }
         public string Name { get; set; } = "";
 
-        public double Value { get; set; } = 0;
+        public int Value { get; set; } = 0;
         public Type Type { get; set; }
 
     }
