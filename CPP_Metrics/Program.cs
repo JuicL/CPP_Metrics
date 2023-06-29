@@ -13,6 +13,7 @@ using CPP_Metrics.Types.Context;
 using Facads;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 
 public class Config
@@ -385,8 +386,14 @@ class TestClass
             HandleArguments(config, args);
             RunMetrics(config.ProjectFiles,config);
             var xmlpath = "C:/Users/User/Desktop";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                xmlpath = "/";
+            }
+
             if (config.OutReportPathXml is not null)
                 xmlpath = config.OutReportPathXml;
+
             XMLReport xMLReport = new(xmlpath, metricMessages);
             xMLReport.ReportBuild();
 
