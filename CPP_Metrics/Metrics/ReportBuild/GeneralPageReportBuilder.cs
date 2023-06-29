@@ -20,6 +20,21 @@ namespace CPP_Metrics.Metrics.ReportBuild
 
         public string GenerateBody()
         {
+            var boundary = $"""
+                <p>Цикломатическая сложность: {GlobalBoundaryValues.BoundaryValues.Complexity}</p>
+                <p>Процент комментариев: {GlobalBoundaryValues.BoundaryValues.PercentCommented}</p>
+                <p>Процент пустых строк: {GlobalBoundaryValues.BoundaryValues.PercentEmpty}</p>
+                <p>Глубина дерева наследования (DIT): {GlobalBoundaryValues.BoundaryValues.DIT}</p>
+                <p>Количество потомков (NOC): {GlobalBoundaryValues.BoundaryValues.NOC}</p>
+                <p>Сцепление классов (CBO): {GlobalBoundaryValues.BoundaryValues.CBO}</p>
+                <p>Центростремительное сцепление (Ca): {GlobalBoundaryValues.BoundaryValues.CA}</p>
+                <p>Центробежное сцепление(Ce): {GlobalBoundaryValues.BoundaryValues.CE}</p>
+                <p>Область боли (радиус): {GlobalBoundaryValues.BoundaryValues.RadiusPain}</p>
+                <p>Область бесполезности (радиус): {GlobalBoundaryValues.BoundaryValues.RadiusFutility}</p>
+               
+
+                """;
+
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine($"""
                 <div class="row">
@@ -55,6 +70,31 @@ namespace CPP_Metrics.Metrics.ReportBuild
                             <p class="my-4" style="font-size: 22px;" >Количество файлов проекта: <strong>{ProjectFiles.Count}</strong> </p>
                             <p class="my-4" style="font-size: 22px;">Название проекта: {(Config.ProjectName is null ? "-" : Config.ProjectName)}</p>
                             <p class="my-4" style="font-size: 22px;">Пороговые значения: <strong>{(Config.BoundaryValues is null ? "default" : Config.BoundaryValues.Name) }</strong></p>
+                             
+                <div class="mt-4" style="float:right"> 
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                                  Пороговые значения
+                                </button>
+                                <!-- Modal -->
+                                  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel">Пороговые значения</h5>
+                                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                          </button>
+                                        </div>
+                                        <div class="modal-body">
+                                          {boundary}
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!-- Modal -->
                             </div>
                         </div>
 

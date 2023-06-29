@@ -1,4 +1,5 @@
 ﻿
+using ConsoleTables;
 using CPP_Metrics;
 using CPP_Metrics.CyclomaticComplexity;
 using CPP_Metrics.DatabaseContext;
@@ -10,13 +11,16 @@ using CPP_Metrics.OOP;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using Facads;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 
 public class Config
 {
     public List<string> ProjectFiles { get; set; } = new();
     public string? OutReportPath { get; set; }
+    public string? OutReportPathXml { get; set; }
     public HashSet<string> CompilerAddFiles { get; set; } = new();
     public string? ProjectName { get; set; }
     public FileInfo? BoundaryValues { get; set; }
@@ -24,18 +28,95 @@ public class Config
 
 class TestClass
 {
-    
+    //-cp
+    static void CreateProjects(string name)
+    {
+        using (var db = new DbContextMetrics())
+        {
+            var project = new Project() { Name = name, Date = DateTime.UtcNow };
+            db.Projects.Add(project);
+            db.SaveChanges();
+            Console.WriteLine($"Created project succes id {project.ID}");
+        }
+    }
+    //-gp
+    static void GetProjects(string? name)
+    {
+        using (var db = new DbContextMetrics())
+        {
+            var table = new ConsoleTable("Id", "Name","Date");
+            var projects = db.Projects.ToList();
+            if(name is not null)
+                projects = projects.Where(p => p.Name == name).ToList();
+            
+            if(projects is null)
+            {
+                Console.WriteLine("Not find projecs");
+                return;
+            }
+
+            foreach (var item in projects)
+            {
+                table.AddRow(item.ID, item.Name,item.Date); 
+            }
+            
+            table.Write();
+        }
+    }
+
+    //-gs
+    static void GetSolution(int projectId)
+    {
+        using (var db = new DbContextMetrics())
+        {
+            var table = new ConsoleTable("Id", "Date","ProjectName");
+            var solutions = db.Solutions.Include(x=> x.Project).Where(x => x.ProjectID == projectId).ToList();
+            if (solutions is null)
+            {
+                Console.WriteLine("Not find solutions");
+                return;
+            }
+            foreach (var item in solutions)
+            {
+                table.AddRow(item.ID, item.Date,item.Project.Name);
+            }
+
+            table.Write();
+        }
+    }
+    //-gm
+    static void GetMetrics(int solutionId)
+    {
+        using (var db = new DbContextMetrics())
+        {
+            var table = new ConsoleTable("Id","Metric", "FileName", "ObjectName", "Value");
+            var metricValues = db.MetricValues.Include(x => x.MetricDirectory).ThenInclude(x=> x.LevelMetric).Where(x => x.SolutionID == solutionId).ToList();
+            if (metricValues is null)
+            {
+                Console.WriteLine("Not find metricsValues");
+                return;
+            }
+            foreach (var item in metricValues)
+            {
+                table.AddRow(item.ID, item.MetricDirectory.Name,item.FileName,item.ObjectName,item.Value);
+            }
+
+            table.Write();
+        }
+    }
 
     static void UpdateProject(string name, string newName)
     {
         using (var db = new DbContextMetrics())
         {
             var project = db.Projects.FirstOrDefault(x => x.Name == name);
-            if(project is not null)
+            if (project is null)
             {
-                project.Name = newName;
-                db.SaveChanges();
+                Console.WriteLine("Error! Update project name was not found");
+                return;
             }
+            project.Name = newName;
+            db.SaveChanges();
         }
         
     }
@@ -45,11 +126,13 @@ class TestClass
         using (var db = new DbContextMetrics())
         {
             var project = db.Projects.FirstOrDefault(x => x.Name == name);
-            if (project is not null)
+            if (project is null)
             {
-                db.Projects.Remove(project);
-                db.SaveChanges();
+                Console.WriteLine("Error! Delete project name was not found");
+                return;
             }
+            db.Projects.Remove(project);
+            db.SaveChanges();
         }
     }
 
@@ -61,9 +144,57 @@ class TestClass
         {
             switch (args[i])
             {
+                case "-cp":
+                    i++;
+                    string? newprjname = null;
+                    if (i < args.Length && !args[i].StartsWith('-'))
+                        newprjname = args[i];
+                    CreateProjects(newprjname);
+                    i++;
+                    break;
+                case "-gp":
+                    i++;
+                    string? prjname = null;
+                    if (i < args.Length && !args[i].StartsWith('-'))
+                        prjname = args[i];
+                    GetProjects(prjname);
+                    i++;
+                    break;
+                case "-gs":
+                    i++;
+                    if (i >= args.Length || args[i].StartsWith('-'))
+                        throw new Exception("Expected projectId");
+                    int prjId;
+                    try
+                    {
+                        prjId = int.Parse(args[i]);
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Expected projectId");
+                    }
+                    GetSolution(prjId);
+                    i++;
+                    break;
+                case "-gm":
+                    i++;
+                    if (i >= args.Length || args[i].StartsWith('-'))
+                        throw new Exception("Expected project Id");
+                    int solId;
+                    try
+                    {
+                        solId = int.Parse(args[i]);
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Expected solution Id");
+                    }
+                    GetMetrics(solId);
+                    i++;
+                    break;
                 case "-i":
                     i++;
-                    if (args[i].StartsWith('-') || i >= args.Length)
+                    if (i >= args.Length || args[i].StartsWith('-'))
                         throw new Exception("Expected path to additional processor files");
                     config.CompilerAddFiles.Add(args[i]);
                     i++;
@@ -81,14 +212,14 @@ class TestClass
                     break;
                 case "-o":
                     i++;
-                    if (args[i].StartsWith('-') || i >= args.Length)
+                    if (i >= args.Length || args[i].StartsWith('-') )
                         throw new Exception("Expected path to out report files");
                     config.OutReportPath = args[i];
                     i++;
                     break;
                 case "-p":
                     i++;
-                    if (args[i].StartsWith('-') || i >= args.Length)
+                    if (i >= args.Length || args[i].StartsWith('-'))
                         throw new Exception("Expected project name");
                     config.ProjectName = args[i];
                     i++;
@@ -96,12 +227,12 @@ class TestClass
                 case "-up":
                     // Update
                     i++;
-                    if (args[i].StartsWith('-') || i >= args.Length)
+                    if (i >= args.Length || args[i].StartsWith('-'))
                         throw new Exception("Expected project name");
                     var name = args[i];
                     i++;
                     if (args[i].StartsWith('-') || i >= args.Length)
-                        throw new Exception("Expected project name");
+                        throw new Exception("Expected new project name");
                     var newName = args[i];
                     UpdateProject(name,newName);
                     i++;
@@ -109,15 +240,24 @@ class TestClass
                 case "-dp":
                     // Delete
                     i++;
-                    if (args[i].StartsWith('-') || i >= args.Length)
+                    if (i >= args.Length || args[i].StartsWith('-'))
                         throw new Exception("Expected project name");
                     var deleteName = args[i];
                     DeleteProject(deleteName);
                     i++;
                     break;
+                case "-xmlo":
+                    // Delete
+                    i++;
+                    if (i >= args.Length || args[i].StartsWith('-'))
+                        throw new Exception("Expected path to xml report");
+                    var xmlo = args[i];
+                    config.OutReportPathXml = xmlo;
+                    i++;
+                    break;
                 case "-cfg":
                     i++;
-                    if (args[i].StartsWith('-') || i >= args.Length)
+                    if (i >= args.Length || args[i].StartsWith('-'))
                         throw new Exception("Expected path to cfg file");
                     var cfgFilePath = args[i];
                     var path = Path.Combine(cfgFilePath, ".cppconfig");
@@ -245,7 +385,16 @@ class TestClass
         {
             HandleArguments(config, args);
             RunMetrics(config.ProjectFiles,config);
-            XMLReport xMLReport = new("C:/Users/User/Desktop", metricMessages);
+            var xmlpath = "C:/Users/User/Desktop";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                xmlpath = "/";
+            }
+
+            if (config.OutReportPathXml is not null)
+                xmlpath = config.OutReportPathXml;
+
+            XMLReport xMLReport = new(xmlpath, metricMessages);
             xMLReport.ReportBuild();
 
             Console.WriteLine("Cpp metrics finished");

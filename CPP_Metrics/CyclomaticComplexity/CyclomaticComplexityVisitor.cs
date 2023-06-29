@@ -55,11 +55,18 @@ namespace CPP_Metrics.CyclomaticComplexity
         {
             var whileVertex = Graph.CreateVertex();
             whileVertex.Type = Type.While;
-
+            
+            var condition = context.condition();
+            if (condition is not null)
+            {
+                ConditionCyclomaticVisitor v = new();
+                Analyzer.Analyze(condition, v);
+                whileVertex.Value += v.CountLogicalExpression;
+            }
             //var endWhileVertex = new Vertex(Type.EmpyStatement);
             //Graph.Vertices.Add(endWhileVertex);
             //Graph.Edges.Add(new Edge(whileVertex, endWhileVertex)); // False way from while to next state
-            
+
             var afterEndVertex = Last is null ? To : Last;// Путь от endWhileVertex до последнего добавленног или хвосту
             ConntectLastAddedWithCurrentVertex(whileVertex, afterEndVertex); // Связка вниз
 
@@ -89,6 +96,13 @@ namespace CPP_Metrics.CyclomaticComplexity
             //Создать вершину if
             var ifVertex = Graph.CreateVertex();
             ifVertex.Type = Type.If;
+            var condition = context.condition();
+            if(condition is not null)
+            {
+                ConditionCyclomaticVisitor v = new();
+                Analyzer.Analyze(condition, v);
+                ifVertex.Value += v.CountLogicalExpression;
+            }
 
             var ifStatement = Graph.CreateVertex(); // Привязка след дочерних узлов к нему
             ifStatement.Type = Type.EmpyStatement;
@@ -148,6 +162,14 @@ namespace CPP_Metrics.CyclomaticComplexity
             var doVertex = Graph.CreateVertex();
             doVertex.Type = Type.Do;
 
+            var condition = context.condition();
+            if (condition is not null)
+            {
+                ConditionCyclomaticVisitor v = new();
+                Analyzer.Analyze(condition, v);
+                doVertex.Value += v.CountLogicalExpression;
+            }
+
             var whileVertex = Graph.CreateVertex();
             whileVertex.Type = Type.While;
 
@@ -182,6 +204,14 @@ namespace CPP_Metrics.CyclomaticComplexity
             forVertex.Type = Type.For;
             Graph.CreateEdge(declarationVertex, forVertex);
 
+            var condition = context.condition();
+            if (condition is not null)
+            {
+                ConditionCyclomaticVisitor v = new();
+                Analyzer.Analyze(condition, v);
+                forVertex.Value += v.CountLogicalExpression;
+            }
+
             var iterationVertex = Graph.CreateVertex();
             iterationVertex.Type = Type.Statment;
             Graph.CreateEdge(iterationVertex, forVertex);
@@ -208,10 +238,16 @@ namespace CPP_Metrics.CyclomaticComplexity
         {
             var switchVertex = Graph.CreateVertex();
             switchVertex.Type = Type.Switch;
-            
+            var condition = context.condition();
+            if (condition is not null)
+            {
+                ConditionCyclomaticVisitor v = new();
+                Analyzer.Analyze(condition, v);
+                switchVertex.Value += v.CountLogicalExpression;
+            }
             var endSwitchVertex = Graph.CreateVertex();
             endSwitchVertex.Type = Type.EmpyStatement;
-;
+
             Graph.CreateEdge(switchVertex, endSwitchVertex);// Пустой switch дает 1 цикломатическую сложность
 
             var visitor = new CyclomaticComplexityVisitor(Graph, switchVertex, endSwitchVertex);
@@ -258,8 +294,43 @@ namespace CPP_Metrics.CyclomaticComplexity
         /// <returns></returns>
         public override bool VisitConditionalExpression([NotNull] ConditionalExpressionContext context)
         {
+            if (context.Question() is null)
+                return true;
+
             // Expression(true) assigmentExpression(false)
-            return base.VisitConditionalExpression(context);
+            var ifVertex = Graph.CreateVertex();
+            ifVertex.Type = Type.If;
+
+            var trueStat = Graph.CreateVertex();
+            trueStat.Type = Type.EmpyStatement;
+            Graph.CreateEdge(ifVertex, trueStat);// Связь от if до ifStatement
+
+            var condition = context.logicalOrExpression();
+            if (condition is not null)
+            {
+                ConditionCyclomaticVisitor v = new();
+                Analyzer.Analyze(condition, v);
+                ifVertex.Value += v.CountLogicalExpression;
+            }
+
+            var falseStat = Graph.CreateVertex();
+            falseStat.Type = Type.EmpyStatement;
+            Graph.CreateEdge(ifVertex, falseStat);// Связь от if до ifStatement
+
+
+            var endIf = Graph.CreateVertex();
+            endIf.Type = Type.EmpyStatement;
+            endIf.Name = "endIf";
+            Graph.CreateEdge(trueStat, endIf);
+            Graph.CreateEdge(falseStat, endIf);
+
+            var afterEndIfVertex = Last is null ? To : Last;
+            Graph.CreateEdge(endIf, afterEndIfVertex);
+
+            
+            Last = ifVertex; // Последний добавленный верховный узел( не еlse т.к он встанет ниже иф-а)
+
+            return false;
         }
         public override bool VisitSelectionStatement([NotNull] SelectionStatementContext context)
         {

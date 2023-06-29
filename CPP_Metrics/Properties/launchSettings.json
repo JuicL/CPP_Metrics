@@ -2,7 +2,7 @@
   "profiles": {
     "CPP_Metrics": {
       "commandName": "Project",
-      "commandLineArgs": "-f C:\\Users\\User\\Desktop\\VoltAir-master\\VoltAir -o C:\\Users\\User\\Desktop\\VoltAir-master\\VoltAir"
+      "commandLineArgs": "-cp trtt"
     },
     "Docker": {
       "commandName": "Docker",
