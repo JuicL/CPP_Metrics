@@ -52,6 +52,46 @@ namespace CPP_Metrics.Tests
             Assert.True(result);
         }
         [Fact]
+        public void tt()
+        {
+            string text = """
+            void TestFoo()
+            {
+                bool a = (y < 10) ? 30 : 40;
+               
+            }
+            """;
+
+            CyclomaticComplexityMetric metric = new();
+            var facad = new Facad(text);
+            var tree = facad.GetTree();
+            metric.Analyze(tree);
+            var func = metric.Cyclomatic.LastOrDefault();
+
+            var result = func.CyclomaticComplexityValue == 2;
+            Assert.True(result);
+        }
+        [Fact]
+        public void tt2()
+        {
+            string text = """
+            void TestFoo()
+            {
+                bool a = (y < 10 || y < 10 ) ? 30 : 40;
+               
+            }
+            """;
+
+            CyclomaticComplexityMetric metric = new();
+            var facad = new Facad(text);
+            var tree = facad.GetTree();
+            metric.Analyze(tree);
+            var func = metric.Cyclomatic.LastOrDefault();
+
+            var result = func.CyclomaticComplexityValue == 3;
+            Assert.True(result);
+        }
+        [Fact]
         public void OneIfElse()
         {
             string text = """
