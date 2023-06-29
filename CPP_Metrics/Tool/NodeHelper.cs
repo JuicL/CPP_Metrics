@@ -13,7 +13,11 @@ namespace CPP_Metrics.Tool
             if (inline != null)
                 namespaceInfo.IsInline = true;
             var indetifer = context.Identifier();
-            namespaceInfo.Name = indetifer.GetText();
+            if (indetifer == null)
+                namespaceInfo.Name = "";
+            else
+                namespaceInfo.Name = indetifer.GetText();
+
             return namespaceInfo;
 
         }
