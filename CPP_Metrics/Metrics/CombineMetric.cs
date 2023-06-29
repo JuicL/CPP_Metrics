@@ -116,7 +116,7 @@ namespace CPP_Metrics.Metrics
 
                 if(abstractTake == true)
                 {
-                    var d = instability + abstraction - 1;
+                    var d = Math.Abs(instability + abstraction - 1);
                     D.Add(Ce.Key, d);
                 }
             }
@@ -243,7 +243,7 @@ namespace CPP_Metrics.Metrics
                   <p><strong>A:</strong> Абстрактность категории. Равняется частному: общее количество классов на количество абстрактных классов в категории.
                   </p>
                  </p>
-                  <p><strong>D:</strong> Нормализованное расстояние от главной последовательности. Вычисляется как D = A + I - 1.
+                  <p><strong>D:</strong> Нормализованное расстояние от главной последовательности. Вычисляется как D = |A + I - 1|.
                   </p>
                 <h3 class="my-4">Нестабильность категории</h3>
 
