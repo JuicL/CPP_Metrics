@@ -83,6 +83,8 @@ namespace CPP_Metrics.Metrics
             ((InstabilityReport)ReportBuilder).Instability = Instability;
             ((InstabilityReport)ReportBuilder).CaCeMetric = CaCeMetric;
             ((InstabilityReport)ReportBuilder).ClassAbstraction = ClassAbstraction;
+            ((InstabilityReport)ReportBuilder).D = D;
+
 
 
             ReportBuilder.ReportBuild();
@@ -159,6 +161,7 @@ namespace CPP_Metrics.Metrics
         public Dictionary<string, decimal> Instability { get; set; }
         public CaCeMetric CaCeMetric;
         public ClassAbstraction ClassAbstraction;
+        public Dictionary<string, decimal> D { get; set; } = new();
 
         public string GenerateBody()
         {
@@ -239,7 +242,9 @@ namespace CPP_Metrics.Metrics
                  </p>
                   <p><strong>A:</strong> Абстрактность категории. Равняется частному: общее количество классов на количество абстрактных классов в категории.
                   </p>
-
+                 </p>
+                  <p><strong>D:</strong> Нормализованное расстояние от главной последовательности. Вычисляется как D = A + I - 1.
+                  </p>
                 <h3 class="my-4">Нестабильность категории</h3>
 
                   <table class="table">
@@ -250,6 +255,8 @@ namespace CPP_Metrics.Metrics
                    <th style = "width:80%" scope = "col" > Ce </th>
                    <th style = "width:80%" scope = "col" > I </th>
                    <th style = "width:80%" scope = "col" > A </th>
+                   <th style = "width:80%" scope = "col" > D </th>
+
 
                    </tr>
                    </thead>
@@ -266,6 +273,8 @@ namespace CPP_Metrics.Metrics
                 stringBuilder.Append($"<td>{CaCeMetric.Ce[item.Key]}</th>");
                 stringBuilder.Append($"<td >{item.Value}</th>");
                 stringBuilder.Append($"<td >{ClassAbstraction.Result[item.Key]}</th>");
+                stringBuilder.Append($"<td >{D[item.Key]}</th>");
+
 
                 stringBuilder.Append("</tr>");
             }
