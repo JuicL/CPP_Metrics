@@ -2,7 +2,7 @@
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class VariableVisitor : CPP14ParserBaseVisitor<bool>
     {
@@ -26,7 +26,7 @@ namespace CPP_Metrics
         {
             var funcBody = context.children.FirstOrDefault(x => x is CPP14Parser.FunctionBodyContext);
             var declarator = context.children.FirstOrDefault(x => x is CPP14Parser.DeclaratorContext);
-            
+
             //CollectionNames(declarator);
 
             var visitor = new VariableVisitor();
@@ -36,7 +36,7 @@ namespace CPP_Metrics
 
             //var visitor1 = new FunctionDefinitionVisitor();
             //Analyzer.Analyze(context, visitor1);
-            
+
             return false;
         }
 
@@ -60,7 +60,7 @@ namespace CPP_Metrics
             VariableNames.AddRange(controlVariables);
 
             var statement = context.children.FirstOrDefault(x => x is CPP14Parser.StatementContext);
-            if(statement != null)// Тело циклических блоков 
+            if (statement != null)// Тело циклических блоков 
             {
                 var visitor = new VariableVisitor();
                 Analyzer.Analyze(statement, visitor);
@@ -91,7 +91,7 @@ namespace CPP_Metrics
             //TODO: явный тип а не первы и последний
             var declarator = context.children.First();
             CollectionNames(declarator);
-            if(context.children.Count > 1)
+            if (context.children.Count > 1)
             {
                 var initializer = context.children.Last();
                 CollectionNames(initializer);
@@ -99,7 +99,7 @@ namespace CPP_Metrics
 
             return true;
         }
-        
+
         public override bool VisitChildren(IRuleNode node)
         {
             return true;

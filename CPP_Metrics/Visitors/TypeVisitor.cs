@@ -5,26 +5,26 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class TypeVisitor : CPP14ParserBaseVisitor<bool>
     {
-        public CPPType? Type 
-        { 
-            get 
-            { 
-                if (_Type.TypeName is null) 
-                    return null; 
-                else return _Type; 
-            } 
+        public CPPType? Type
+        {
+            get
+            {
+                if (_Type.TypeName is null)
+                    return null;
+                else return _Type;
+            }
         }
-        private CPPType _Type { get; set;} = new CPPType();
-        public bool Typedef { get;private set; }
-        
+        private CPPType _Type { get; set; } = new CPPType();
+        public bool Typedef { get; private set; }
+
 
         public override bool VisitDeclSpecifier([NotNull] CPP14Parser.DeclSpecifierContext context)
         {
-            if(context.Typedef() is not null)
+            if (context.Typedef() is not null)
             {
                 Typedef = true;
             }
@@ -50,13 +50,13 @@ namespace CPP_Metrics
             // TODO: visitor template argumentList mb based on Type visitor 
             var templateVisitor = new TemplateArgumentVisitor();
             var templateArgumentList = context.templateArgumentList();
-            if(templateArgumentList == null)
+            if (templateArgumentList == null)
                 return false;
             Analyzer.Analyze(templateArgumentList, templateVisitor);
 
             _Type.TemplateNames = templateVisitor.Types;
 
-            return false; 
+            return false;
         }
         public override bool VisitTypeNameSpecifier([NotNull] CPP14Parser.TypeNameSpecifierContext context)
         {
@@ -65,7 +65,7 @@ namespace CPP_Metrics
             Analyzer.Analyze(nested, nestedVisitor);
             _Type.NestedNames = nestedVisitor.NestedNames;
             var identifier = context.Identifier();
-            if(identifier is not null)
+            if (identifier is not null)
             {
                 _Type.TypeName = identifier.GetText();
             }
@@ -79,7 +79,7 @@ namespace CPP_Metrics
         public override bool VisitElaboratedTypeSpecifier([NotNull] CPP14Parser.ElaboratedTypeSpecifierContext context)
         {
             var classKey = context.classKey();
-            if(classKey is not null)
+            if (classKey is not null)
             {
                 /*attributeSpecifierSeq? nestedNameSpecifier? Identifier
 		        | simpleTemplateId
@@ -117,7 +117,7 @@ namespace CPP_Metrics
         public override bool VisitSimpleTypeSpecifier([NotNull] CPP14Parser.SimpleTypeSpecifierContext context)
         {
             //| nestedNameSpecifier Template simpleTemplateId : !!!!TODO
-            if (context.nestedNameSpecifier() is not null || context.theTypeName() is not null 
+            if (context.nestedNameSpecifier() is not null || context.theTypeName() is not null
                 || context.decltypeSpecifier() is not null)
                 return true;
             _Type.IsStandartType = true;
@@ -126,9 +126,9 @@ namespace CPP_Metrics
             var simpleTypeLengthModifiers = context.simpleTypeLengthModifier().ToList();
             var terminalNodes = context.GetTerminalNodes();
 
-            if(simpleTypeSignednessModifier is not null)
+            if (simpleTypeSignednessModifier is not null)
                 _Type.TypeName += simpleTypeSignednessModifier.children.First().GetText();
-            
+
             foreach (var simpleTypeLengthModifier in simpleTypeLengthModifiers)
                 _Type.TypeName += simpleTypeLengthModifier.children.First().GetText();
 

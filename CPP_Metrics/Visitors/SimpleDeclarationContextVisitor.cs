@@ -4,20 +4,14 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
+using CPP_Metrics.Visitors.OOP;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
-    /// <summary>
-    /// парсинг SimpleDeclaration...
-    /// </summary>
-    /*
-     Рассмотрены случа объявления переменной и функции(с указанием namespace). Переменная типа класса. Присваивание переменной(классу) функции/переменной
-     */
-
-
+ 
     public class SimpleDeclarationContextVisitor : CPP14ParserBaseVisitor<bool>
     {
-        
+
         public List<string> CallFuncNames = new();
 
         public List<Variable> VariablesDeclaration = new();
@@ -31,7 +25,7 @@ namespace CPP_Metrics
         private List<CPPType>? NestedNames;
 
         public CPPType? DeclSpecifierSeqType = null; // Тип
-        
+
         private bool isNameSpaced = false;
 
 
@@ -48,8 +42,8 @@ namespace CPP_Metrics
         {
 
         }
-        
-        
+
+
         //private List<Variable> SelectParameters(IList<Parameter> parameters, IList<Variable> variables)
         //{
         //    return parameters is null ? new List<Variable>() :
@@ -59,8 +53,8 @@ namespace CPP_Metrics
 
         private bool IsDeclarationFunction(IList<Parameter>? parameters)
         {
-            if(parameters is null) return false; // отсутствие параметров
-            if(parameters.Count == 0) return true;//пустые скобки
+            if (parameters is null) return false; // отсутствие параметров
+            if (parameters.Count == 0) return true;//пустые скобки
 
             foreach (var parameter in parameters)
             {
@@ -69,9 +63,9 @@ namespace CPP_Metrics
                 {
                     return true;
                 }
-                
+
                 // имя null проверяем type на равенство с именем переменной
-                if (parameter.Name is null 
+                if (parameter.Name is null
                     && ContextElement.GetVariableName(parameter?.Type?.TypeName) is not null)
                 {
                     return false;
@@ -103,18 +97,18 @@ namespace CPP_Metrics
         }
         public override bool VisitInitializer([NotNull] CPP14Parser.InitializerContext context)
         {
-            var variableUsedVisitor = new UsedVariables(ContextElement);
+            var variableUsedVisitor = new UsedVariablesVisitor(ContextElement);
             Analyzer.Analyze(context, variableUsedVisitor);
             foreach (var item in variableUsedVisitor.Identifiers)
             {
                 var variable = ContextElement.GetVariableName(item);
-                if(variable is not null)
+                if (variable is not null)
                 {
                     variable.References.Add(ContextElement);
                 }
             }
 
-            var typesUsedVisitor = new UsedClasses();
+            var typesUsedVisitor = new UsedClassesVisitor();
             Analyzer.Analyze(context, typesUsedVisitor);
 
             ContextElement.UsedClasses.AddRange(typesUsedVisitor.CPPTypes);
@@ -123,7 +117,7 @@ namespace CPP_Metrics
         public bool ParseInitializer([NotNull] CPP14Parser.InitializerContext context)
         {
             var initializerList = context.expressionList()?.initializerList();
-            if(initializerList is not null)
+            if (initializerList is not null)
                 Initializer = new();
 
             //var expressionVisitor = new ExpressionVisitor();
@@ -155,7 +149,7 @@ namespace CPP_Metrics
             var visitor = new TypeVisitor();
             Analyzer.Analyze(context, visitor);
             DeclSpecifierSeqType = visitor.Type;
-            
+
             return false;
         }
         public override bool VisitDeclarator([NotNull] CPP14Parser.DeclaratorContext context)
@@ -170,8 +164,8 @@ namespace CPP_Metrics
 
             var noPointerDecl = poinerDecl.noPointerDeclarator();
             // Если сразу после имени идут скобки (имя будет находиться в DeclType)
-            
-            NoPointerBrace = poinerDecl?.pointerOperator(0) is not null || 
+
+            NoPointerBrace = poinerDecl?.pointerOperator(0) is not null ||
                                 noPointerDecl?.pointerDeclarator() is null ? false : true;
 
             var parametersAndQualifiers = noPointerDecl?.parametersAndQualifiers();
@@ -182,7 +176,7 @@ namespace CPP_Metrics
             else
                 VisitParametersAndQualifiers(parametersAndQualifiers);
 
-            return true;   
+            return true;
         }
         public override bool VisitNestedNameSpecifier([NotNull] CPP14Parser.NestedNameSpecifierContext context)
         {
@@ -194,7 +188,7 @@ namespace CPP_Metrics
         public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
             var parametersAndQualifiers = context.parametersAndQualifiers();
-            if(parametersAndQualifiers is not null)
+            if (parametersAndQualifiers is not null)
             {
                 VisitParametersAndQualifiers(parametersAndQualifiers);
             }
@@ -212,7 +206,7 @@ namespace CPP_Metrics
         {
             // Случай,когда перед именем стоит <::>
             isNameSpaced = context.children.First() is CPP14Parser.QualifiedIdContext;
-            
+
             return true;
         }
         public override bool VisitSimpleTemplateId([NotNull] CPP14Parser.SimpleTemplateIdContext context)
@@ -226,17 +220,7 @@ namespace CPP_Metrics
 
             return false;
         }
-        /* 
-         * TODO : Точнее разделить случаи
-         *        Шаблоны!
-         *        
-        Identifier
-        | operatorFunctionId
-        | conversionFunctionId
-        | literalOperatorId
-        | Tilde (className | decltypeSpecifier)
-        | templateId;
-        */
+       
         public override bool VisitOperatorFunctionId([NotNull] CPP14Parser.OperatorFunctionIdContext context)
         {
             var name = context.children.First().GetText() // operator
@@ -253,10 +237,6 @@ namespace CPP_Metrics
         }
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
-            
-
-            // !! Проверка Типов!!! Для декларации функций расширить проверку типов вход. параметров.
-            // Initializer(нет declType,проверить текущее имя) // Parameters // NoPointer
 
             var identifier = context.Identifier();
             if (identifier is null) return true;
@@ -273,17 +253,17 @@ namespace CPP_Metrics
                     DeclSpecifierSeqType = null;
                 }
             }
-            
+
             // Если NoPointer имеет () значит проверить является ли declType функцией или типом, и проверить параметр в скобках
             //Вызов функции с 1 переменной (По причине схожести с декларации переменной в стиле конструктора)
             if (NoPointerBrace == true && DeclSpecifierSeqType is not null)
             {
                 var isType = false;
-                if(DeclSpecifierSeqType.IsStandartType)
+                if (DeclSpecifierSeqType.IsStandartType)
                     isType = true;
                 else
                     isType = ContextElement.GetTypeName(DeclSpecifierSeqType.TypeName, DeclSpecifierSeqType.NestedNames) is null;
-                
+
                 if (ContextElement.GetFunctionName(DeclSpecifierSeqType.TypeName) is not null ||
                     isType == false) // проверка не являтеся ли типом
                 {
@@ -297,12 +277,12 @@ namespace CPP_Metrics
                     }
                     // Если есть параметр то это вызов функции в параметре
 
-                    
+
                 }
             }
-            if(DeclSpecifierSeqType is null && (Parameters is not null || Initializer is not null))
+            if (DeclSpecifierSeqType is null && (Parameters is not null || Initializer is not null))
             {
-                if(Parameters is not null)
+                if (Parameters is not null)
                     foreach (var item in Parameters)
                     {
                         var parameterVariable = ContextElement.GetVariableName(item.Type?.TypeName);
@@ -317,7 +297,7 @@ namespace CPP_Metrics
             }
 
             // проверка декларация функции по параметрам внутри parametrsBraced
-            if(DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters))
+            if (DeclSpecifierSeqType is not null && IsDeclarationFunction(Parameters))
             {
                 var functionInfo = new FunctionInfo
                 {
@@ -330,7 +310,7 @@ namespace CPP_Metrics
                 return false;
             }
 
-            if(DeclSpecifierSeqType is null)
+            if (DeclSpecifierSeqType is null)
             {
                 // UsedVariable
                 var usedVariable = ContextElement.GetVariableName(name);
@@ -347,7 +327,7 @@ namespace CPP_Metrics
                 Type = DeclSpecifierSeqType
             };
             VariablesDeclaration.Add(declarationVariable);
-            
+
 
             //VariableNames.AddRange(SelectParameters(Parameters, OutVariable));
 
@@ -359,19 +339,3 @@ namespace CPP_Metrics
         }
     }
 }
-/*//Конструктор
-            if(DeclSpecifierSeqType is null && NestedNames is not null)
-            {
-                if(NestedNames.Last().TypeName.Equals(name))
-                {
-                    var functionInfo = new FunctionInfo
-                    {
-                        Name = name,
-                        ReturnType = DeclSpecifierSeqType,
-                        Parameters = Parameters is null ? new List<Parameter>() : Parameters,
-
-                    };
-                    FunctionDeclaration.Add(functionInfo);
-                }
-            }
- */

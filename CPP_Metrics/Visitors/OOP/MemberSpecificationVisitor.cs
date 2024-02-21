@@ -4,10 +4,10 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics.OOP
+namespace CPP_Metrics.Visitors.OOP
 {
     public enum AccesSpecifier
-    {                
+    {
         Public,
         Private,
         Protected,
@@ -60,7 +60,7 @@ namespace CPP_Metrics.OOP
                     throw new Exception("Error recognize type");
             }
         }
-        
+
         public override bool VisitAccessSpecifier([NotNull] CPP14Parser.AccessSpecifierContext context)
         {
             var accessSpecifier = context.children.First().GetText();
@@ -70,7 +70,7 @@ namespace CPP_Metrics.OOP
         public override bool VisitMemberdeclaration([NotNull] CPP14Parser.MemberdeclarationContext context)
         {
             var memberDeclarationVisitor = new MemberDeclarationVisitor(ContextElement, AccesSpecifierSelector);
-            Analyzer.Analyze(context,memberDeclarationVisitor);
+            Analyzer.Analyze(context, memberDeclarationVisitor);
 
             ContextElement.ClassStructInfo.Fields.AddRange(memberDeclarationVisitor.VariablesDeclaration);
             ContextElement.ClassStructInfo.Methods.AddRange(memberDeclarationVisitor.FunctionDeclaration);

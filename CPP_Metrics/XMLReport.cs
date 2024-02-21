@@ -1,6 +1,4 @@
-﻿
-
-using CPP_Metrics.Metrics;
+﻿using CPP_Metrics.Metrics;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;

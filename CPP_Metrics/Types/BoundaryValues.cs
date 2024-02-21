@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Types
 {
     public static class GlobalBoundaryValues
     {
@@ -54,7 +54,7 @@ namespace CPP_Metrics
 
             string str = JsonSerializer.Serialize(boundaryValues);
             fileWriter.Write(str);
-            fileWriter.Close(); 
+            fileWriter.Close();
             fileFS.Close();
         }
 

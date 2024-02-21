@@ -2,7 +2,7 @@
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     // For ClassSpecifierContext
     public class ClassDefinitionVisitor : CPP14ParserBaseVisitor<bool>
@@ -11,7 +11,7 @@ namespace CPP_Metrics
         public override bool VisitClassHead([NotNull] CPP14Parser.ClassHeadContext context)
         {
             var classKey = context.children.FirstOrDefault(x => x is CPP14Parser.ClassKeyContext);
-            if(classKey != null)
+            if (classKey != null)
             {
                 ClassKey = classKey.GetText();
             }

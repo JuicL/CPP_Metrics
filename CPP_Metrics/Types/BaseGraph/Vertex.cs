@@ -1,5 +1,4 @@
-﻿
-namespace CPP_Metrics.Types
+﻿namespace CPP_Metrics.Types.BaseGraph
 {
     /// <summary>
     /// Обобщенная вершина

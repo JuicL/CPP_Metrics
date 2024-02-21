@@ -1,4 +1,4 @@
-﻿using CPP_Metrics.Types;
+﻿using CPP_Metrics.Types.BaseGraph;
 
 namespace CPP_Metrics.Metrics
 {

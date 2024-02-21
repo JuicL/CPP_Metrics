@@ -3,7 +3,7 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class TemplateArgumentVisitor : CPP14ParserBaseVisitor<bool>
     {
@@ -20,7 +20,7 @@ namespace CPP_Metrics
             {
                 var typeVisitor = new TypeVisitor();
                 Analyzer.Analyze(argument, typeVisitor);
-                if(typeVisitor.Type != null)
+                if (typeVisitor.Type != null)
                     Types.Add(typeVisitor.Type);
             }
 
