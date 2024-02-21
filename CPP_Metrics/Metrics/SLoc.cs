@@ -1,4 +1,5 @@
 ﻿using CPP_Metrics.DatabaseContext;
+using CPP_Metrics.Metrics.Contracts;
 using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Types;
 using System;

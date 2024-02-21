@@ -2,8 +2,9 @@
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
+using CPP_Metrics.Visitors;
 
-namespace CPP_Metrics.OOP
+namespace CPP_Metrics.Visitors.OOP
 {
     public class MemberDeclarationVisitor : CPP14ParserBaseVisitor<bool>
     {
@@ -11,7 +12,7 @@ namespace CPP_Metrics.OOP
         private AccesSpecifier AccesSpecifierSelector { get; }
 
         public List<FieldsInfo> VariablesDeclaration = new();
-        
+
         public List<FunctionInfo> FunctionDeclaration = new();
         public Queue<FunctionInfo> FunctionDefinition { get; private set; } = new();
 
@@ -89,15 +90,15 @@ namespace CPP_Metrics.OOP
         public override bool VisitMemberDeclarator([NotNull] CPP14Parser.MemberDeclaratorContext context)
         {
             var virtualSpecifierSeq = context.virtualSpecifierSeq();
-            if(virtualSpecifierSeq != null)
+            if (virtualSpecifierSeq != null)
             {
-                foreach(var virtualSpecifier in virtualSpecifierSeq.virtualSpecifier())
+                foreach (var virtualSpecifier in virtualSpecifierSeq.virtualSpecifier())
                 {
                     VisitVirtualSpecifier(virtualSpecifier);
                 }
-            }    
+            }
             var braceOrEqualInitializer = context.braceOrEqualInitializer();
-            if(braceOrEqualInitializer != null)
+            if (braceOrEqualInitializer != null)
             {
                 BraceOrEqualInitializer = braceOrEqualInitializer;
             }
@@ -113,11 +114,11 @@ namespace CPP_Metrics.OOP
         public new bool VisitVirtualSpecifier([NotNull] CPP14Parser.VirtualSpecifierContext context)
         {
             var virtualSpecifier = context.children.First().GetText();
-            if(virtualSpecifier.Equals("override"))
+            if (virtualSpecifier.Equals("override"))
             {
                 Override = true;
-            }   
-            else if(virtualSpecifier.Equals("final"))
+            }
+            else if (virtualSpecifier.Equals("final"))
             {
                 Final = true;
             }
@@ -141,7 +142,7 @@ namespace CPP_Metrics.OOP
                 .FirstOrDefault(x => x is CPP14Parser.ParameterDeclarationListContext)
                 ?.GetChildren()
                 .Where(x => x is CPP14Parser.ParameterDeclarationContext).ToList();
-            if(parameterDeclaration is null) return false;
+            if (parameterDeclaration is null) return false;
             foreach (var item in parameterDeclaration)
             {
                 var parameterVisitor = new ParameterVisitor();
@@ -185,7 +186,7 @@ namespace CPP_Metrics.OOP
             if (className is not null)
             {
                 var identifier = className.Identifier();
-                if(identifier is not null) //
+                if (identifier is not null) //
                 {
                     var functionInfo = new FunctionInfo
                     {
@@ -206,9 +207,9 @@ namespace CPP_Metrics.OOP
             if (context is null) return false;
 
             var init = context.initializerClause();
-            if(init is not null)
+            if (init is not null)
             {
-                if(String.Equals(init.GetText(),"0"))
+                if (string.Equals(init.GetText(), "0"))
                 { return true; }
             }
             return false;
@@ -237,7 +238,7 @@ namespace CPP_Metrics.OOP
                     AccesSpecifier = AccesSpecifierSelector,
                     Override = Override,
                     Final = Final,
-                    
+
                 };
                 FunctionDeclaration.Add(functionInfo);
                 return false;

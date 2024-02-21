@@ -1,10 +1,9 @@
-﻿
-
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 using CPP_Metrics.Metrics;
-using CPP_Metrics.OOP;
+using CPP_Metrics.Visitors.OOP;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
+using CPP_Metrics.Visitors;
 
 namespace CPP_Metrics.CyclomaticComplexity
 {

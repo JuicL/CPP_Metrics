@@ -3,7 +3,7 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class ExpressionVisitor : CPP14ParserBaseVisitor<bool>
     {

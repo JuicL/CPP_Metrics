@@ -1,10 +1,10 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
-using CPP_Metrics.OOP;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
+using CPP_Metrics.Visitors.OOP;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class GlobalContextVisitor : CPP14ParserBaseVisitor<bool>
     {
@@ -18,7 +18,7 @@ namespace CPP_Metrics
         public BaseContextElement Current { get; }
         public override bool VisitExpression([NotNull] CPP14Parser.ExpressionContext context)
         {
-            var variableUsedVisitor = new UsedVariables(ContextElement);
+            var variableUsedVisitor = new UsedVariablesVisitor(ContextElement);
             Analyzer.Analyze(context, variableUsedVisitor);
 
             foreach (var item in variableUsedVisitor.Identifiers)
@@ -30,7 +30,7 @@ namespace CPP_Metrics
                 }
             }
 
-            var typesUsedVisitor = new UsedClasses();
+            var typesUsedVisitor = new UsedClassesVisitor();
             Analyzer.Analyze(context, typesUsedVisitor);
             ContextElement.UsedClasses.AddRange(typesUsedVisitor.CPPTypes);
             return false;
@@ -64,7 +64,7 @@ namespace CPP_Metrics
             }
 
             var compoundStatement = context.statement().compoundStatement()?.statementSeq();
-            
+
             IParseTree statement = compoundStatement is not null ? compoundStatement : context.statement();
             if (statement is null) return false;
             var globalContextVisitor = new GlobalContextVisitor(contextElem);
@@ -82,7 +82,7 @@ namespace CPP_Metrics
                 return false;
             var visitor = new TypeVisitor();
             var typeSpecifierSeq = context.theTypeId().typeSpecifierSeq();
-            
+
             if (typeSpecifierSeq is null) return false;
             Analyzer.Analyze(typeSpecifierSeq, visitor);
             var assingType = visitor.Type;
@@ -96,14 +96,14 @@ namespace CPP_Metrics
             SimpleUsing simpleUsing = new SimpleUsing();
             var unqualifiedId = context.unqualifiedId();
 
-            if(unqualifiedId.Identifier() is not null)
+            if (unqualifiedId.Identifier() is not null)
             {
                 simpleUsing.Name = unqualifiedId.Identifier().GetText();
             }
-            else if(unqualifiedId.templateId() is not null)
+            else if (unqualifiedId.templateId() is not null)
             {
                 var simpleTemplateId = unqualifiedId.templateId().simpleTemplateId();
-                if(simpleTemplateId is not null)
+                if (simpleTemplateId is not null)
                 {
                     simpleUsing.Name = simpleTemplateId.templateName().Identifier().GetText();
                 }
@@ -117,8 +117,8 @@ namespace CPP_Metrics
                 simpleUsing.Nested = visitor.NestedNames;
             }
 
-            var typeContext = ContextElement.GetTypeName(simpleUsing.Name,simpleUsing.Nested);
-            if(typeContext is not null && typeContext is ClassStructDeclaration structDeclaration)
+            var typeContext = ContextElement.GetTypeName(simpleUsing.Name, simpleUsing.Nested);
+            if (typeContext is not null && typeContext is ClassStructDeclaration structDeclaration)
             {
                 simpleUsing.BaseContextElement = structDeclaration;
             }
@@ -132,7 +132,7 @@ namespace CPP_Metrics
             var namespaceName = context.namespaceName().children.First().GetChildren().First().GetText();
             usingNamespace.Name = namespaceName;
             var nested = context.nestedNameSpecifier();
-            if(nested is not null)
+            if (nested is not null)
             {
                 var visitor = new NestedNameSpecifierVisitor();
                 Analyzer.Analyze(nested, visitor);
@@ -166,7 +166,7 @@ namespace CPP_Metrics
         {
             if (ContextElement is not NamespaceContext)
                 throw new Exception("Declaration namespace error");
-           
+
 
             var namespaceInfo = context.GetNameSpaceInfo();
             namespaceInfo.Nested = GetFullNameNamespace(ContextElement);
@@ -184,22 +184,22 @@ namespace CPP_Metrics
                 namespaceContext.Paren = ContextElement;
                 ContextElement.Children.Add(namespaceContext);
             }
-            
-            if(declarationseq is not null)
+
+            if (declarationseq is not null)
             {
                 var globalContextVisitor = new GlobalContextVisitor(namespaceContext);
                 Analyzer.Analyze(declarationseq, globalContextVisitor);
             }
             return false;
         }
-        
+
         //Function or method
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
             var funcVisitor = new FunctionDefinitionVisitor();
             Analyzer.Analyze(context, funcVisitor);
-            
-            if(ContextElement is ClassStructDeclaration classContext)
+
+            if (ContextElement is ClassStructDeclaration classContext)
             {
                 funcVisitor.FunctionInfo.NestedNames.Add(new CPPType() { TypeName = classContext.ClassStructInfo.Name });
             }
@@ -210,12 +210,12 @@ namespace CPP_Metrics
 
             foreach (var item in funcVisitor.FunctionInfo.Parameters.Where(x => x.Name is not null))
             {
-                functionContext.VariableDeclaration.Add(item.Name, new Variable() { Name = item.Name ,Type = item.Type});
+                functionContext.VariableDeclaration.Add(item.Name, new Variable() { Name = item.Name, Type = item.Type });
             }
 
             ContextElement.Children.Add(functionContext);
 
-            if (!ContextElement.FunctionDeclaration.TryGetValue(funcVisitor.FunctionInfo.Name,out var functionInfos))
+            if (!ContextElement.FunctionDeclaration.TryGetValue(funcVisitor.FunctionInfo.Name, out var functionInfos))
             {
                 ContextElement.FunctionDeclaration.Add(funcVisitor.FunctionInfo.Name, new List<FunctionInfo>());
             }
@@ -262,11 +262,11 @@ namespace CPP_Metrics
             var currentContextElem = baseContextElement;
             while (currentContextElem is not null)
             {
-                if(currentContextElem is NamespaceContext namespaceContext)
+                if (currentContextElem is NamespaceContext namespaceContext)
                 {
                     nestedList.Add(new CPPType() { TypeName = namespaceContext.NameSpaceInfo.Name });
                 }
-                else if(currentContextElem is ClassStructDeclaration classStruct)
+                else if (currentContextElem is ClassStructDeclaration classStruct)
                 {
                     nestedList.Add(new CPPType() { TypeName = classStruct.ClassStructInfo.Name });
                 }
@@ -289,12 +289,12 @@ namespace CPP_Metrics
 
             foreach (var item in classContext.ClassStructInfo.BaseClasses)
             {
-                var test = ContextElement.GetTypeName(item.TypeName,item.NestedNames);
+                var test = ContextElement.GetTypeName(item.TypeName, item.NestedNames);
             }
 
             classContext.Paren = ContextElement;
             ContextElement.Children.Add(classContext);
-            if(classContext.ClassStructInfo.Name is null)
+            if (classContext.ClassStructInfo.Name is null)
             {
                 // Declaration variable type of structure, but without name
                 classContext.ClassStructInfo.Name = "";
@@ -308,7 +308,7 @@ namespace CPP_Metrics
                 //throw new Exception($"Переопределение класса {classStructInfo.Name}");
             }
 
-            if(classContext.ClassStructInfo.Body is not null)
+            if (classContext.ClassStructInfo.Body is not null)
             {
                 var memberSpecificationVisitor = new MemberSpecificationVisitor(classContext.ClassStructInfo.ClassKey, classContext);
                 Analyzer.Analyze(classContext.ClassStructInfo.Body, memberSpecificationVisitor);

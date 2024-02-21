@@ -4,13 +4,13 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
 
     public class FunctionDefinitionVisitor : CPP14ParserBaseVisitor<bool>
     {
         public FunctionInfo FunctionInfo { get; } = new FunctionInfo();
-       
+
         public override bool VisitFunctionDefinition([NotNull] CPP14Parser.FunctionDefinitionContext context)
         {
             FunctionInfo.Line = context.SourceInterval.a;
@@ -80,7 +80,7 @@ namespace CPP_Metrics
         {
             FunctionInfo.Name = context.children.First().GetText() // operator
                 + context.children.Last().GetTerminalNodes().First().GetText(); // theOperator 
-            
+
         }
         /*
          Identifier+
@@ -112,15 +112,15 @@ namespace CPP_Metrics
                 default:
                     break;
             }
-            
+
             return false;
         }
-        
+
 
         public override bool VisitNoPointerDeclarator([NotNull] CPP14Parser.NoPointerDeclaratorContext context)
         {
             var noPointerDecl = context.children.FirstOrDefault(x => x is CPP14Parser.NoPointerDeclaratorContext);
-            if(noPointerDecl is null) 
+            if (noPointerDecl is null)
                 return true;
 
             return true;
@@ -129,7 +129,7 @@ namespace CPP_Metrics
         public override bool VisitParameterDeclaration([NotNull] CPP14Parser.ParameterDeclarationContext context)
         {
             var visitor = new ParameterVisitor();
-            Analyzer.Analyze(context,visitor);
+            Analyzer.Analyze(context, visitor);
             FunctionInfo.Parameters.Add(visitor.Parameter);
             return false;
         }

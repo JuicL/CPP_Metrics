@@ -1,7 +1,7 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class PostfixExpressionVisitor : CPP14ParserBaseVisitor<bool>
     {
@@ -34,22 +34,22 @@ namespace CPP_Metrics
                 HandlePostfixExpression(firstPostfix);
             }
 
-           
+
 
 
             return true;
         }
         public override bool VisitPostfixExpression([NotNull] CPP14Parser.PostfixExpressionContext context)
         {
-            if(context.Dot() is not null || context.Arrow() is not null)
+            if (context.Dot() is not null || context.Arrow() is not null)
             {
                 var idExp = context.idExpression();
 
             }
-            else if(context.primaryExpression() is not null)
+            else if (context.primaryExpression() is not null)
             {
                 var primaryExp = context.primaryExpression();
-                if(primaryExp.idExpression() is not null)
+                if (primaryExp.idExpression() is not null)
                 {
 
                 }
@@ -57,7 +57,7 @@ namespace CPP_Metrics
             return true;
         }
 
-        
+
 
         public override bool VisitChildren(IRuleNode node)
         {

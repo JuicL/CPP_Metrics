@@ -3,14 +3,14 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class NestedNameSpecifierVisitor : CPP14ParserBaseVisitor<bool>
     {
-        public List<CPPType> NestedNames 
-        { 
-            get { return _NestedNames.Reverse().ToList(); } 
-            private set { } 
+        public List<CPPType> NestedNames
+        {
+            get { return _NestedNames.Reverse().ToList(); }
+            private set { }
         }
 
         private IList<CPPType> _NestedNames = new List<CPPType>();
@@ -23,20 +23,20 @@ namespace CPP_Metrics
 		            Identifier | Template? simpleTemplateId
 	                ) Doublecolon;*/
                 var identifier = context.Identifier();
-                if(identifier is not null)
+                if (identifier is not null)
                 {
                     var name = identifier.GetText();
-                    _NestedNames.Add(new CPPType() { TypeName = name});
+                    _NestedNames.Add(new CPPType() { TypeName = name });
                     return true;
                 }
                 var simpleTemplate = context.simpleTemplateId();
-                if(simpleTemplate is not null)
+                if (simpleTemplate is not null)
                 {
                     var name = simpleTemplate.templateName().GetText();
                     var templateArguments = simpleTemplate.templateArgumentList();
 
                     var templateVisitor = new TemplateArgumentVisitor();
-                    if(templateArguments != null)
+                    if (templateArguments != null)
                         Analyzer.Analyze(templateArguments, templateVisitor);
 
                     var templateType = new CPPType();
@@ -51,23 +51,23 @@ namespace CPP_Metrics
             {
                 if (context.children.Count == 1) return true; // just doublecolon sign
                 var firstElem = context.children.First();
-                if(firstElem is CPP14Parser.TheTypeNameContext typeName)
+                if (firstElem is CPP14Parser.TheTypeNameContext typeName)
                 {
                     var name = typeName.GetTheTypeName();
                     _NestedNames.Add(name);
                 }
-                else if(firstElem is CPP14Parser.NamespaceNameContext nameSpaceName)
+                else if (firstElem is CPP14Parser.NamespaceNameContext nameSpaceName)
                 {
                     //originalNamespaceName | namespaceAlias//
                     var name = nameSpaceName.children.First().GetChildren().First().GetText();
-                    _NestedNames.Add(new CPPType() {TypeName = name });
+                    _NestedNames.Add(new CPPType() { TypeName = name });
 
                 }
-                else if(firstElem is CPP14Parser.DecltypeSpecifierContext)
+                else if (firstElem is CPP14Parser.DecltypeSpecifierContext)
                 {// 
                 }
 
-               
+
 
             }
             return true;

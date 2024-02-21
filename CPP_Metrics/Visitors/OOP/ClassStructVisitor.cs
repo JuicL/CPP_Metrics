@@ -3,11 +3,12 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
+using CPP_Metrics.Visitors;
 
-namespace CPP_Metrics.OOP
+namespace CPP_Metrics.Visitors.OOP
 {
     //for classSpecifierContext
-    
+
     public class ClassStructVisitor : CPP14ParserBaseVisitor<bool>
     {
         public ClassStructInfo ClassStructInfo { get; set; } = new ClassStructInfo();
@@ -22,12 +23,12 @@ namespace CPP_Metrics.OOP
                 ClassStructInfo.ClassKey = classKey.GetText();
             }
             var union = context.Union();
-            if(union != null)
+            if (union != null)
                 ClassStructInfo.ClassKey = union.GetText();
 
             return true;
         }
-        
+
 
         public override bool VisitMemberSpecification([NotNull] CPP14Parser.MemberSpecificationContext context)
         {
@@ -61,7 +62,7 @@ namespace CPP_Metrics.OOP
 
             return false;
         }
-       
+
         // Наследование
         public override bool VisitBaseSpecifier([NotNull] CPP14Parser.BaseSpecifierContext context)
         {
@@ -70,7 +71,7 @@ namespace CPP_Metrics.OOP
             if (virtualMarker is not null)
                 baseClass.VirtualMarker = true;
             var accesSpecifier = context.accessSpecifier();
-            if(accesSpecifier is not null)
+            if (accesSpecifier is not null)
             {
                 baseClass.AccesSpecifier = AccesSpecifierHelper.GetAccesSpecifier(accesSpecifier.children.First().GetText());
             }
@@ -78,7 +79,7 @@ namespace CPP_Metrics.OOP
             var classOrDeclTypeContext = context.baseTypeSpecifier().classOrDeclType();
             var className = classOrDeclTypeContext.className();
             var nestedNameSpecifier = classOrDeclTypeContext.nestedNameSpecifier();
-            if(nestedNameSpecifier is not null)
+            if (nestedNameSpecifier is not null)
             {
                 var nestedVisitor = new NestedNameSpecifierVisitor();
                 Analyzer.Analyze(nestedNameSpecifier, nestedVisitor);
@@ -88,7 +89,7 @@ namespace CPP_Metrics.OOP
             if (className is not null)
             {
                 var classNameChild = className.GetChildren().First();
-                if(classNameChild is CPP14Parser.SimpleTemplateIdContext simpleTemplate)// SimpleTemplate
+                if (classNameChild is CPP14Parser.SimpleTemplateIdContext simpleTemplate)// SimpleTemplate
                 {
                     var templateName = simpleTemplate.children.First();
                     baseClass.TypeName = templateName.GetText();

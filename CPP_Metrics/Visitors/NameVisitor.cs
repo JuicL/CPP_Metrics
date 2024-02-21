@@ -3,9 +3,9 @@
 using Antlr4.Runtime.Tree;
 using System.Diagnostics.CodeAnalysis;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
-    public  class NameVisitor : CPP14ParserBaseVisitor<bool>
+    public class NameVisitor : CPP14ParserBaseVisitor<bool>
     {
         public string? Name { get; private set; }
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)

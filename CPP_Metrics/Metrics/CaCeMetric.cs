@@ -1,18 +1,14 @@
-﻿using Antlr4.Runtime.Misc;
-using CPP_Metrics.DatabaseContext;
+﻿using CPP_Metrics.DatabaseContext;
+using CPP_Metrics.Metrics.Contracts;
 using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CPP_Metrics.Visitors;
 
 namespace CPP_Metrics.Metrics
 {
-    
+
     public class CaCeMetric : IMetric
     {
         public CaCeMetric()

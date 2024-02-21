@@ -1,8 +1,7 @@
-﻿
-namespace CPP_Metrics.Types
+﻿namespace CPP_Metrics.Types.BaseGraph
 {
 
-    
+
     /// <summary>
     /// Обобщенный граф
     /// </summary>
@@ -18,7 +17,7 @@ namespace CPP_Metrics.Types
         public Graph()
         {
             Verticies = new HashSet<TVertex>();
-            
+
             Edges = new HashSet<TEdge>();
         }
 
@@ -28,7 +27,7 @@ namespace CPP_Metrics.Types
         /// <returns></returns>
         public TVertex CreateVertex()
         {
-            var vertex = new TVertex { Id = System.Guid.NewGuid() };
+            var vertex = new TVertex { Id = Guid.NewGuid() };
             Verticies.Add(vertex);
             return vertex;
         }

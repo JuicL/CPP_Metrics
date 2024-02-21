@@ -4,7 +4,7 @@ using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Visitors
 {
     public class ParameterVisitor : CPP14ParserBaseVisitor<bool>
     {
@@ -15,14 +15,14 @@ namespace CPP_Metrics
             var typeVisitor = new TypeVisitor();
             Analyzer.Analyze(context, typeVisitor);
             Parameter.Type = typeVisitor.Type;
-            
+
 
             return false;
         }
         public override bool VisitUnqualifiedId([NotNull] CPP14Parser.UnqualifiedIdContext context)
         {
             var name = context.Identifier();
-            if(name is not null)
+            if (name is not null)
             {
                 Parameter.Name = name.GetText();
             }
@@ -36,7 +36,7 @@ namespace CPP_Metrics
             //if(name.Count == 0)
             //    return false;
             //Parameter.Name = name.First().GetText();
-            
+
             //return false;
 
             //var visitor = new NameVisitor();

@@ -1,5 +1,7 @@
 ﻿
 
+using CPP_Metrics.Types.BaseGraph;
+
 namespace CPP_Metrics.Types.DIT
 {
     public class DITVertex : IVertex

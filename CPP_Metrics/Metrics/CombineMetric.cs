@@ -1,4 +1,5 @@
 ﻿using CPP_Metrics.DatabaseContext;
+using CPP_Metrics.Metrics.Contracts;
 using CPP_Metrics.Metrics.ReportBuild;
 using CPP_Metrics.Types;
 using System;
@@ -12,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace CPP_Metrics.Metrics
 {
-        //I = Ce / (Ce + Ca)
+    //I = Ce / (Ce + Ca)
 
-        // A
-        //
-        //      I(Instability)
+    // A
+    //
+    //      I(Instability)
 
-        //D = A + I - 1 
+    //D = A + I - 1 
     public class InstabilityMetric : ICombineMetric
     {
         public CaCeMetric? CaCeMetric;
