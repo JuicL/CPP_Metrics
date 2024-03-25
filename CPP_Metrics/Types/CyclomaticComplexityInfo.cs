@@ -1,5 +1,5 @@
 ﻿using CPP_Metrics.Metrics.CyclomaticComplexity;
-using CPP_Metrics.Types.Context;
+using CPP_Metrics.Types.Reflection;
 
 namespace CPP_Metrics.Types
 {

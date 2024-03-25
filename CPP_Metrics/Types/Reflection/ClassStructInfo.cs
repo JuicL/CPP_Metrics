@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 
-namespace CPP_Metrics.Types.Context
+namespace CPP_Metrics.Types.Reflection
 {
     public class ClassStructInfo
     {

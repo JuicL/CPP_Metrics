@@ -3,7 +3,7 @@
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using CPP_Metrics.Tool;
-using CPP_Metrics.Types.Context;
+using CPP_Metrics.Types.Reflection;
 
 namespace CPP_Metrics.Visitors.OOP
 {

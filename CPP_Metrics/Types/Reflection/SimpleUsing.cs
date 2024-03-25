@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-namespace CPP_Metrics.Types.Context
+﻿namespace CPP_Metrics.Types.Reflection
 {
     public class SimpleUsing
     {

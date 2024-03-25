@@ -1,4 +1,4 @@
-﻿namespace CPP_Metrics.Types.Context
+﻿namespace CPP_Metrics.Types.Reflection
 {
     //Variable Type and Identifier
     public class Variable

@@ -1,7 +1,7 @@
 ﻿using Antlr4.Runtime.Tree;
 using CPP_Metrics.Visitors.OOP;
 
-namespace CPP_Metrics.Types.Context
+namespace CPP_Metrics.Types.Reflection
 {
     public class FunctionInfo
     {

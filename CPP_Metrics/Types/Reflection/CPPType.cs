@@ -1,6 +1,5 @@
-﻿namespace CPP_Metrics.Types.Context
+﻿namespace CPP_Metrics.Types.Reflection
 {
-
     public class CPPType
     {
         public string? ClassStructMarker { get; set; }

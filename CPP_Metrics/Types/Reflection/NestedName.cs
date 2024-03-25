@@ -1,4 +1,4 @@
-﻿namespace CPP_Metrics.Types.Context
+﻿namespace CPP_Metrics.Types.Reflection
 {
     public interface INestedName
     {
