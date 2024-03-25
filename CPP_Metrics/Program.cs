@@ -148,16 +148,16 @@ class CppMetrics
         var metricRunner = new MetricRunner(sourcePaths, config, reportInfo);
         
         var SLocReport = new SlocReportBuilder(reportInfo);
-        metricRunner.Metrics.Add(new SLoc(SLocReport));
+        metricRunner.Metrics.Add(new SLocMetric(SLocReport));
 
         var cyclomaticReport = new CyclomaticReportBuilder(reportInfo);
-        metricRunner.Metrics.Add(new CylomaticComplexity(cyclomaticReport));
+        metricRunner.Metrics.Add(new CylomaticComplexityMetric(cyclomaticReport));
 
         var classAbstractionBuilder = new AbstractReportBuilder(reportInfo);
-        metricRunner.Metrics.Add(new ClassAbstraction(classAbstractionBuilder));
+        metricRunner.Metrics.Add(new ClassAbstractionMetric(classAbstractionBuilder));
 
         var DITReport = new DITReportBuilder(reportInfo);
-        metricRunner.Metrics.Add(new DIT(DITReport));
+        metricRunner.Metrics.Add(new DITMetric(DITReport));
 
         var CBOReport = new CBOReportBuilder(reportInfo);
         metricRunner.Metrics.Add(new CBOMetric(CBOReport));

@@ -9,27 +9,25 @@ using CPP_Metrics.Visitors;
 
 namespace CPP_Metrics.Metrics
 {
-    public class DIT : IMetric
+    public class DITMetric : IMetric
     {
         public IReportBuilder ReportBuilder { get ; set ; }
 
-        public DIT(IReportBuilder reportBuilder)
+        public DITMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
         }
 
-        // Граф
         DITGraph DITGraph { get; set; } = new DITGraph();
         public List<MetricMessage> Messages { get; set; } = new();
 
         public bool Handle(ProcessingFileInfo processingFileInfo)
         {
             // Создать контекст
-            //BaseContextElement.Clear();
             BaseContextElement.CurrentSource = processingFileInfo.ProcessingFilePath;
             BaseContextElement contextElement = BaseContextElement.GetGeneralNameSpace();
 
-            //// Запустить для инклюда
+            // Запустить для инклюда
             BaseContextElement.CurrentSource = processingFileInfo.IncludeFilePath;
             var contextVisitor = new GlobalContextVisitor(contextElement);
             Analyzer.Analyze(processingFileInfo.IncludeFileTree, contextVisitor);
@@ -60,18 +58,7 @@ namespace CPP_Metrics.Metrics
                     if (typeContext is null)
                     {
                         continue;
-                        //throw new Exception($"Dont find type context {basedClass.TypeName}" );
-                        
-                        var secondChance = DITGraph.Verticies.SingleOrDefault(x => x.Name.EndsWith(basedClass.TypeName));
-                        if(secondChance is null)
-                        {
-                            secondChance = DITGraph.CreateVertex();
-                            secondChance.Name = basedClass.TypeName;
-                        }
-                        DITGraph.CreateEdge(secondChance, addedVertex);
-                        continue;
                     }   
-
 
                     var baceClassFullName = ((ClassStructDeclaration)typeContext).ClassStructInfo.GetFullName();
                     var addedBacedClassVertex = DITGraph.Verticies.FirstOrDefault(x => x.Name.Equals(baceClassFullName)); // Warrning thread error
@@ -87,7 +74,6 @@ namespace CPP_Metrics.Metrics
                         DITGraph.CreateEdge(addedBacedClassVertex, addedVertex);
                     }
                 }
-
             }
             
             return true;
@@ -95,7 +81,6 @@ namespace CPP_Metrics.Metrics
 
         public void Finalizer()
         {
-
             var heads = DITGraph.Verticies.Where(x => !DITGraph.Edges.Any(e => e.To == x));
             Queue<DITVertex> queue = new();
             foreach (var head in heads)
@@ -140,12 +125,6 @@ namespace CPP_Metrics.Metrics
         {
             ((DITReportBuilder)ReportBuilder).DITGraph = DITGraph;
             ReportBuilder.ReportBuild();
-            //Console.WriteLine("---DIT--");
-
-            //foreach (var vertex in DITGraph.Verticies)
-            //{
-            //    Console.WriteLine($"{vertex.Name} {vertex.ParenCount}");
-            //}
             return "";
         }
 

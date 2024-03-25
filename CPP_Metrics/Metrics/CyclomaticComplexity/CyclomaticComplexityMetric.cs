@@ -2,8 +2,8 @@
 
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
-using CPP_Metrics.Metrics;
 using CPP_Metrics.Tool;
+using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics.Metrics.CyclomaticComplexity

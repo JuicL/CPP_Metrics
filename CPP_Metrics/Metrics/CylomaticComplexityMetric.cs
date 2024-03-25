@@ -8,12 +8,12 @@ using System.Collections.Concurrent;
 
 namespace CPP_Metrics.Metrics
 {
-    public class CylomaticComplexity : IMetric
+    public class CylomaticComplexityMetric : IMetric
     {
         public IReportBuilder ReportBuilder { get; set; }
         public List<MetricMessage> Messages { get; set; } = new();
 
-        public CylomaticComplexity(IReportBuilder reportBuilder)
+        public CylomaticComplexityMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
         }

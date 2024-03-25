@@ -8,13 +8,8 @@ using CPP_Metrics.Visitors;
 
 namespace CPP_Metrics.Metrics
 {
-
     public class CaCeMetric : IMetric
     {
-        public CaCeMetric()
-        {
-
-        }
         public CaCeMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;

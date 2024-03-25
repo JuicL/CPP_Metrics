@@ -22,7 +22,7 @@ namespace CPP_Metrics.Metrics
     {
         public CaCeMetric? CaCeMetric;
 
-        public ClassAbstraction? ClassAbstraction;
+        public ClassAbstractionMetric? ClassAbstraction;
         public Dictionary<string, decimal> Instability { get; set; } = new();
         public Dictionary<string, decimal> D { get; set; } = new();
 
@@ -90,7 +90,7 @@ namespace CPP_Metrics.Metrics
         public bool Handle(List<IMetric> metrics)
         {
             CaCeMetric = (CaCeMetric?)metrics.SingleOrDefault(x => x is CaCeMetric);
-            ClassAbstraction = (ClassAbstraction?)metrics.SingleOrDefault(x => x is ClassAbstraction);
+            ClassAbstraction = (ClassAbstractionMetric?)metrics.SingleOrDefault(x => x is ClassAbstractionMetric);
             if (CaCeMetric == null || ClassAbstraction == null) return false;
 
             foreach (var Ce in CaCeMetric.Ce)

@@ -1,5 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
-using CPP_Metrics.Metrics.ReportBuilders;
+﻿using CPP_Metrics.Metrics.ReportBuilders;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using CPP_Metrics.Types.Context;
@@ -9,20 +8,8 @@ using CPP_Metrics.Metrics.Contracts;
 
 namespace CPP_Metrics.Metrics
 {
-
-    public class CBOResult
-    {
-        public string ClassName { get; set; }
-        public string FileName { get; set; }
-        public decimal Value { get; set; }
-        public decimal Line { get; set; }
-    }
     public class CBOMetric : IMetric
     {
-        public CBOMetric()
-        {
-
-        }
         public CBOMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;

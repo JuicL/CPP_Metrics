@@ -15,7 +15,7 @@ namespace CPP_Metrics.Metrics.ReportBuilders
 
         public Dictionary<string, decimal> Instability { get; set; }
         public CaCeMetric CaCeMetric;
-        public ClassAbstraction ClassAbstraction;
+        public ClassAbstractionMetric ClassAbstraction;
         public Dictionary<string, decimal> D { get; set; } = new();
 
         public string GenerateBody()

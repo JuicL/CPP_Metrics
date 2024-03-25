@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using CPP_Metrics.Types;
 
 namespace CPP_Metrics.Metrics.ReportBuilders
 {

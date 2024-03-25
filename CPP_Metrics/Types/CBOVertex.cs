@@ -1,6 +1,6 @@
 ﻿using CPP_Metrics.Types.BaseGraph;
 
-namespace CPP_Metrics.Metrics
+namespace CPP_Metrics.Types
 {
     public class CBOVertex : IVertex
     {

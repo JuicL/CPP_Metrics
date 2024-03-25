@@ -8,18 +8,9 @@ using System.Text.RegularExpressions;
 
 namespace CPP_Metrics.Metrics
 {
-    public class SLocInfo
+    public class SLocMetric : IMetric
     {
-        public int Lines { get; set; }
-        public int Commented { get; set; }
-        public int EmptyLines { get; set; }
-        public decimal PercentСomment { get; set; }
-        public decimal PercentEmptyLines { get; set; }
-    }
-
-    public class SLoc : IMetric
-    {
-        public SLoc(IReportBuilder reportBuilder)
+        public SLocMetric(IReportBuilder reportBuilder)
         {
             ReportBuilder = reportBuilder;
         }
@@ -70,7 +61,6 @@ namespace CPP_Metrics.Metrics
         }
         public void Finalizer()
         {
-            // Общую стату посчитать
             FileInfo fileInfo = new FileInfo("|global|");// | недопустимый символ в названии файлов
             SLocInfo slocInfo = new();
             
@@ -116,11 +106,8 @@ namespace CPP_Metrics.Metrics
             return "";
         }
 
-        
-
         public void Save(DbContextMetrics dbContext, Solution solution)
         {
-
             foreach (var sloc in SlocMetrics)
             {
                 var value = sloc.Value;
@@ -149,9 +136,7 @@ namespace CPP_Metrics.Metrics
                 percentEmptyLines.MetricDirectoryID = (int)dbContext.GetIdMetric("PE");
                 dbContext.MetricValues.Add(percentEmptyLines);
                 dbContext.SaveChanges();
-
             }
-
         }
     }
 }

@@ -1,9 +1,5 @@
-﻿namespace CPP_Metrics.Metrics
+﻿namespace CPP_Metrics.Types
 {
-    public enum MessageType
-    {
-        Error, Warning,
-    }
     public class MetricMessage
     {
         public MessageType MessageType { get; set; }

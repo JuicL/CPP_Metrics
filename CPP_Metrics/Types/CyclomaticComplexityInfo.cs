@@ -1,7 +1,7 @@
 ﻿using CPP_Metrics.Metrics.CyclomaticComplexity;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics.Metrics
+namespace CPP_Metrics.Types
 {
     public class CyclomaticComplexityInfo
     {
