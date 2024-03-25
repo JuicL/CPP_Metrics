@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using CPP_Metrics.Types;
 
-namespace CPP_Metrics.Metrics.ReportBuild
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     public class CaCeReportBuilder : IReportBuilder
     {

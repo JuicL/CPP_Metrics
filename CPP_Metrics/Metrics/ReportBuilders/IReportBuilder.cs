@@ -1,8 +1,6 @@
-﻿
-using System.Globalization;
-using System.Text;
+﻿using System.Text;
 
-namespace CPP_Metrics.Metrics.ReportBuild
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     public interface IReportBuilder
     {
@@ -16,17 +14,14 @@ namespace CPP_Metrics.Metrics.ReportBuild
             stringBuilder.Append(GenerateBody());
             stringBuilder.Append(ReportInfo.Footer);
 
-            // Создать файл с названием
             var fileIncludesPath = Path.Combine(ReportInfo.OutPath, FileTag + ".html");
 
             FileStream fileStream = new FileStream(fileIncludesPath, FileMode.Create);
             StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.Default);
-            // Записать туда head + body() + footer
             streamWriter.Write(stringBuilder.ToString());
             streamWriter.Close();
             fileStream.Close();
 
-            // Вернуть путь до файла
             return fileIncludesPath;
         }
     }

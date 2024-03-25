@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace CPP_Metrics.Metrics.ReportBuild
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     internal class SlocReportBuilder : IReportBuilder
     {

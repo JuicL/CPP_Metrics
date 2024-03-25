@@ -3,7 +3,7 @@ using CPP_Metrics.Types.DIT;
 using System.Text;
 
 
-namespace CPP_Metrics.Metrics.ReportBuild
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     public class DITReportBuilder : IReportBuilder
     {

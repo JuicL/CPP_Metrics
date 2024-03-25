@@ -1,4 +1,4 @@
-﻿using CPP_Metrics.CyclomaticComplexity;
+﻿using CPP_Metrics.Metrics.CyclomaticComplexity;
 using CPP_Metrics.Types.Context;
 
 namespace CPP_Metrics.Metrics

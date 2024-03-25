@@ -1,8 +1,8 @@
 ﻿using CPP_Metrics.Types.BaseGraph;
 
-namespace CPP_Metrics.CyclomaticComplexity
+namespace CPP_Metrics.Metrics.CyclomaticComplexity
 {
-    public class CyclomaticEdge: IEdge<CyclomaticVertex>
+    public class CyclomaticEdge : IEdge<CyclomaticVertex>
     {
         public CyclomaticVertex From { get; set; }
         public CyclomaticVertex To { get; set; }

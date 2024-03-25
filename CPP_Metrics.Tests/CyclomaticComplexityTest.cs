@@ -1,4 +1,4 @@
-using CPP_Metrics.CyclomaticComplexity;
+using CPP_Metrics.Metrics.CyclomaticComplexity;
 using Facads;
 
 namespace CPP_Metrics.Tests

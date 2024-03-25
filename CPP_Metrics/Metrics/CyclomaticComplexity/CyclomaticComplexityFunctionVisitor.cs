@@ -5,11 +5,11 @@ using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 using CPP_Metrics.Visitors;
 
-namespace CPP_Metrics.CyclomaticComplexity
+namespace CPP_Metrics.Metrics.CyclomaticComplexity
 {
     public class CyclomaticComplexityFunctionVisitor : CPP14ParserBaseVisitor<bool>
     {
-        
+
         public List<CyclomaticComplexityInfo> Cyclomatic = new List<CyclomaticComplexityInfo>();
         public ClassStructInfo? ClassStructInfo { get; set; }
         public CyclomaticComplexityFunctionVisitor()
@@ -43,7 +43,7 @@ namespace CPP_Metrics.CyclomaticComplexity
             Analyzer.Analyze(context, functionInfoVisitor);
 
             var functionInfo = functionInfoVisitor.FunctionInfo;
-            if(ClassStructInfo is not null)
+            if (ClassStructInfo is not null)
             {
                 functionInfo.NestedNames.Add(new CPPType() { TypeName = ClassStructInfo.Name });
             }
@@ -52,9 +52,9 @@ namespace CPP_Metrics.CyclomaticComplexity
             CyclomaticComplexityVisitor visitor = new CyclomaticComplexityVisitor(graph, null, null);
             Analyzer.AnalyzeR(context, visitor);
             graph.CreateEdge(graph.Head, visitor.Last is null ? graph.Tail : visitor.Last);
-            
+
             CyclomaticComplexityInfo cyclomaticComplexityInfo = new()
-            { 
+            {
                 FunctionInfo = functionInfo,
                 CyclomaticGraph = graph,
                 CyclomaticComplexityValue = graph.GetCyclomaticComplexity()

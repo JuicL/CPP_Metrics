@@ -1,6 +1,4 @@
-﻿
-
-namespace CPP_Metrics.Metrics.ReportBuild
+﻿namespace CPP_Metrics.Metrics.ReportBuilders
 {
     public class RenderBody
     {

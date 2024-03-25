@@ -1,61 +1,12 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-
-
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace CPP_Metrics.DatabaseContext
 {
-   
-
-    public class Project
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public DateTime Date { get; set; }
-    }
-
-    public class Solution
-    {
-        public int ID { get; set; }
-        public int ProjectID { get; set; }
-        public DateTime Date { get; set; }
-        public Project Project { get; set; }
-    }
-
-    public class MetricValue
-    {
-        public int ID { get; set; }
-        //Название файла
-        public string FileName { get; set; }
-        // Название объекта
-        public string ObjectName { get; set; }
-        public int MetricDirectoryID { get; set; }
-        public int SolutionID { get; set; }
-        public decimal Value { get; set; }
-        public Solution Solution { get; set; }
-        public MetricDirectory MetricDirectory { get; set; }
-    }
-
-    public class MetricDirectory
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public int LevelMetricID {get;set; }
-        public LevelMetric LevelMetric { get; set; }
-    }
-
-    public class LevelMetric
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-    }
-    
     public class DbContextMetrics : DbContext
     {
         public DbSet<Project> Projects { get; set; }
         public DbSet<Solution> Solutions { get; set; }
         public DbSet<MetricValue> MetricValues { get; set; }
-        // Справочник метрик
         public DbSet<MetricDirectory> MetricDirectory { get; set; }
         public DbSet<LevelMetric> LevelsMetric { get; set; }
         public DbContextMetrics()
@@ -89,7 +40,6 @@ namespace CPP_Metrics.DatabaseContext
                 new LevelMetric { ID = 2, Name = "class" },
                 new LevelMetric { ID = 3, Name = "function" },
                 new LevelMetric { ID = 4, Name = "category" }
-
                 );
 
             modelBuilder.Entity<MetricDirectory>().HasData(
@@ -112,7 +62,6 @@ namespace CPP_Metrics.DatabaseContext
                 new MetricDirectory { ID = 11, Name = "CE", LevelMetricID = 4 },
                 // Instability
                 new MetricDirectory { ID = 12, Name = "I", LevelMetricID = 4 }
-  
                 );
            
         }

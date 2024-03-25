@@ -1,16 +1,15 @@
-﻿
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 using CPP_Metrics.DatabaseContext;
 using CPP_Metrics.FilesPrepare;
 using CPP_Metrics.Metrics;
 using CPP_Metrics.Metrics.Contracts;
-using CPP_Metrics.Metrics.ReportBuild;
+using CPP_Metrics.Metrics.ReportBuilders;
 using CPP_Metrics.Types;
 using Facads;
 
 namespace CPP_Metrics.FilesProcessing
 {
-    public class ProcessingFile
+    public class MetricRunner
     {
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; set; } = new();
@@ -19,15 +18,14 @@ namespace CPP_Metrics.FilesProcessing
         public List<IMetric> Metrics { get; set; } = new();
         public List<ICombineMetric> CombineMetrics { get; set; } = new();
         private Config Config { get; set; }
-        protected string OutPath { get; set; }
 
         public List<MetricMessage> MetricMessages = new();
         
-        public ProcessingFile(List<string> sourceFilesPath, Config config)
+        public MetricRunner(List<string> sourceFilesPath, Config config, ReportInfo reportInfo)
         {
             SourceFilesPath = sourceFilesPath;
-            OutPath = config.OutReportPath;
             Config = config;
+            ReportInfo = reportInfo;
         }
         
         private void RunMetrics(ProcessingFileInfo processingFileInfo)
@@ -36,27 +34,25 @@ namespace CPP_Metrics.FilesProcessing
 
             foreach (var metric in Metrics)
             {
-                try
+                var thread = new Thread(() =>
                 {
-                metric.Handle(processingFileInfo);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-                //var thread = new Thread(() =>
-                //{
-                //    
-                //});
-                //thread.Start();
-                //metricsThreads.Add(thread);
+                    try
+                    {
+                        metric.Handle(processingFileInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                });
+                thread.Start();
+                metricsThreads.Add(thread);
             }
 
             foreach(var thread in metricsThreads)
             {
                 thread.Join();
             }
-
             
         }
 
@@ -66,14 +62,12 @@ namespace CPP_Metrics.FilesProcessing
             {
                 metric.Finalizer();
             }
-
             
         }
 
         // Генерация отчетов
         public void GenerateReport()
         {
-
             IReportBuilder generalReportBuilder = new GeneralPageReportBuilder(ReportInfo);
             
             foreach (var metric in Metrics)
@@ -84,13 +78,12 @@ namespace CPP_Metrics.FilesProcessing
             ((GeneralPageReportBuilder)generalReportBuilder).MetricMessages.AddRange(MetricMessages);
             ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
             ((GeneralPageReportBuilder)generalReportBuilder).Config = Config;
-
-
             generalReportBuilder.ReportBuild();
-
             
-
+            XMLReport xMLReport = new(ReportInfo.OutPath, MetricMessages);
+            xMLReport.ReportBuild();
         }
+
         private void HandleFile(FileInfo fileInfo, PrepareFiles prepareFiles)
         {
             ProcessingFileInfo processingFileInfo = new ProcessingFileInfo();
@@ -128,7 +121,7 @@ namespace CPP_Metrics.FilesProcessing
             // Запускаем сбор метрик для файла
             RunMetrics(processingFileInfo);
         }
-        void RunCombineMetrics()
+        private void RunCombineMetrics()
         {
             var metricsThreads = new List<Thread>();
 

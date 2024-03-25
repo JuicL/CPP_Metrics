@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Text;
 
-namespace CPP_Metrics.Metrics.ReportBuild
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     public  class AbstractReportBuilder : IReportBuilder
     {

@@ -3,11 +3,11 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace CPP_Metrics
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     public class XMLReport
     {
-        public XMLReport(string outPath,List<MetricMessage> metricMessages)
+        public XMLReport(string outPath, List<MetricMessage> metricMessages)
         {
             OutPath = outPath;
             MetricMessages = metricMessages;
@@ -38,7 +38,7 @@ namespace CPP_Metrics
                 </results>
                 """);
             var str = stringBuilder.ToString();
-            
+
             return str;
         }
         public string ReportBuild()
@@ -47,7 +47,7 @@ namespace CPP_Metrics
                 return "";
 
             string fileIncludesPath;
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 fileIncludesPath = Path.Combine("/", "Report.xml");
             }
@@ -57,7 +57,7 @@ namespace CPP_Metrics
             }
             FileStream fileStream = new FileStream(fileIncludesPath, FileMode.Create);
             StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.Default);
-            
+
             var str = GenerateReport();
             streamWriter.Write(str);
             streamWriter.Close();

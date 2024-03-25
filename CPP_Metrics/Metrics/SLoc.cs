@@ -1,14 +1,10 @@
 ﻿using CPP_Metrics.DatabaseContext;
 using CPP_Metrics.Metrics.Contracts;
-using CPP_Metrics.Metrics.ReportBuild;
+using CPP_Metrics.Metrics.ReportBuilders;
 using CPP_Metrics.Types;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace CPP_Metrics.Metrics
 {

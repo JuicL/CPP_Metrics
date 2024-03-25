@@ -1,10 +1,8 @@
-﻿
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Text;
 using CPP_Metrics.Types;
 
-namespace CPP_Metrics.Metrics.ReportBuild
+namespace CPP_Metrics.Metrics.ReportBuilders
 {
     internal class CyclomaticReportBuilder : IReportBuilder
     {

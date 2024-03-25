@@ -1,6 +1,6 @@
 ﻿using CPP_Metrics.Types.BaseGraph;
 
-namespace CPP_Metrics.CyclomaticComplexity
+namespace CPP_Metrics.Metrics.CyclomaticComplexity
 {
     public enum Type
     {
@@ -34,10 +34,10 @@ namespace CPP_Metrics.CyclomaticComplexity
     public class Vertex : IVertex
     {
         public Vertex()
-        { 
+        {
         }
 
-        public Vertex( Type type)
+        public Vertex(Type type)
         {
             Type = type;
         }

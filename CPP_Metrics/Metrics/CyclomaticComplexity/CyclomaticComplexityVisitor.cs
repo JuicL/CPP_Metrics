@@ -6,20 +6,20 @@ using CPP_Metrics.Tool;
 using CPP_Metrics.Types;
 using static CPP14Parser;
 
-namespace CPP_Metrics.CyclomaticComplexity
+namespace CPP_Metrics.Metrics.CyclomaticComplexity
 {
     /*
         Привязка последнего добавленного блока с головой графа(при первом проходе) не предусматривается в визиторе, это происходит на уровне выше,т.е. \
         в классе запуска анализа цикломатической сложности
 
      */
-  
+
     public class CyclomaticComplexityVisitor : CPP14ParserBaseVisitor<bool>
     {
         public CyclomaticComplexityVisitor(CyclomaticGraph graph, CyclomaticVertex? from, CyclomaticVertex? to)
         {
             Graph = graph;
-            To = (to is null ? Graph.Tail : to);
+            To = to is null ? Graph.Tail : to;
             From = from;
         }
 
@@ -36,7 +36,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         {
             return true;
         }
-       
+
         private void ParseStatementContext(ParserRuleContext context)
         {
             //var statement = new Vertex(Type.Statment);
@@ -50,12 +50,12 @@ namespace CPP_Metrics.CyclomaticComplexity
             //        Graph.Edges.Add(new Edge(statement, Last));
             //}
         }
-        
+
         private void ParseWhileStatement(IterationStatementContext context)
         {
             var whileVertex = Graph.CreateVertex();
             whileVertex.Type = Type.While;
-            
+
             var condition = context.condition();
             if (condition is not null)
             {
@@ -75,8 +75,8 @@ namespace CPP_Metrics.CyclomaticComplexity
 
             //True way
             ConntectLastAddedWithCurrentVertex(whileVertex, visitor.Last); // Связка наверх
-            
-            if (Graph.Edges.Where(x => x.From.Id == whileVertex.Id).Count() == 1) 
+
+            if (Graph.Edges.Where(x => x.From.Id == whileVertex.Id).Count() == 1)
             {
                 var whileContext = Graph.CreateVertex();
                 whileContext.Type = Type.EmpyStatement;
@@ -91,13 +91,13 @@ namespace CPP_Metrics.CyclomaticComplexity
         /// <param name="lastAdded"></param>
         /// <param name="current"></param>
         /// TODO : убрать Узел Context
-        private void ParseIfSection([NotNull] CPP14Parser.SelectionStatementContext context)
+        private void ParseIfSection([NotNull] SelectionStatementContext context)
         {
             //Создать вершину if
             var ifVertex = Graph.CreateVertex();
             ifVertex.Type = Type.If;
             var condition = context.condition();
-            if(condition is not null)
+            if (condition is not null)
             {
                 ConditionCyclomaticVisitor v = new();
                 Analyzer.Analyze(condition, v);
@@ -115,7 +115,7 @@ namespace CPP_Metrics.CyclomaticComplexity
             //(2) endIf = Last is null ? To : Last;
             CyclomaticComplexityVisitor visitor = new CyclomaticComplexityVisitor(Graph, ifStatement, endIf);
             //TODO : От узла стейтмента
-            
+
             Analyzer.AnalyzeR(context.statement().First(), visitor);
 
             ConntectLastAddedWithCurrentVertex(ifStatement, visitor.Last);// Привязка вверх
@@ -156,7 +156,7 @@ namespace CPP_Metrics.CyclomaticComplexity
             Last = ifVertex; // Последний добавленный верховный узел( не еlse т.к он встанет ниже иф-а)
 
         }
-        
+
         private void ParseDoWhileStatement(IterationStatementContext context)
         {
             var doVertex = Graph.CreateVertex();
@@ -182,7 +182,7 @@ namespace CPP_Metrics.CyclomaticComplexity
             Analyzer.AnalyzeR(context.children, visitor);
 
             ConntectLastAddedWithCurrentVertex(doVertex, visitor.Last);
-            if(Graph.Edges.FirstOrDefault(x => x.From.Id == doVertex.Id) is null)
+            if (Graph.Edges.FirstOrDefault(x => x.From.Id == doVertex.Id) is null)
             {
                 Graph.CreateEdge(doVertex, whileVertex);
                 //var doWhileContext = Graph.CreateVertex();
@@ -190,7 +190,7 @@ namespace CPP_Metrics.CyclomaticComplexity
                 //Graph.CreateEdge(doVertex, doWhileContext);
                 //Graph.CreateEdge(doWhileContext, whileVertex);
             }
-            
+
 
             Last = doVertex;
         }
@@ -199,7 +199,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         {
             var declarationVertex = Graph.CreateVertex();
             declarationVertex.Type = Type.Statment;
-            
+
             var forVertex = Graph.CreateVertex();
             forVertex.Type = Type.For;
             Graph.CreateEdge(declarationVertex, forVertex);
@@ -223,7 +223,7 @@ namespace CPP_Metrics.CyclomaticComplexity
             Analyzer.AnalyzeR(context.children, visitor);
 
             ConntectLastAddedWithCurrentVertex(forVertex, visitor.Last);
-            if(Graph.Edges.FirstOrDefault(x => x.From.Id == forVertex.Id) is null)
+            if (Graph.Edges.FirstOrDefault(x => x.From.Id == forVertex.Id) is null)
             {
                 var contextVertex = Graph.CreateVertex();
                 contextVertex.Type = Type.Statment;
@@ -272,21 +272,21 @@ namespace CPP_Metrics.CyclomaticComplexity
             Analyzer.AnalyzeR(context.children, visitor);
 
             ConntectLastAddedWithCurrentVertex(caseVertex, visitor.Last);
-            
+
             if (Graph.Edges.SingleOrDefault(x => x.From.Id == caseVertex.Id) is null)
             {
                 Graph.CreateEdge(caseVertex, To);
             }
 
         }
-        
+
         private void ConntectLastAddedWithCurrentVertex(CyclomaticVertex current, CyclomaticVertex? lastAdded)
         {
             if (lastAdded is null) return;
-            
+
             Graph.CreateEdge(current, lastAdded);
         }
-        
+
         /// <summary>
         /// Тернарный If
         /// </summary>
@@ -327,18 +327,18 @@ namespace CPP_Metrics.CyclomaticComplexity
             var afterEndIfVertex = Last is null ? To : Last;
             Graph.CreateEdge(endIf, afterEndIfVertex);
 
-            
+
             Last = ifVertex; // Последний добавленный верховный узел( не еlse т.к он встанет ниже иф-а)
 
             return false;
         }
         public override bool VisitSelectionStatement([NotNull] SelectionStatementContext context)
         {
-            if(context.If() is not null)
+            if (context.If() is not null)
             {
                 ParseIfSection(context);
             }
-            else if(context.Switch() is not null)
+            else if (context.Switch() is not null)
             {
                 ParseSwitchStatement(context);
             }
@@ -352,15 +352,15 @@ namespace CPP_Metrics.CyclomaticComplexity
         public override bool VisitIterationStatement([NotNull] IterationStatementContext context)
         {
             var iterationType = context.GetChild(0).GetText();
-            if(iterationType == "while")
+            if (iterationType == "while")
             {
                 ParseWhileStatement(context);
             }
-            else if(iterationType == "do")
+            else if (iterationType == "do")
             {
                 ParseDoWhileStatement(context);
             }
-            else if(iterationType == "for")
+            else if (iterationType == "for")
             {
                 ParseForStatement(context);
             }
@@ -387,10 +387,10 @@ namespace CPP_Metrics.CyclomaticComplexity
                 Last = returnVertex;
                 // Возвращаемый тип может быть тернарным оператором
             }
-            else if(jumpType == "goto")
+            else if (jumpType == "goto")
             { //============================
             }
-            else if(jumpType == "continue")
+            else if (jumpType == "continue")
             {
                 var continueVertex = Graph.CreateVertex();
                 continueVertex.Type = Type.Jump;

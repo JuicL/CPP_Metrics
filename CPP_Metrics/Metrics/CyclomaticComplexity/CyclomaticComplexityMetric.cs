@@ -6,7 +6,7 @@ using CPP_Metrics.Metrics;
 using CPP_Metrics.Tool;
 using CPP_Metrics.Types.Context;
 
-namespace CPP_Metrics.CyclomaticComplexity
+namespace CPP_Metrics.Metrics.CyclomaticComplexity
 {
     public static class CyclomaticComplexityMetricHelper
     {
@@ -18,7 +18,7 @@ namespace CPP_Metrics.CyclomaticComplexity
                 condition += item.Value;
             }
             var P = 1; // Todo: Компонет связности
-            return (graph.Edges.Count - graph.Verticies.Count + 2 * P) + condition;
+            return graph.Edges.Count - graph.Verticies.Count + 2 * P + condition;
         }
     }
 
@@ -29,7 +29,7 @@ namespace CPP_Metrics.CyclomaticComplexity
         public CyclomaticComplexityMetric()
         {
         }
-        
+
         public void Analyze(IParseTree three)
         {
             CyclomaticComplexityFunctionVisitor visitor = new CyclomaticComplexityFunctionVisitor();
