@@ -127,13 +127,25 @@ namespace CPP_Metrics.FilesProcessing
 
             foreach (var combineMetric in CombineMetrics)
             {
-                combineMetric.Handle(Metrics);
+                var thread = new Thread(() =>
+                {
+                    try
+                    {
+                        combineMetric.Handle(Metrics);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                });
+                thread.Start();
+                metricsThreads.Add(thread);
             }
 
-            //foreach (var thread in metricsThreads)
-            //{
-            //    thread.Join();
-            //}
+            foreach (var thread in metricsThreads)
+            {
+                thread.Join();
+            }
 
             foreach (var combineMetric in CombineMetrics)
             {
