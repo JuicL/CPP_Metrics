@@ -10,13 +10,14 @@ namespace CPP_Metrics.FilesProcessing
 {
     public class MetricRunner
     {
+        private Config Config { get; set; }
         public List<string> SourceFilesPath { get; } = new List<string>();
         public Dictionary<string, FileInfo> Files { get; set; } = new();
         public Queue<FileInfo> ProcessingFilesQueue { get; } = new Queue<FileInfo>();
         public ReportInfo ReportInfo { get; set; }
         public List<IMetric> Metrics { get; set; } = new();
         public List<ICombineMetric> CombineMetrics { get; set; } = new();
-        private Config Config { get; set; }
+        public List<IReportBuilder> ReportBuilders { get; set; }
 
         public List<MetricMessage> MetricMessages = new();
         
@@ -67,20 +68,18 @@ namespace CPP_Metrics.FilesProcessing
         // Генерация отчетов
         public void GenerateReport()
         {
-            IReportBuilder generalReportBuilder = new GeneralPageReportBuilder(ReportInfo);
-            
+
             foreach (var metric in Metrics)
             {
                 metric.GenerateReport();
                 MetricMessages.AddRange(metric.Messages);
             }
-            ((GeneralPageReportBuilder)generalReportBuilder).MetricMessages.AddRange(MetricMessages);
-            ((GeneralPageReportBuilder)generalReportBuilder).ProjectFiles.AddRange(Files.Select(x => x.Value).ToList());
-            ((GeneralPageReportBuilder)generalReportBuilder).Config = Config;
-            generalReportBuilder.ReportBuild();
-            
-            XMLReport xMLReport = new(ReportInfo.OutPath, MetricMessages);
-            xMLReport.ReportBuild();
+
+            foreach (var reportBuilder in ReportBuilders)
+            {
+                reportBuilder.ReportBuild();
+            }
+           
         }
 
         private void HandleFile(FileInfo fileInfo, PrepareFiles prepareFiles)

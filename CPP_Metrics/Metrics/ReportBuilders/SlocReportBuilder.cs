@@ -10,11 +10,15 @@ namespace CPP_Metrics.Metrics.ReportBuilders
         public string FileTag { get; set; } = "Sloc";
         public ConcurrentDictionary<FileInfo, SLocInfo> SlocMetrics { get; set; } = new();
 
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
         public SlocReportBuilder(ReportInfo reportInfo)
         {
             ReportInfo = reportInfo;
         }
-        public string GenerateBody()
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
 

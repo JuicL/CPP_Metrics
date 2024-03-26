@@ -6,16 +6,20 @@ namespace CPP_Metrics.Metrics.ReportBuilders
 {
     internal class CyclomaticReportBuilder : IReportBuilder
     {
-
         public ConcurrentBag<CyclomaticComplexityInfo> CyclomaticComplexityInfos { get; set; }
         public ReportInfo ReportInfo { get; }
         public string FileTag { get; } = "Cyclomatic";
+
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
         public CyclomaticReportBuilder(ReportInfo reportInfo)
         {
             //CyclomaticComplexityInfos = cyclomaticComplexityInfos.OrderByDescending(x => x.CyclomaticComplexityValue).ToList();
             ReportInfo = reportInfo;
         }
-        public string GenerateBody()
+        public override string GenerateBody()
         {
             
             var cyclomaticComplexityInfos = CyclomaticComplexityInfos.OrderByDescending(x => x.CyclomaticComplexityValue).ToList();

@@ -14,7 +14,11 @@ namespace CPP_Metrics.Metrics.ReportBuilders
         public Dictionary<string, int> Ce { get; set; } = new();
         public string FileTag { get; set; } = "CaCe";
 
-        public string GenerateBody()
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
 

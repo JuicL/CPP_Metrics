@@ -11,11 +11,15 @@ namespace CPP_Metrics.Metrics.ReportBuilders
         public DITGraph DITGraph { get; set; }
         public string FileTag { get; } = "DIT";
 
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
         public DITReportBuilder(ReportInfo reportInfo)
         {
             ReportInfo = reportInfo;
         }
-        public string GenerateBody()
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CPP_Metrics.Metrics.ReportBuilders
 {
-    public class XMLReport
+    public class XMLReport: IReportBuilder
     {
         public XMLReport(string outPath, List<MetricMessage> metricMessages)
         {
@@ -15,7 +15,13 @@ namespace CPP_Metrics.Metrics.ReportBuilders
         public string OutPath { get; }
         public List<MetricMessage> MetricMessages { get; }
 
-        private string GenerateReport()
+        public ReportInfo ReportInfo => throw new NotImplementedException();
+
+        public Config Config => throw new NotImplementedException();
+
+        public string FileTag => throw new NotImplementedException();
+
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("""
@@ -26,10 +32,6 @@ namespace CPP_Metrics.Metrics.ReportBuilders
                 """);
             foreach (var item in MetricMessages)
             {
-                /*
-                  <error id="Dit" severity="portability" msg="Dit  2warrning" verbose="Dit 2verbose">
-                  </error>
-                 */
                 stringBuilder.AppendLine($"   <error id=\"{item.Id}\" severity=\"{WebUtility.HtmlEncode(item.Severity)}\" msg=\"{WebUtility.HtmlEncode(item.Message)}\" verbose=\"{WebUtility.HtmlEncode(item.Verbose)}\">");
                 stringBuilder.AppendLine("    </error>");
             }
@@ -41,7 +43,7 @@ namespace CPP_Metrics.Metrics.ReportBuilders
 
             return str;
         }
-        public string ReportBuild()
+        public override string ReportBuild()
         {
             if (MetricMessages.Count == 0)
                 return "";
@@ -58,7 +60,7 @@ namespace CPP_Metrics.Metrics.ReportBuilders
             FileStream fileStream = new FileStream(fileIncludesPath, FileMode.Create);
             StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.Default);
 
-            var str = GenerateReport();
+            var str = GenerateBody();
             streamWriter.Write(str);
             streamWriter.Close();
             fileStream.Close();
@@ -66,5 +68,6 @@ namespace CPP_Metrics.Metrics.ReportBuilders
             return fileIncludesPath;
         }
 
+      
     }
 }

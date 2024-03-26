@@ -14,7 +14,11 @@ namespace CPP_Metrics.Metrics.ReportBuilders
         public string FileTag { get; set; } = "CBO";
         public List<CBOResult> Result { get; set; } = new();
 
-        public string GenerateBody()
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
 

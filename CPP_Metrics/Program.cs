@@ -139,7 +139,7 @@ class CppMetrics
     }
 
     public static List<MetricMessage> MetricMessages= new List<MetricMessage>();
-    private static void RunMetrics(List<string> sourcePaths, Config config)
+    private static MetricRunner RunMetrics(List<string> sourcePaths, Config config)
     {
         if (sourcePaths.Count == 0)
             throw new Exception("Empty sourse path list");
@@ -168,9 +168,16 @@ class CppMetrics
         // Комбинированные метрики
         var instabilityReport = new InstabilityReportBuilder(reportInfo);
         metricRunner.CombineMetrics.Add(new InstabilityMetric(instabilityReport));
-        
+
+        var generalReportBuilder = new GeneralPageReportBuilder(reportInfo,metricRunner.MetricMessages, metricRunner.Files);
+        metricRunner.ReportBuilders.Add(generalReportBuilder);
+
+        var xMLReport = new XMLReport(reportInfo.OutPath, MetricMessages);
+        metricRunner.ReportBuilders.Add(xMLReport);
+
         metricRunner.Run();
-        MetricMessages.AddRange(metricRunner.MetricMessages);
+        
+        return metricRunner;
     }
 
     static void Main(string[] args)

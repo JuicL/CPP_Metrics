@@ -1,13 +1,16 @@
-﻿using System.Text;
+﻿using CPP_Metrics.Types;
+using System.Text;
 
 namespace CPP_Metrics.Metrics.ReportBuilders
 {
-    public interface IReportBuilder
+    public abstract class IReportBuilder
     {
         public ReportInfo ReportInfo { get; }
+        public Config Config { get; }
+        public List<MetricMessage> MetricMessages { get; }
         public string FileTag { get; }
-        public string GenerateBody();
-        public string ReportBuild()
+        public abstract string GenerateBody();
+        public virtual string ReportBuild()
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append(ReportInfo.Header);

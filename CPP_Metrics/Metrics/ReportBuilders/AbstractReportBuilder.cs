@@ -1,4 +1,5 @@
 ﻿
+using CPP_Metrics.Types;
 using System.Collections.Concurrent;
 using System.Text;
 
@@ -11,11 +12,15 @@ namespace CPP_Metrics.Metrics.ReportBuilders
 
         public string FileTag { get; } = "Abstract";
 
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
         public AbstractReportBuilder(ReportInfo reportInfo)
         {
             ReportInfo = reportInfo;
         }
-        public string GenerateBody()
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
 

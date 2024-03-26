@@ -6,18 +6,18 @@ namespace CPP_Metrics.Metrics.ReportBuilders
     public class GeneralPageReportBuilder : IReportBuilder
     {
         public ReportInfo ReportInfo { get; }
-
-        public List<FileInfo> ProjectFiles = new();
-        public List<MetricMessage> MetricMessages { get; set; } = new();
-        public Config Config { get; set; }
-        public GeneralPageReportBuilder(ReportInfo reportInfo)
+        public Dictionary<string,FileInfo> ProjectFiles { get; }
+        public List<MetricMessage> MetricMessages { get;  }
+        public Config Config { get;  }
+        public string FileTag { get; } = "index";
+        public GeneralPageReportBuilder(ReportInfo reportInfo, List<MetricMessage> metricMessages, Dictionary<string, FileInfo> projectFiles)
         {
             ReportInfo = reportInfo;
+            MetricMessages = metricMessages;
+            ProjectFiles = projectFiles;
         }
 
-        public string FileTag { get; } = "index";
-
-        public string GenerateBody()
+        public override string GenerateBody()
         {
             var boundary = $"""
                 <p>Цикломатическая сложность: {GlobalBoundaryValues.BoundaryValues.Complexity}</p>
@@ -118,7 +118,7 @@ namespace CPP_Metrics.Metrics.ReportBuilders
             foreach (var file in ProjectFiles)
             {
                 stringBuilder.AppendLine("<tr>");
-                stringBuilder.AppendLine($"<td>{file.FullName}</th>");
+                stringBuilder.AppendLine($"<td>{file.Value.FullName}</th>");
                 stringBuilder.AppendLine("</tr>");
             }
 

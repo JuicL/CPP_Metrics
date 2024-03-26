@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using CPP_Metrics.Types;
+using System.Globalization;
 using System.Text;
 
 namespace CPP_Metrics.Metrics.ReportBuilders
@@ -18,7 +19,11 @@ namespace CPP_Metrics.Metrics.ReportBuilders
         public ClassAbstractionMetric ClassAbstraction;
         public Dictionary<string, decimal> D { get; set; } = new();
 
-        public string GenerateBody()
+        public Config Config => throw new NotImplementedException();
+
+        public List<MetricMessage> MetricMessages => throw new NotImplementedException();
+
+        public override string GenerateBody()
         {
             StringBuilder stringBuilder = new StringBuilder();
 
